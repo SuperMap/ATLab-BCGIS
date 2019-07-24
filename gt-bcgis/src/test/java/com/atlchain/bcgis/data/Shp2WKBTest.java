@@ -15,12 +15,12 @@ public class Shp2WKBTest {
     Shp2WKB shp2WKB = new Shp2WKB(shpURL);
 
     @Test
-    public void testGetRightGeometryCollectionType() {
-        try {
-            Assert.assertEquals(GeometryCollection.class, shp2WKB.getGeometry().getClass());
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
+        public void testGetRightGeometryCollectionType() {
+            try {
+                Assert.assertEquals(GeometryCollection.class, shp2WKB.getGeometry().getClass());
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
     }
 
     @Test
@@ -31,7 +31,19 @@ public class Shp2WKBTest {
         } catch (IOException e) {
             e.printStackTrace();
         }
+    }
 
+    @Test
+    public void testBoolean(){
+        try {
+            boolean bool = shp2WKB.save();
+//            Assert.assertEquals(140, geometryCollection.getNumGeometries());
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
 
     }
+
+
+
 }
