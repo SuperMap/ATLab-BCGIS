@@ -79,7 +79,7 @@ public class Shp2WKB {
         return false;
     }
 
-    // 返回 Geometry 对象
+    // 返回 Geometry 对象   ///
     public GeometryCollection getGeometry() throws IOException {
         return readShpFile();
     }
