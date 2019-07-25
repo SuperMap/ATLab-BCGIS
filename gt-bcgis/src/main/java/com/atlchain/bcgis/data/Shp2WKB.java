@@ -50,7 +50,7 @@ public class Shp2WKB {
 
         Geometry geometries = readShpFile();
         // 	write(Geometry geom) 将Geometry存到字节数组。
-        //System.out.println("原文件"+geometries);
+        System.out.println("原文件" + geometries.toString());
         /*
         写入wkb信息
          */
@@ -101,10 +101,14 @@ public class Shp2WKB {
         // TODO 将集合对象保存到 geometryCollection 中并返回
         while (featureIterator.hasNext()) {
             SimpleFeature feature = featureIterator.next();//每次获取里面的一行值
+
             // 获取属性中的空间集合对象
             Object geomObj = feature.getDefaultGeometry();
+//            System.out.println(geomObj.toString());
+
             //  然后将得到的一组组属性geomObj 放入到建立的有序的数组里面 geometryArrayList  这里面也进行了转型
             geometryArrayList.add((Geometry) geomObj);
+
         }
 
         //   将得到的数组geometryArrayList 向上转型为Geometry的数组 geometries

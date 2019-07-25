@@ -11,7 +11,7 @@ import java.net.URL;
 import static org.junit.Assert.*;
 
 public class Shp2WKBTest {
-    URL shpURL = this.getClass().getResource("/1F/1F_ROADMAP_LINKS.shp");
+    URL shpURL = this.getClass().getResource("/BL/BL.shp");
     Shp2WKB shp2WKB = new Shp2WKB(shpURL);
 
     @Test
