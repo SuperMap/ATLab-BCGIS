@@ -8,15 +8,13 @@ import org.geotools.geometry.jts.JTSFactoryFinder;
 import org.locationtech.jts.geom.Geometry;
 import org.locationtech.jts.geom.GeometryCollectionIterator;
 import org.locationtech.jts.geom.GeometryFactory;
-import org.opengis.feature.Feature;
 import org.opengis.feature.simple.SimpleFeature;
 import org.opengis.feature.simple.SimpleFeatureType;
-import org.opengis.feature.type.FeatureType;
 
 import java.io.IOException;
 import java.util.NoSuchElementException;
 
-public class BCGISFeatureReader implements FeatureReader {
+public class BCGISFeatureReader implements FeatureReader<SimpleFeatureType, SimpleFeature> {
     protected ContentState state;
 
     protected Geometry geometry;
@@ -27,13 +25,15 @@ public class BCGISFeatureReader implements FeatureReader {
 
     private int index = 0;
 
+    private GeometryCollectionIterator iterator;
+
     public BCGISFeatureReader(ContentState contentState, Query query) throws IOException {
         this.state = contentState;
         BCGISDataStore bcgisDataStore = (BCGISDataStore) contentState.getEntry().getDataStore();
         geometry = bcgisDataStore.read();
+        iterator = new GeometryCollectionIterator(geometry);
         builder = new SimpleFeatureBuilder(state.getFeatureType());
         geometryFactory = JTSFactoryFinder.getGeometryFactory(null);
-
     }
 
     @Override
@@ -41,12 +41,9 @@ public class BCGISFeatureReader implements FeatureReader {
         return (SimpleFeatureType) state.getFeatureType();
     }
 
-    private GeometryCollectionIterator iterator = new GeometryCollectionIterator(geometry);
-
     @Override
-    public Feature next() throws IOException, IllegalArgumentException, NoSuchElementException {
-        SimpleFeature feature;
-        iterator.next();
+    public SimpleFeature next() throws IOException, IllegalArgumentException, NoSuchElementException {
+        Geometry _geom = (Geometry) iterator.next();
         if (! iterator.hasNext()) {
             close();
             return null;
