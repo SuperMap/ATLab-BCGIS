@@ -1,24 +1,14 @@
 package com.atlchain.bcgis.data;
 
-import javafx.collections.MapChangeListener;
 import org.geotools.data.*;
-import org.geotools.data.simple.SimpleFeatureSource;
-import org.geotools.map.FeatureLayer;
-import org.geotools.map.Layer;
-import org.geotools.map.MapContent;
-import org.geotools.map.StyleLayer;
-import org.geotools.styling.SLD;
-import org.geotools.styling.Style;
-import org.geotools.swing.JMapFrame;
 import org.junit.Test;
 import org.locationtech.jts.geom.Geometry;
 import org.locationtech.jts.geom.GeometryCollectionIterator;
+import org.locationtech.jts.io.ParseException;
 import org.opengis.feature.simple.SimpleFeature;
 import org.opengis.feature.simple.SimpleFeatureType;
 import org.opengis.feature.type.AttributeDescriptor;
-import org.opengis.feature.type.FeatureType;
 
-import java.awt.*;
 import java.io.File;
 import java.io.IOException;
 import java.io.Serializable;
@@ -29,8 +19,8 @@ public class BCGISDataStoreTest {
     private File file = new File(this.getClass().getResource("/geometryCollection.wkb").getPath());
 
     @Test
-    public void testRead() throws IOException, ClassNotFoundException, IllegalAccessException, InstantiationException {
-        Geometry geometry = new BCGISDataStore(file).read();
+    public void testRead() throws IOException, ParseException {
+        Geometry geometry = new BCGISDataStore(file).getRecord();
         System.out.println(geometry.toString());
         String type = geometry.getGeometryType();
 //        System.out.println(type);

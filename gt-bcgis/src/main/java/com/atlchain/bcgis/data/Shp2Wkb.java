@@ -33,15 +33,12 @@ public class Shp2Wkb {
      * @throws IOException
      */
     public void save(File wkbFile) throws IOException {
-        Geometry geometries = readShpFile();
-        System.out.println("原文件: " + geometries.toString());
-
         if (!wkbFile.exists()) {
             wkbFile.createNewFile();
         }
 
-        WKBWriter writer = new WKBWriter();
-        byte[] WKBByteArray = writer.write(geometries);
+        byte[] WKBByteArray = getBytes();
+
         FileOutputStream out = null;
         try {
             out = new FileOutputStream(wkbFile);
@@ -49,6 +46,14 @@ public class Shp2Wkb {
         } finally {
             out.close();
         }
+    }
+
+    public byte[] getBytes() throws IOException {
+        Geometry geometries = readShpFile();
+//        System.out.println(geometries.toString());
+        WKBWriter writer = new WKBWriter();
+        byte[] WKBByteArray = writer.write(geometries);
+        return WKBByteArray;
     }
 
     /**
@@ -78,13 +83,13 @@ public class Shp2Wkb {
         while (featureIterator.hasNext()) {
             SimpleFeature feature = featureIterator.next();
             Object geomObj = feature.getDefaultGeometry();
-            System.out.println(geomObj.toString());
+//            System.out.println(geomObj.toString());
             geometryArrayList.add((Geometry) geomObj);
         }
 
         Geometry[] geometries = geometryArrayList.toArray(new Geometry[geometryArrayList.size()]);
         GeometryCollection geometryCollection = getGeometryCollection(geometries);
-        System.out.println(geometryCollection.toString());
+//        System.out.println(geometryCollection.toString());
         return geometryCollection;
     }
 

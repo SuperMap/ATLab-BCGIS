@@ -8,9 +8,12 @@ import org.geotools.feature.simple.SimpleFeatureTypeBuilder;
 import org.geotools.feature.type.BasicFeatureTypes;
 import org.geotools.geometry.jts.ReferencedEnvelope;
 import org.geotools.referencing.crs.DefaultGeographicCRS;
-import org.locationtech.jts.geom.*;
+import org.locationtech.jts.geom.Geometry;
+import org.locationtech.jts.geom.GeometryCollectionIterator;
+import org.opengis.feature.FeatureVisitor;
 import org.opengis.feature.simple.SimpleFeature;
 import org.opengis.feature.simple.SimpleFeatureType;
+import org.opengis.filter.Filter;
 
 import java.io.IOException;
 
@@ -24,8 +27,9 @@ public class BCGISFeatureSource extends ContentFeatureSource {
         return (BCGISDataStore) super.getDataStore();
     }
 
+    // TODO
     @Override
-    protected ReferencedEnvelope getBoundsInternal(Query query) throws IOException {
+    protected ReferencedEnvelope getBoundsInternal(Query query) {
         return null;
     }
 
@@ -33,25 +37,30 @@ public class BCGISFeatureSource extends ContentFeatureSource {
      * 根据查询条件查询属性条数
      * @param query 查询条件
      * @return 符合条件的属性条数，-1则表示不能计算该条件的数量，需要外部用户自己计算。
-     * @throws IOException
      */
     @Override
-    protected int getCountInternal(Query query) throws IOException {
-        // TODO 1个WKB文件中只包含一个Feature，如果替换其他按数据格式则需要重新实现计数方法
+    protected int getCountInternal(Query query) {
+        if(query.getFilter() == Filter.INCLUDE){
+            Geometry gemotry = getDataStore().getRecord();
 
-        return 1;
+            int count = gemotry.getNumGeometries();
+            return count;
+        }
+        return -1;
     }
 
     @Override
-    protected FeatureReader<SimpleFeatureType, SimpleFeature> getReaderInternal(Query query) throws IOException {
-        return new BCGISFeatureReader(getState(), query);
+    protected FeatureReader<SimpleFeatureType, SimpleFeature> getReaderInternal(Query query) {
+        return new BCGISFeatureReader(getState());
     }
 
+    // WKB中只有空间几何数据，没有其他属性信息，所以FeatureType中只有一个“geom”字段。
     @Override
     protected SimpleFeatureType buildFeatureType() throws IOException {
         SimpleFeatureTypeBuilder builder = new SimpleFeatureTypeBuilder();
         builder.setName(entry.getName());
-        Geometry geometry = getDataStore().read();
+        Geometry geometry = getDataStore().getRecord();
+
         if (geometry == null) {
             throw new IOException("WKB file not available");
         }
@@ -85,5 +94,11 @@ public class BCGISFeatureSource extends ContentFeatureSource {
         geometryCollectionIterator.next();
         Geometry geom = (Geometry) geometryCollectionIterator.next();
         return geom.getGeometryType();
+    }
+
+    @Override
+    protected boolean handleVisitor(Query query, FeatureVisitor visitor) throws IOException{
+        return super.handleVisitor(query,visitor);
+        // WARNING: Please note this method is in CSVFeatureSource!
     }
 }

@@ -8,6 +8,7 @@ import org.geotools.geometry.jts.JTSFactoryFinder;
 import org.locationtech.jts.geom.Geometry;
 import org.locationtech.jts.geom.GeometryCollectionIterator;
 import org.locationtech.jts.geom.GeometryFactory;
+import org.locationtech.jts.io.ParseException;
 import org.opengis.feature.simple.SimpleFeature;
 import org.opengis.feature.simple.SimpleFeatureType;
 
@@ -25,34 +26,38 @@ public class BCGISFeatureReader implements FeatureReader<SimpleFeatureType, Simp
 
     private int index = 0;
 
-    private GeometryCollectionIterator iterator;
-
-    public BCGISFeatureReader(ContentState contentState, Query query) throws IOException {
+    public BCGISFeatureReader(ContentState contentState) {
         this.state = contentState;
         BCGISDataStore bcgisDataStore = (BCGISDataStore) contentState.getEntry().getDataStore();
-        geometry = bcgisDataStore.read();
-        iterator = new GeometryCollectionIterator(geometry);
+        geometry = bcgisDataStore.getRecord();
         builder = new SimpleFeatureBuilder(state.getFeatureType());
         geometryFactory = JTSFactoryFinder.getGeometryFactory(null);
     }
 
     @Override
     public SimpleFeatureType getFeatureType() {
-        return (SimpleFeatureType) state.getFeatureType();
+        return state.getFeatureType();
     }
 
+    private SimpleFeature next;
+
     @Override
-    public SimpleFeature next() throws IOException, IllegalArgumentException, NoSuchElementException {
-        Geometry _geom = (Geometry) iterator.next();
-        if (! iterator.hasNext()) {
-            close();
-            return null;
+    public SimpleFeature next() throws IllegalArgumentException, NoSuchElementException {
+        SimpleFeature feature;
+        if(next != null){
+            feature = next;
+            next = null;
+        }else{
+            Geometry geom = geometry.getGeometryN(index);
+            feature = getFeature(geom);
         }
-        Geometry geom = (Geometry) iterator.next();
-        return getFeature(geom);
+        return feature;
     }
 
     private SimpleFeature getFeature(Geometry geometry) {
+        if(geometry == null){
+            return null;
+        }
         index ++;
         builder.set("geom", geometry);
         return builder.buildFeature(state.getEntry().getTypeName() + "." + index);
@@ -60,12 +65,20 @@ public class BCGISFeatureReader implements FeatureReader<SimpleFeatureType, Simp
 
     @Override
     public boolean hasNext() throws IOException {
-        return iterator.hasNext();
+        if (index < geometry.getNumGeometries()){
+            return true;
+        }else if(geometry == null){
+            return  false;
+        } else{
+            next = getFeature(geometry);
+            return false;
+        }
     }
 
     @Override
     public void close() throws IOException {
         builder = null;
         geometryFactory = null;
+        next = null;
     }
 }
