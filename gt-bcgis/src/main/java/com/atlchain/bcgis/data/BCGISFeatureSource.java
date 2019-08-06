@@ -5,11 +5,9 @@ import org.geotools.data.Query;
 import org.geotools.data.store.ContentEntry;
 import org.geotools.data.store.ContentFeatureSource;
 import org.geotools.feature.simple.SimpleFeatureTypeBuilder;
-import org.geotools.feature.type.BasicFeatureTypes;
 import org.geotools.geometry.jts.ReferencedEnvelope;
 import org.geotools.referencing.crs.DefaultGeographicCRS;
 import org.locationtech.jts.geom.Geometry;
-import org.locationtech.jts.geom.GeometryCollectionIterator;
 import org.opengis.feature.FeatureVisitor;
 import org.opengis.feature.simple.SimpleFeature;
 import org.opengis.feature.simple.SimpleFeatureType;
@@ -65,35 +63,10 @@ public class BCGISFeatureSource extends ContentFeatureSource {
             throw new IOException("WKB file not available");
         }
         builder.setCRS(DefaultGeographicCRS.WGS84);
-        String type = getGeometryTypeInGeometryCollection(geometry);
-
-        // 根据不同的空间几何数据类型定义属性的数据类型
-        switch (type) {
-            case "Point":
-            case "MultiPoint":
-                builder.add("geom", BasicFeatureTypes.POINT.getClass());
-                break;
-            case "LineString":
-            case "MultiLineString":
-                builder.add("geom", BasicFeatureTypes.LINE.getClass());
-                break;
-            case "Polygon":
-            case "MultiPolygon":
-                builder.add("geom", BasicFeatureTypes.POLYGON.getClass());
-                break;
-            default:
-                break;
-        }
+        builder.add("geom", Geometry.class);
 
         final SimpleFeatureType SCHEMA = builder.buildFeatureType();
         return SCHEMA;
-    }
-
-    private String getGeometryTypeInGeometryCollection(Geometry geometry) {
-        GeometryCollectionIterator geometryCollectionIterator = new GeometryCollectionIterator(geometry);
-        geometryCollectionIterator.next();
-        Geometry geom = (Geometry) geometryCollectionIterator.next();
-        return geom.getGeometryType();
     }
 
     @Override

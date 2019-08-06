@@ -12,37 +12,73 @@ import org.locationtech.jts.io.WKBReader;
 import org.opengis.feature.type.Name;
 
 import java.io.File;
-import java.io.IOException;
 import java.util.Collections;
 import java.util.List;
 
+// 目前只支持以明确指定BCGISDataStore的方式使用，不支持DataStoreFinder的方式根据Param自动搜索。
 public class BCGISDataStore extends ContentDataStore {
-    protected File file;
+    File file;
 
-    public BCGISDataStore(File file) {
-        this.file = file;
+    private File certFile;
+    private File keyFile;
+    private String peerName;
+    private String peerUrl;
+    private String mspId;
+    private String userName;
+    private String ordererName;
+    private String ordererUrl;
+    private String channelName;
+    private String chaincodeName;
+    private String functionName;
+    private String recordKey;
+
+    public BCGISDataStore(){}
+
+    public BCGISDataStore(File certFile,
+                          File keyFile,
+                          String peerName,
+                          String peerUrl,
+                          String mspId,
+                          String userName,
+                          String ordererName,
+                          String ordererUrl,
+                          String channelName,
+                          String chaincodeName,
+                          String functionName,
+                          String recordKey
+                          )
+    {
+        this.certFile = certFile;
+        this.keyFile = keyFile;
+        this.peerName = peerName;
+        this.peerUrl = peerUrl;
+        this.mspId = mspId;
+        this.userName = userName;
+        this.ordererName = ordererName;
+        this.ordererUrl = ordererUrl;
+        this.channelName = channelName;
+        this.chaincodeName = chaincodeName;
+        this.functionName = functionName;
+        this.recordKey = recordKey;
     }
 
     Geometry getRecord() {
-        File certFile = new File(this.getClass().getResource("/certs/user/cert.pem").getPath());
-        File skFile = new File(this.getClass().getResource("/certs/user/user_sk").getPath());
-
         ATLChain atlChain = new ATLChain(
-                certFile,
-                skFile,
-                "TestOrgA",
-                "grpc://172.16.15.66:7051",
-                "TestOrgA",
-                "admin",
-                "OrdererTestOrgA",
-                "grpc://172.16.15.66:7050"
+                this.certFile,
+                this.keyFile,
+                this.peerName,
+                this.peerUrl,
+                this.mspId,
+                this.userName,
+                this.ordererName,
+                this.ordererUrl
         );
 
-        byte[] byteKey =  "bytekey".getBytes();
+        byte[] byteKey = this.recordKey.getBytes();
         byte[][] result = atlChain.queryByte(
-                "atlchannel",
-                "bincc",
-                "GetByteArray",
+                this.channelName,
+                this.chaincodeName,
+                this.functionName,
                 new byte[][]{byteKey}
         );
         Geometry geometry = null;
@@ -56,19 +92,23 @@ public class BCGISDataStore extends ContentDataStore {
     }
 
     @Override
-    protected List<Name> createTypeNames() throws IOException {
-        String name = file.getName();
-        name = name.substring(0, name.lastIndexOf('.'));
+    protected List<Name> createTypeNames() {
+        // TODO 查询所有安装的链码，返回链码名列表。以链码名为 typenames。
+        // List<String>  chaincodes = getChaincodeList();
+        // return chaincodes;
 
-        Name typeName = new NameImpl(name);
+        // 暂时以一个固定的名字作为 TypeName
+        Name typeName = new NameImpl("tmpTypeName");
         return Collections.singletonList(typeName);
     }
 
     @Override
-    protected ContentFeatureSource createFeatureSource(ContentEntry entry) throws IOException {
-        if(file.canWrite()){
-            return new BCGISFeatureStore(entry,Query.ALL);
-        }else{
-            return new BCGISFeatureSource(entry,Query.ALL);
-        }    }
+    protected ContentFeatureSource createFeatureSource(ContentEntry entry) {
+        // TODO 如何判断是否可写入
+//        if(file.canWrite()){
+//            return new BCGISFeatureStore(entry,Query.ALL);
+//        }else{
+        return new BCGISFeatureSource(entry, Query.ALL);
+//        }
+    }
 }

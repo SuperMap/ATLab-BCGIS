@@ -2,10 +2,9 @@ package com.atlchain.bcgis.data;
 
 import org.geotools.data.DataStore;
 import org.geotools.data.DataStoreFactorySpi;
-import org.geotools.util.KVP;
+import org.geotools.data.DataUtilities;
 
 import java.awt.*;
-import java.io.File;
 import java.io.IOException;
 import java.io.Serializable;
 import java.util.Collections;
@@ -17,8 +16,8 @@ public class BCGISDataStoreFactory implements DataStoreFactorySpi {
 
     @Override
     public DataStore createDataStore(Map<String, Serializable> params) throws IOException {
-        File file = (File) FILE_PARAM.lookUp(params);
-        return new BCGISDataStore(file);
+//        File file = (File) FILE_PARAM.lookUp(params);
+        return new BCGISDataStore();
     }
 
     @Override
@@ -33,12 +32,10 @@ public class BCGISDataStoreFactory implements DataStoreFactorySpi {
 
     public static final Param FILE_PARAM =
             new Param(
-                    "file",
-                    File.class,
-                    "WKB binary file",
-                    true,
-                    null,
-                    new KVP(Param.EXT, "wkb"));
+                    "bcgis",
+                    String.class,
+                    "data from blockchain"
+            );
 
     @Override
     public Param[] getParametersInfo() {
@@ -47,15 +44,7 @@ public class BCGISDataStoreFactory implements DataStoreFactorySpi {
 
     @Override
     public boolean canProcess(Map<String, Serializable> params) {
-        try {
-            File file = (File) FILE_PARAM.lookUp(params);
-            if (file != null) {
-                return file.getPath().toLowerCase().endsWith(".wkb");
-            }
-        } catch (IOException e) {
-            // ignore as we are expected to return true or false
-        }
-        return false;
+        return DataUtilities.canProcess(params, getParametersInfo());
     }
 
     @Override

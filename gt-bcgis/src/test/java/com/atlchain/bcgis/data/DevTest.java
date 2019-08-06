@@ -33,7 +33,7 @@ import java.util.List;
 public class DevTest {
 
     File file = new File("E:\\DemoRecording\\WkbCode\\Line.wkb");
-    BCGISDataStore WKB = new BCGISDataStore(file);
+    BCGISDataStore WKB = new BCGISDataStore();
 
     // 读取wkb文件为geometry并展示
     @Test

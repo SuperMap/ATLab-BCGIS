@@ -37,7 +37,7 @@ public class BCGISFeatureStore extends ContentFeatureStore {
     // 设置FeatureSource的委托（delegate）  原因是java不能多继承
     // 在委托模式中，有两个对象参与处理同一个请求，接受请求的对象将请求委托给另一个对象来处理。委托模式使得我们可以用聚合来替代继承，它还使我们可以模拟mixin
     BCGISFeatureSource delegate =
-            new BCGISFeatureSource(entry,query){
+            new BCGISFeatureSource(entry, query){
                 @Override
                 public void setTransaction(Transaction transaction){
                     super.setTransaction(transaction);
