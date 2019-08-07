@@ -1,15 +1,25 @@
 package com.atlchain.bcgis.data;
 
+import org.geotools.data.DataUtilities;
 import org.geotools.data.FeatureReader;
 import org.geotools.data.Query;
 import org.geotools.data.Transaction;
 import org.geotools.data.simple.SimpleFeatureSource;
 import org.geotools.data.store.ContentFeatureSource;
+import org.geotools.feature.FeatureCollection;
+import org.geotools.geometry.jts.ReferencedEnvelope;
+import org.geotools.map.FeatureLayer;
+import org.geotools.map.Layer;
+import org.geotools.map.MapContent;
+import org.geotools.styling.SLD;
+import org.geotools.styling.Style;
+import org.geotools.swing.JMapFrame;
 import org.junit.Assert;
 import org.junit.Test;
-import org.locationtech.jts.geom.Geometry;
 import org.opengis.feature.simple.SimpleFeature;
 import org.opengis.feature.simple.SimpleFeatureType;
+import org.opengis.feature.type.AttributeDescriptor;
+import org.opengis.feature.type.GeometryDescriptor;
 
 import java.io.File;
 import java.io.IOException;
@@ -45,13 +55,9 @@ public class BCGISDataStoreTest {
     );
 
     @Test
-    public void testRead() {
-        Geometry geometry = bcgisDataStore.getRecord();
-        Assert.assertNotNull(geometry);
-//        System.out.println(geometry.toString());
-//        String type = geometry.getGeometryType();
-//        System.out.println("type ==> " + type);
-//        System.out.println("count ==> " + geometry.getNumGeometries());
+    public void testFeatureSource() throws IOException {
+        ContentFeatureSource featureSource = bcgisDataStore.getFeatureSource(bcgisDataStore.getTypeNames()[0]);
+        System.out.println(featureSource.getSchema());
     }
 
     @Test
@@ -63,8 +69,24 @@ public class BCGISDataStoreTest {
     }
 
     @Test
+    public void testGetGeometryDescriptor() throws IOException {
+        SimpleFeatureType type = bcgisDataStore.getSchema(bcgisDataStore.getTypeNames()[0]);
+        GeometryDescriptor descriptor = type.getGeometryDescriptor();
+        System.out.println(descriptor.getType());
+    }
+
+    @Test
+    public void testGetBounds() throws IOException {
+        ContentFeatureSource bcgisFeatureSource = bcgisDataStore.getFeatureSource(bcgisDataStore.getTypeNames()[0]);
+        FeatureCollection featureCollection = bcgisFeatureSource.getFeatures();
+        ReferencedEnvelope env = DataUtilities.bounds(featureCollection);
+        System.out.println(env);
+    }
+
+    @Test
     public void testGetSchema() throws IOException {
         SimpleFeatureType type = bcgisDataStore.getSchema(bcgisDataStore.getTypeNames()[0]);
+        System.out.println(type);
         Assert.assertNotNull(type.getAttributeDescriptors());
 
 //        System.out.println("featureType  name: " + type.getName());
@@ -116,9 +138,36 @@ public class BCGISDataStoreTest {
         Assert.assertNotEquals(-1, n);
     }
 
-    @Test
-    public void testLoadMap() {
-//        SimpleFeatureSource simpleFeatureSource = bcgisDataStore.getFeatureSource();
-    }
+    // 测试加载地图，以JFrame方式显示
+    public static void main(String[] args) throws IOException {
+        BCGISDataStore bcgisDataStore = new BCGISDataStore(
+                new File(BCGISDataStoreTest.class.getResource("/certs/user/cert.pem").getPath()),
+                new File(BCGISDataStoreTest.class.getResource("/certs/user/user_sk").getPath()),
+                "TestOrgA",
+                "grpc://172.16.15.66:7051",
+                "TestOrgA",
+                "admin",
+                "OrdererTestOrgA",
+                "grpc://172.16.15.66:7050",
+                "atlchannel" ,
+                "bincc",
+                "GetByteArray",
+                "Line"
+        );
 
+       SimpleFeatureSource simpleFeatureSource = bcgisDataStore.getFeatureSource(bcgisDataStore.getTypeNames()[0]);
+       simpleFeatureSource.getSchema();
+       String typeName = bcgisDataStore.getTypeNames()[0];
+       SimpleFeatureType type = bcgisDataStore.getSchema(typeName);
+       MapContent map = new MapContent();
+       map.setTitle("testBCGIS");
+
+//        Style style = SLD.createLineStyle(Color.BLACK, 2.0f);
+       Style style = SLD.createSimpleStyle(type);
+
+       Layer layer = new FeatureLayer(simpleFeatureSource, style);
+       map.addLayer(layer);
+
+       JMapFrame.showMap(map);
+   }
 }

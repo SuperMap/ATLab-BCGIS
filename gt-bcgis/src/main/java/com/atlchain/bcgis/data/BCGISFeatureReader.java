@@ -1,18 +1,12 @@
 package com.atlchain.bcgis.data;
 
 import org.geotools.data.FeatureReader;
-import org.geotools.data.Query;
 import org.geotools.data.store.ContentState;
 import org.geotools.feature.simple.SimpleFeatureBuilder;
-import org.geotools.geometry.jts.JTSFactoryFinder;
 import org.locationtech.jts.geom.Geometry;
-import org.locationtech.jts.geom.GeometryCollectionIterator;
-import org.locationtech.jts.geom.GeometryFactory;
-import org.locationtech.jts.io.ParseException;
 import org.opengis.feature.simple.SimpleFeature;
 import org.opengis.feature.simple.SimpleFeatureType;
 
-import java.io.IOException;
 import java.util.NoSuchElementException;
 
 public class BCGISFeatureReader implements FeatureReader<SimpleFeatureType, SimpleFeature> {
@@ -22,16 +16,12 @@ public class BCGISFeatureReader implements FeatureReader<SimpleFeatureType, Simp
 
     protected SimpleFeatureBuilder builder;
 
-    protected GeometryFactory geometryFactory;
-
     private int index = 0;
 
-    public BCGISFeatureReader(ContentState contentState) {
+    public BCGISFeatureReader(ContentState contentState, Geometry geometry) {
         this.state = contentState;
-        BCGISDataStore bcgisDataStore = (BCGISDataStore) contentState.getEntry().getDataStore();
-        geometry = bcgisDataStore.getRecord();
+        this.geometry = geometry;
         builder = new SimpleFeatureBuilder(state.getFeatureType());
-        geometryFactory = JTSFactoryFinder.getGeometryFactory(null);
     }
 
     @Override
@@ -64,21 +54,20 @@ public class BCGISFeatureReader implements FeatureReader<SimpleFeatureType, Simp
     }
 
     @Override
-    public boolean hasNext() throws IOException {
+    public boolean hasNext() {
         if (index < geometry.getNumGeometries()){
             return true;
-        }else if(geometry == null){
+        } else if (geometry == null){
             return  false;
-        } else{
+        } else {
             next = getFeature(geometry);
             return false;
         }
     }
 
     @Override
-    public void close() throws IOException {
+    public void close() {
         builder = null;
-        geometryFactory = null;
         next = null;
     }
 }

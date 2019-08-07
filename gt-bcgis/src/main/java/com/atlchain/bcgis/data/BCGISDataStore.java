@@ -12,6 +12,7 @@ import org.locationtech.jts.io.WKBReader;
 import org.opengis.feature.type.Name;
 
 import java.io.File;
+import java.io.IOException;
 import java.util.Collections;
 import java.util.List;
 
@@ -62,7 +63,7 @@ public class BCGISDataStore extends ContentDataStore {
         this.recordKey = recordKey;
     }
 
-    Geometry getRecord() {
+    private Geometry getRecord() {
         ATLChain atlChain = new ATLChain(
                 this.certFile,
                 this.keyFile,
@@ -88,6 +89,14 @@ public class BCGISDataStore extends ContentDataStore {
             e.printStackTrace();
         }
         geometry.getNumGeometries();
+
+        if (geometry == null) {
+            try {
+                throw new IOException("Blockchain record is not available");
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
         return geometry;
     }
 
@@ -108,7 +117,7 @@ public class BCGISDataStore extends ContentDataStore {
 //        if(file.canWrite()){
 //            return new BCGISFeatureStore(entry,Query.ALL);
 //        }else{
-        return new BCGISFeatureSource(entry, Query.ALL);
+        return new BCGISFeatureSource(entry, Query.ALL, getRecord());
 //        }
     }
 }

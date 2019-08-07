@@ -66,7 +66,7 @@ public class BCGISFeatureWriter implements FeatureWriter<SimpleFeatureType, Simp
 
         this.state = state;
         // 实现委托以读取文件
-        this.delegate = new BCGISFeatureReader(state);
+        this.delegate = new BCGISFeatureReader(state, null);
     }
 
     // Add FeatureWriter.getFeatureType() implementation
@@ -78,7 +78,7 @@ public class BCGISFeatureWriter implements FeatureWriter<SimpleFeatureType, Simp
 
     // new add  making use of delegate before switching over to returning false when appending
     @Override
-    public boolean hasNext() throws IOException {
+    public boolean hasNext() {
 
         if(this.appending){
             return false;// reader has no more contents
@@ -121,7 +121,7 @@ public class BCGISFeatureWriter implements FeatureWriter<SimpleFeatureType, Simp
 
     // Mark our {@link #currentFeature} feature as null, it will be skipped when written effectively removing it.
     @Override
-    public void remove() throws IOException {
+    public void remove() {
         this.currentFeature = null;
     }
 

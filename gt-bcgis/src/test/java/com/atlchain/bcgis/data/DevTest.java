@@ -62,7 +62,8 @@ public class DevTest {
     @Test
     public void testRead() throws IOException, ClassNotFoundException, IllegalAccessException, InstantiationException {
 
-        Geometry geometry = WKB.getRecord();
+//        Geometry geometry = WKB.getRecord();
+        Geometry geometry = null;
         for(int i = 0; i < geometry.getNumGeometries();i++)
             System.out.println(geometry.getGeometryN(i));
 
