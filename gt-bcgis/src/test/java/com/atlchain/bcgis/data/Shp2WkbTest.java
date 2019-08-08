@@ -32,7 +32,10 @@ public class Shp2WkbTest {
     public void testGetRightGeometryValue() {
         try {
             GeometryCollection geometryCollection = shp2WKB.getGeometry();
-            Assert.assertEquals(111, geometryCollection.getNumGeometries());
+//            for (int i = 0; i < geometryCollection.getNumGeometries(); i++){
+//                System.out.println(geometryCollection.getGeometryN(i));
+//            }
+            Assert.assertNotNull(geometryCollection);
         } catch (IOException e) {
             e.printStackTrace();
         }
@@ -41,7 +44,7 @@ public class Shp2WkbTest {
     @Test
     public void testSaveWKB(){
         try {
-            String path = "/tmp/test.wkb";
+            String path = "/home/cy/Documents/ATL/data/50m_cultural/ne_50m_urban_areas.wkb";
             shp2WKB.save(new File(path));
             Assert.assertTrue(Files.exists(Paths.get(path)));
         } catch (IOException e) {
@@ -94,12 +97,8 @@ public class Shp2WkbTest {
                 "OrdererTestOrgA",
                 "grpc://172.16.15.66:7050"
         );
-        GeometryCollection geometryCollection = shp2WKB.getGeometry();
 
-        WKBWriter wkbWriter = new WKBWriter();
-        byte[] bytes = wkbWriter.write(geometryCollection);
         byte[] byteKey =  "Line".getBytes();
-
         byte[][] result = atlChain.queryByte(
                 "atlchannel",
                 "bincc",

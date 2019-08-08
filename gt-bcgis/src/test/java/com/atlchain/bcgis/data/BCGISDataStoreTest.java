@@ -138,7 +138,7 @@ public class BCGISDataStoreTest {
         Assert.assertNotEquals(-1, n);
     }
 
-    // 测试加载地图，以JFrame方式显示
+    // 以JFrame方式显示地图
     public static void main(String[] args) throws IOException {
         BCGISDataStore bcgisDataStore = new BCGISDataStore(
                 new File(BCGISDataStoreTest.class.getResource("/certs/user/cert.pem").getPath()),
