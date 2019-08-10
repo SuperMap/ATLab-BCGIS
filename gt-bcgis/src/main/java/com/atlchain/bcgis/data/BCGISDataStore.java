@@ -33,7 +33,7 @@ public class BCGISDataStore extends ContentDataStore {
     private String functionName;
     private String recordKey;
 
-    public BCGISDataStore(){}
+//    public BCGISDataStore(){}
 
     public BCGISDataStore(File certFile,
                           File keyFile,
@@ -114,10 +114,10 @@ public class BCGISDataStore extends ContentDataStore {
     @Override
     protected ContentFeatureSource createFeatureSource(ContentEntry entry) {
         // TODO 如何判断是否可写入
-//        if(file.canWrite()){
-//            return new BCGISFeatureStore(entry,Query.ALL);
-//        }else{
-        return new BCGISFeatureSource(entry, Query.ALL, getRecord());
-//        }
+        if(true){
+            return new BCGISFeatureStore(entry, Query.ALL, getRecord());
+        }else{
+            return new BCGISFeatureSource(entry, Query.ALL, getRecord());
+        }
     }
 }

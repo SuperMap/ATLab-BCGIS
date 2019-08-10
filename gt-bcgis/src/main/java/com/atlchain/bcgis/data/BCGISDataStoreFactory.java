@@ -5,6 +5,7 @@ import org.geotools.data.DataStoreFactorySpi;
 import org.geotools.data.DataUtilities;
 
 import java.awt.*;
+import java.io.File;
 import java.io.IOException;
 import java.io.Serializable;
 import java.util.Collections;
@@ -17,7 +18,21 @@ public class BCGISDataStoreFactory implements DataStoreFactorySpi {
     @Override
     public DataStore createDataStore(Map<String, Serializable> params) throws IOException {
 //        File file = (File) FILE_PARAM.lookUp(params);
-        return new BCGISDataStore();
+        BCGISDataStore bcgisDataStore = new BCGISDataStore(
+                new File(this.getClass().getResource("/certs/user/cert.pem").getPath()),
+                new File(this.getClass().getResource("/certs/user/user_sk").getPath()),
+                "TestOrgA",
+                "grpc://172.16.15.66:7051",
+                "TestOrgA",
+                "admin",
+                "OrdererTestOrgA",
+                "grpc://172.16.15.66:7050",
+                "atlchannel" ,
+                "bincc",
+                "GetByteArray",
+                "Line"
+        );
+        return bcgisDataStore;
     }
 
     @Override
@@ -30,7 +45,7 @@ public class BCGISDataStoreFactory implements DataStoreFactorySpi {
         return "WKB binary file";
     }
 
-    public static final Param FILE_PARAM =
+    public static final Param BC_PARAM =
             new Param(
                     "bcgis",
                     String.class,
@@ -39,7 +54,7 @@ public class BCGISDataStoreFactory implements DataStoreFactorySpi {
 
     @Override
     public Param[] getParametersInfo() {
-        return new Param[] { FILE_PARAM };
+        return new Param[] { BC_PARAM };
     }
 
     @Override
@@ -53,8 +68,22 @@ public class BCGISDataStoreFactory implements DataStoreFactorySpi {
     }
 
     @Override
-    public DataStore createNewDataStore(Map<String, Serializable> params) throws IOException {
-        return null;
+    public DataStore createNewDataStore(Map<String, Serializable> params) {
+        BCGISDataStore bcgisDataStore = new BCGISDataStore(
+                new File(this.getClass().getResource("/certs/user/cert.pem").getPath()),
+                new File(this.getClass().getResource("/certs/user/user_sk").getPath()),
+                "TestOrgA",
+                "grpc://172.16.15.66:7051",
+                "TestOrgA",
+                "admin",
+                "OrdererTestOrgA",
+                "grpc://172.16.15.66:7050",
+                "atlchannel" ,
+                "bincc",
+                "GetByteArray",
+                "LineNew"
+        );
+        return bcgisDataStore;
     }
 
     @Override

@@ -1,9 +1,6 @@
 package com.atlchain.bcgis.data;
 
-import org.geotools.data.DataUtilities;
-import org.geotools.data.FeatureReader;
-import org.geotools.data.Query;
-import org.geotools.data.Transaction;
+import org.geotools.data.*;
 import org.geotools.data.simple.SimpleFeatureSource;
 import org.geotools.data.store.ContentFeatureSource;
 import org.geotools.feature.FeatureCollection;
@@ -23,6 +20,9 @@ import org.opengis.feature.type.GeometryDescriptor;
 
 import java.io.File;
 import java.io.IOException;
+import java.io.Serializable;
+import java.util.HashMap;
+import java.util.Map;
 
 public class BCGISDataStoreTest {
 
@@ -138,6 +138,20 @@ public class BCGISDataStoreTest {
         Assert.assertNotEquals(-1, n);
     }
 
+    @Test
+    public void testGetDataStoreByParam() throws IOException {
+        Map<String, Serializable> params = new HashMap<>();
+        params.put("bcgis", "bcgis");
+        DataStore store = DataStoreFinder.getDataStore(params);
+        ContentFeatureSource bcgisFeatureSource = (ContentFeatureSource) store.getFeatureSource(bcgisDataStore.getTypeNames()[0]);
+        int n = bcgisFeatureSource.getCount(Query.ALL);
+
+        String names[] = store.getTypeNames();
+        System.out.println("typenames: " + names.length);
+        System.out.println("typename[0]: " + names[0]);
+        System.out.println(n);
+    }
+
     // 以JFrame方式显示地图
     public static void main(String[] args) throws IOException {
         BCGISDataStore bcgisDataStore = new BCGISDataStore(
@@ -161,7 +175,6 @@ public class BCGISDataStoreTest {
        SimpleFeatureType type = bcgisDataStore.getSchema(typeName);
        MapContent map = new MapContent();
        map.setTitle("testBCGIS");
-
 //        Style style = SLD.createLineStyle(Color.BLACK, 2.0f);
        Style style = SLD.createSimpleStyle(type);
 
