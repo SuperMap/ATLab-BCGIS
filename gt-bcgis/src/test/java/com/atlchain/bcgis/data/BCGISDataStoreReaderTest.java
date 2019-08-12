@@ -15,7 +15,6 @@ import org.junit.Assert;
 import org.junit.Test;
 import org.opengis.feature.simple.SimpleFeature;
 import org.opengis.feature.simple.SimpleFeatureType;
-import org.opengis.feature.type.AttributeDescriptor;
 import org.opengis.feature.type.GeometryDescriptor;
 
 import java.io.File;
@@ -24,7 +23,7 @@ import java.io.Serializable;
 import java.util.HashMap;
 import java.util.Map;
 
-public class BCGISDataStoreTest {
+public class BCGISDataStoreReaderTest {
 
     private File certFile = new File(this.getClass().getResource("/certs/user/cert.pem").getPath());
     private File keyFile = new File(this.getClass().getResource("/certs/user/user_sk").getPath());
@@ -37,7 +36,7 @@ public class BCGISDataStoreTest {
     private String channelName = "atlchannel" ;
     private String chaincodeName = "bincc";
     private String functionName = "GetByteArray";
-    private String recordKey = "Line";
+    private String recordKey = "LineWrite2";
 
     private BCGISDataStore bcgisDataStore = new BCGISDataStore(
             certFile,
@@ -119,13 +118,13 @@ public class BCGISDataStoreTest {
             while (reader.hasNext()) {
                 SimpleFeature feature = reader.next();
                 if (feature != null) {
-//                    System.out.println("  " + feature.getID() + " " + feature.getAttribute("geom"));
+                    System.out.println("  " + feature.getID() + " " + feature.getAttribute("geom"));
                     Assert.assertNotNull(feature);
                     count++;
                 }
             }
 //            System.out.println("close feature reader");
-//            System.out.println("read in " + count + " features");
+            System.out.println("read in " + count + " features");
         } finally {
             reader.close();
         }
@@ -155,8 +154,8 @@ public class BCGISDataStoreTest {
     // 以JFrame方式显示地图
     public static void main(String[] args) throws IOException {
         BCGISDataStore bcgisDataStore = new BCGISDataStore(
-                new File(BCGISDataStoreTest.class.getResource("/certs/user/cert.pem").getPath()),
-                new File(BCGISDataStoreTest.class.getResource("/certs/user/user_sk").getPath()),
+                new File(BCGISDataStoreReaderTest.class.getResource("/certs/user/cert.pem").getPath()),
+                new File(BCGISDataStoreReaderTest.class.getResource("/certs/user/user_sk").getPath()),
                 "TestOrgA",
                 "grpc://172.16.15.66:7051",
                 "TestOrgA",

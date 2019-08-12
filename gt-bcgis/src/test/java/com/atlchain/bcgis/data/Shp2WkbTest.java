@@ -98,7 +98,7 @@ public class Shp2WkbTest {
                 "grpc://172.16.15.66:7050"
         );
 
-        byte[] byteKey =  "Line".getBytes();
+        byte[] byteKey =  "LineWrite".getBytes();
         byte[][] result = atlChain.queryByte(
                 "atlchannel",
                 "bincc",

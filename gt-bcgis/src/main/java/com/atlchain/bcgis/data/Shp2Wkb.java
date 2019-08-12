@@ -88,19 +88,11 @@ public class Shp2Wkb {
         }
 
         Geometry[] geometries = geometryArrayList.toArray(new Geometry[geometryArrayList.size()]);
-        GeometryCollection geometryCollection = getGeometryCollection(geometries);
+        GeometryCollection geometryCollection = Utils.getGeometryCollection(geometries);
 //        System.out.println(geometryCollection.toString());
         return geometryCollection;
     }
 
-    /**
-     * 构造GeometryCollection对象
-     * @param geomList 空间几何对象列表
-     * @return
-     */
-    private GeometryCollection getGeometryCollection(Geometry[] geomList) {
-        GeometryFactory geometryFactory = new GeometryFactory();
-        return new GeometryCollection(geomList, geometryFactory);
-    }
+
 
 }

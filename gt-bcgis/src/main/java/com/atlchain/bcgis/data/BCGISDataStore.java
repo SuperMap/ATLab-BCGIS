@@ -33,8 +33,6 @@ public class BCGISDataStore extends ContentDataStore {
     private String functionName;
     private String recordKey;
 
-//    public BCGISDataStore(){}
-
     public BCGISDataStore(File certFile,
                           File keyFile,
                           String peerName,

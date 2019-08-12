@@ -81,7 +81,7 @@ public class BCGISDataStoreFactory implements DataStoreFactorySpi {
                 "atlchannel" ,
                 "bincc",
                 "GetByteArray",
-                "LineNew"
+                "LineCreateNewDataStore"
         );
         return bcgisDataStore;
     }
