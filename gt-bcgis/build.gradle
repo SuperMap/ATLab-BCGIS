@@ -1,5 +1,6 @@
 plugins {
     id 'java'
+    id 'idea'
 }
 
 group 'com.atlchain'
@@ -21,4 +22,26 @@ dependencies {
     compile files('atlchain-sdk-0.0.2.jar')
 
     testCompile group: 'junit', name: 'junit', version: '4.12'
+}
+
+jar {
+    String someString = ''
+    configurations.runtime.each {someString = someString + " lib\\"+it.name}
+    manifest {
+//        attributes 'Main-Class': 'com.each.dubboMainEnd'
+        attributes 'Class-Path': someString
+    }
+}
+
+task copyJar(type:Copy){
+    from configurations.runtime
+    into ('build/libs/lib')
+}
+
+// 函数release即是我们打包的时候的执行的函数，
+// dependsOn[build,copyJar]这里会让执行relese函数的时候先执行build（系统自带的函数） 和copyJar
+//最后通过gradle release命令进行打包
+task release(type: Copy,dependsOn: [build,copyJar]) {
+// from 'conf'
+// into ('build/libs/eachend/conf')
 }
