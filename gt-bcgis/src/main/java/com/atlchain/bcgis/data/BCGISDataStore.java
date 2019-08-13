@@ -17,7 +17,6 @@ import java.util.List;
 
 // 目前只支持以明确指定BCGISDataStore的方式使用，不支持DataStoreFinder的方式根据Param自动搜索。
 public class BCGISDataStore extends ContentDataStore {
-
     private File certFile;
     private File keyFile;
     private String peerName;
