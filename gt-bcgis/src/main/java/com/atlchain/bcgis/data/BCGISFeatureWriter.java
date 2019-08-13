@@ -1,6 +1,5 @@
 package com.atlchain.bcgis.data;
 
-import com.atlchain.sdk.ATLChain;
 import org.geotools.data.DataUtilities;
 import org.geotools.data.simple.SimpleFeatureWriter;
 import org.geotools.data.store.ContentState;
@@ -8,31 +7,32 @@ import org.geotools.feature.simple.SimpleFeatureBuilder;
 import org.locationtech.jts.geom.Geometry;
 import org.locationtech.jts.geom.GeometryCollection;
 import org.locationtech.jts.io.WKBWriter;
+import org.opengis.feature.IllegalAttributeException;
 import org.opengis.feature.Property;
 import org.opengis.feature.simple.SimpleFeature;
 import org.opengis.feature.simple.SimpleFeatureType;
 
 import java.io.File;
+import java.io.IOException;
 import java.util.ArrayList;
 
 public class BCGISFeatureWriter implements SimpleFeatureWriter {
 
     private ContentState state;
 
-    private Geometry geometry;
+    private BCGISFeatureReader delegate;
 
-    private int index = 0;
+    private int nextRow = 0;
+
+    private boolean appending = false;
 
     private SimpleFeature currentFeature;
-
-    private SimpleFeatureBuilder builder;
 
     private ArrayList<Geometry> geometryArrayList = new ArrayList<>();
 
     public BCGISFeatureWriter(ContentState state, Geometry geometry) {
         this.state = state;
-        this.geometry = geometry;
-        this.builder = new SimpleFeatureBuilder(state.getFeatureType());
+        this.delegate = new BCGISFeatureReader(state, geometry);
     }
 
     @Override
@@ -42,54 +42,50 @@ public class BCGISFeatureWriter implements SimpleFeatureWriter {
 
     @Override
     public boolean hasNext() {
-        if (index < geometry.getNumGeometries()){
-            return true;
-        } else if (geometry == null){
-            return  false;
-        } else {
-            currentFeature = getFeature(geometry.getGeometryN(geometry.getNumGeometries() - 1));
-            return false;
+        if(this.appending){
+            return false;// reader has no more contents
         }
+        return delegate.hasNext();
     }
 
     @Override
-    public SimpleFeature next() {
+    public SimpleFeature next() throws IOException {
         if(this.currentFeature != null){
             this.write();// the previous one was not written, so do it now.
         }
-        Geometry geom = null;
-        if(hasNext()){
-            geom = geometry.getGeometryN(index);
-            currentFeature = getFeature(geom);
-            index ++;
-        } else {
+        try{
+            if(!appending){
+                if(delegate.geometry != null && delegate.hasNext()){
+                    this.currentFeature = delegate.next();
+                    return  this.currentFeature;
+                }else{
+                    this.appending = true;
+                }
+            }
             SimpleFeatureType featureType = state.getFeatureType();
-            String fid = featureType.getTypeName() + "." + index;
+            String fid = featureType.getTypeName() + "." + nextRow;
+            // defaultValues(SimpleFeatureType featureType) Produce a set of default values for the provided FeatureType
             Object values[] = DataUtilities.defaultValues(featureType);
-            currentFeature = SimpleFeatureBuilder.build(featureType, values, fid);
-        }
-        return currentFeature;
-    }
 
-    private SimpleFeature getFeature(Geometry geometry) {
-        if(geometry == null){
-            return null;
+            this.currentFeature = SimpleFeatureBuilder.build(featureType,values,fid);
+            return  this.currentFeature;
+        }catch (IllegalAttributeException invalid){
+            throw new IOException("Unable to create feature :" + invalid.getMessage(),invalid);
         }
-        builder.set("geom", geometry);
-        return builder.buildFeature(state.getEntry().getTypeName() + "." + index);
     }
 
     @Override
     public void remove() {
         currentFeature = null;
+
     }
 
     @Override
     public void write() {
-        if (currentFeature == null) {
-            return; 
+        if(this.currentFeature == null){
+            return;
         }
-        for(Property property: currentFeature.getProperties()){
+        for(Property property:currentFeature.getProperties()){
             Object value = property.getValue();
             if(value == null){
                 return;
@@ -98,11 +94,12 @@ public class BCGISFeatureWriter implements SimpleFeatureWriter {
                 geometryArrayList.add(geometry);
             }
         }
-        this.currentFeature = null;
+        nextRow++;
+        this.currentFeature = null ;// indicate that it has been written
     }
 
     @Override
-    public void close() {
+    public void close() throws IOException {
         if (geometryArrayList != null) {
             this.write();
         }
@@ -112,13 +109,18 @@ public class BCGISFeatureWriter implements SimpleFeatureWriter {
             write();
         }
 
+        if(delegate != null){
+            this.delegate.close();
+            this.delegate = null;
+        }
+
         Geometry[] geometries = geometryArrayList.toArray(new Geometry[geometryArrayList.size()]);
         GeometryCollection geometryCollection = Utils.getGeometryCollection(geometries);
 
         File certFile = new File(this.getClass().getResource("/certs/user/cert.pem").getPath());
         File skFile = new File(this.getClass().getResource("/certs/user/user_sk").getPath());
 
-        ATLChain atlChain = new ATLChain(
+        BlockChainClient client = new BlockChainClient(
                 certFile,
                 skFile,
                 "TestOrgA",
@@ -131,14 +133,13 @@ public class BCGISFeatureWriter implements SimpleFeatureWriter {
 
         WKBWriter wkbWriter = new WKBWriter();
         byte[] bytes = wkbWriter.write(geometryCollection);
-        byte[] byteKey =  "LineWrite2".getBytes();
-
-        String result = atlChain.invokeByte(
+        String result = client.putRecord(
+                "LineWrite2",
+                bytes,
                 "atlchannel",
                 "bincc",
-                "PutByteArray",
-                new byte[][]{byteKey, bytes}
-        );
+                "PutByteArray"
+                );
     }
 }
 

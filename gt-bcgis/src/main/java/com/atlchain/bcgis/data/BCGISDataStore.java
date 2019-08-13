@@ -1,6 +1,5 @@
 package com.atlchain.bcgis.data;
 
-import com.atlchain.sdk.ATLChain;
 import org.geotools.data.Query;
 import org.geotools.data.store.ContentDataStore;
 import org.geotools.data.store.ContentEntry;
@@ -18,7 +17,6 @@ import java.util.List;
 
 // 目前只支持以明确指定BCGISDataStore的方式使用，不支持DataStoreFinder的方式根据Param自动搜索。
 public class BCGISDataStore extends ContentDataStore {
-    File file;
 
     private File certFile;
     private File keyFile;
@@ -62,7 +60,7 @@ public class BCGISDataStore extends ContentDataStore {
     }
 
     private Geometry getRecord() {
-        ATLChain atlChain = new ATLChain(
+        BlockChainClient client = new BlockChainClient(
                 this.certFile,
                 this.keyFile,
                 this.peerName,
@@ -73,12 +71,11 @@ public class BCGISDataStore extends ContentDataStore {
                 this.ordererUrl
         );
 
-        byte[] byteKey = this.recordKey.getBytes();
-        byte[][] result = atlChain.queryByte(
+        byte[][] result = client.getRecord(
+                this.recordKey,
                 this.channelName,
                 this.chaincodeName,
-                this.functionName,
-                new byte[][]{byteKey}
+                this.functionName
         );
         Geometry geometry = null;
         try {
@@ -111,11 +108,6 @@ public class BCGISDataStore extends ContentDataStore {
 
     @Override
     protected ContentFeatureSource createFeatureSource(ContentEntry entry) {
-        // TODO 如何判断是否可写入
-        if(true){
-            return new BCGISFeatureStore(entry, Query.ALL, getRecord());
-        }else{
-            return new BCGISFeatureSource(entry, Query.ALL, getRecord());
-        }
+        return new BCGISFeatureStore(entry, Query.ALL, getRecord());
     }
 }

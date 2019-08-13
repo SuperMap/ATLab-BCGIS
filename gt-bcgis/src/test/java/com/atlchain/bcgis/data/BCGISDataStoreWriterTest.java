@@ -7,7 +7,6 @@ import org.geotools.data.simple.SimpleFeatureCollection;
 import org.geotools.data.simple.SimpleFeatureStore;
 import org.geotools.factory.CommonFactoryFinder;
 import org.geotools.feature.simple.SimpleFeatureBuilder;
-import org.geotools.geometry.jts.JTSFactoryFinder;
 import org.junit.Test;
 import org.locationtech.jts.geom.Coordinate;
 import org.locationtech.jts.geom.GeometryFactory;
@@ -20,7 +19,6 @@ import org.opengis.filter.FilterFactory;
 
 import java.io.File;
 import java.io.IOException;
-import java.util.Collection;
 import java.util.Collections;
 
 public class BCGISDataStoreWriterTest {
@@ -109,28 +107,8 @@ public class BCGISDataStoreWriterTest {
                 "t1 add             t2: " + DataUtilities.fidSet(featureStore2.getFeatures()));
 
         // 提交事务
-        t1.commit();
-        System.out.println();
-        System.out.println("Step 4 transaction 1 commits the removal of feature 'fid1'");
-        System.out.println("------");
-        System.out.println(
-                "t1 commit auto-commit: " + DataUtilities.fidSet(featureStore.getFeatures()));
-        System.out.println(
-                "t1 commit          t1: " + DataUtilities.fidSet(featureStore1.getFeatures()));
-        System.out.println(
-                "t1 commit          t2: " + DataUtilities.fidSet(featureStore2.getFeatures()));
-
-//        t2.commit();
-        System.out.println();
-        System.out.println(
-                "Step 5 transaction 2 commits the addition of '" + feature.getID() + "'");
-        System.out.println("------");
-        System.out.println(
-                "t2 commit auto-commit: " + DataUtilities.fidSet(featureStore.getFeatures()));
-        System.out.println(
-                "t2 commit          t1: " + DataUtilities.fidSet(featureStore1.getFeatures()));
-        System.out.println(
-                "t2 commit          t2: " + DataUtilities.fidSet(((SimpleFeatureStore)bcgisDataStore.getFeatureSource(typeName)).getFeatures()));
+//        t1.commit();
+        t2.commit();
 
         t1.close();
         t2.close();
