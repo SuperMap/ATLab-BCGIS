@@ -140,7 +140,6 @@
 //        }
 //    }
 //
-//    // TODO   hasNext()问题未解决
 //    // 可以进行查询
 //    // Example with a quick “selection” Filter:
 //    @Test
@@ -170,9 +169,7 @@
 //            reader.close();
 //        }
 //    }
-//
-//    // TODO
-//
+////
 //    // Test DataStore.getFeatureSource( typeName )
 //    // 原测试里面的 CQL 查询测试 （未做） 原文是按照城市名，即属性查询，我这里没有怎么办，暂时不查询
 //    @Test
@@ -183,7 +180,6 @@
 //        SimpleFeatureSource featureSource = datastore.getFeatureSource("Line");
 //    }
 //
-//    // TODO 问题：测试时会出现 全是true的情况 暂时未解决                // 暂时加了一个中断 后面怎么解决
 //    @Test
 //    public void FeatureCollection() throws IOException {
 //        Map<String, Serializable> params = new HashMap<>();
@@ -282,7 +278,6 @@
 //
 //
 //        // new feature to add!
-//        // TODO 确保这里把元素增加到 featureStore2 里面
 //        SimpleFeatureCollection  featureCollection = datastore.getFeatureSource(datastore.getTypeNames()[0]).getFeatures();
 //        SimpleFeature simpleFeature = featureCollection.features().next();
 //        List<Object> obj = simpleFeature.getAttributes();
@@ -300,8 +295,6 @@
 //        while (iterator.hasNext()) {
 //            System.out.println("==+++======"+iterator.next().toString());
 //        }
-//        // TODO 加入和csv一样的元素看行不行   结果是两个定义好的元素 但是加进去还是空值
-//        // TODO 若未定义 事务 则不能对它进行修改
 ////        GeometryFactory gf = JTSFactoryFinder.getGeometryFactory();
 ////        Point bb = gf.createPoint(new Coordinate(75,444));
 ////        SimpleFeature feature1 = SimpleFeatureBuilder.build(type,new Object[]{bb},"Line11");
@@ -332,7 +325,6 @@
 ////        System.out.println(featureStore2);
 //
 //        //提交事务2
-//        // TODO 事务提交后就相当于对原始文件读取了一遍  那么 featureStore2 中为空的就会删除掉
 //        System.out.println("qian");
 //        t2.commit();
 //        System.out.println("hou");
@@ -355,7 +347,6 @@
 //        datastore.dispose();
 //    }
 //
-//    // TODO removing all features   这个是执行了的  能够将原文件里面的东西删除
 //    @Test
 //    public void testFeatureWriter() throws IOException {
 //        Map<String, Serializable> params = new HashMap<>();

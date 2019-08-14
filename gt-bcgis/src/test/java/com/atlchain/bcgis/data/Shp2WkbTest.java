@@ -55,7 +55,7 @@ public class Shp2WkbTest {
     @Test
     public void testSaveWKB(){
         try {
-            String path = "/home/cy/Documents/ATL/data/50m_cultural/ne_50m_urban_areas.wkb";
+            String path = "/home/cy/Documents/ATL/data/testShapfile/iDesktop/Line/Line.wkb";
             shp2WKB.save(new File(path));
             Assert.assertTrue(Files.exists(Paths.get(path)));
         } catch (IOException e) {
