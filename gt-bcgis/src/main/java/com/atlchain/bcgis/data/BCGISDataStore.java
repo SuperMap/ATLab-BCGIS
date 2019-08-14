@@ -7,14 +7,13 @@ import org.geotools.data.store.ContentEntry;
 import org.geotools.data.store.ContentFeatureSource;
 import org.geotools.feature.NameImpl;
 import org.locationtech.jts.geom.Geometry;
-import org.locationtech.jts.geom.GeometryCollection;
 import org.locationtech.jts.io.ParseException;
 import org.locationtech.jts.io.WKBReader;
-import org.locationtech.jts.io.WKBWriter;
 import org.opengis.feature.type.Name;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
@@ -62,7 +61,7 @@ public class BCGISDataStore extends ContentDataStore {
         this.recordKey = recordKey;
     }
 
-    public String putDataOnBlockchain(File shpFile) throws IOException {
+    public String putDataOnBlockchain(File shpFile) throws IOException, InterruptedException {
         String ext = Files.getFileExtension(shpFile.getName());
         if(!"shp".equals(ext)) {
             throw new IOException("Only accept shp file");
@@ -80,20 +79,32 @@ public class BCGISDataStore extends ContentDataStore {
         );
 
         Shp2Wkb shp2WKB = new Shp2Wkb(shpFile);
-        GeometryCollection geometryCollection = shp2WKB.getGeometry();
-        WKBWriter wkbWriter = new WKBWriter();
-        byte[] bytes = wkbWriter.write(geometryCollection);
-        String key = shpFile.getName().split(".")[0];
-        System.out.println("shapefile name： " + key);
-
-        String restult = client.putRecord(
+        ArrayList<Geometry> geometryArrayList = shp2WKB.getGeometry();
+        String key = "LineWrite7"; //shpFile.getName().split("\\.")[0];
+        byte[] bytes = Utils.getBytesFromGeometry(geometryArrayList.get(0));
+        String result = client.putRecord(
                 key,
                 bytes,
                 channelName,
                 chaincodeName,
                 "PutByteArray"
         );
-        return restult;
+
+//        int index = 0;
+//        for (Geometry geo : geometryArrayList) {
+//            byte[] bytes = Utils.getBytesFromGeometry(geo);
+//            key = key + "-" + index;
+//            result = client.putRecord(
+//                    key,
+//                    bytes,
+//                    channelName,
+//                    chaincodeName,
+//                    "PutByteArray"
+//            );
+//            index++;
+//            Thread.sleep(1000);
+//        }
+        return result;
     }
 
     private Geometry getRecord() {

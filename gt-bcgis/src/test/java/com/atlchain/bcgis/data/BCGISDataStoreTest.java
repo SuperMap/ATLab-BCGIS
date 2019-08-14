@@ -271,7 +271,7 @@ public class BCGISDataStoreTest {
     // <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
 
     @Test
-    public void testPutDataOnBlockchain() throws IOException {
+    public void testPutDataOnBlockchain() throws IOException, InterruptedException {
         String result = bcgisDataStore.putDataOnBlockchain(shpFile);
         Assert.assertTrue(result.contains("successfully"));
     }

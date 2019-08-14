@@ -7,7 +7,6 @@ import org.geotools.data.simple.SimpleFeatureIterator;
 import org.geotools.data.simple.SimpleFeatureSource;
 import org.locationtech.jts.geom.Geometry;
 import org.locationtech.jts.geom.GeometryCollection;
-import org.locationtech.jts.io.WKBWriter;
 import org.opengis.feature.simple.SimpleFeature;
 
 import java.io.File;
@@ -36,7 +35,7 @@ public class Shp2Wkb {
             wkbFile.createNewFile();
         }
 
-        byte[] WKBByteArray = getBytes();
+        byte[] WKBByteArray = getGeometryBytes();
 
         FileOutputStream out = null;
         try {
@@ -47,11 +46,16 @@ public class Shp2Wkb {
         }
     }
 
-    public byte[] getBytes() throws IOException {
-        Geometry geometries = readShpFile();
-//        System.out.println(geometries.toString());
-        WKBWriter writer = new WKBWriter();
-        byte[] WKBByteArray = writer.write(geometries);
+    /**
+     * 将ShapeFile文件中所有Geometry存入GeometryCollection，并转换为byte[]
+     * @return
+     * @throws IOException
+     */
+    public byte[] getGeometryBytes() throws IOException {
+        ArrayList<Geometry> geometryList = readShpFile();
+        Geometry[] geometries = geometryList.toArray(new Geometry[geometryList.size()]);
+        GeometryCollection geometryCollection = Utils.getGeometryCollection(geometries);
+        byte[] WKBByteArray = Utils.getBytesFromGeometry(geometryCollection);
         return WKBByteArray;
     }
 
@@ -60,7 +64,7 @@ public class Shp2Wkb {
      * @return 包含所有空间几何对象的GeometryCollection
      * @throws IOException
      */
-    public GeometryCollection getGeometry() throws IOException {
+    public ArrayList<Geometry> getGeometry() throws IOException {
         return readShpFile();
     }
 
@@ -69,7 +73,7 @@ public class Shp2Wkb {
      * @return 包含Shapefile中所有空间几何对象的GeometryCollection
      * @throws IOException
      */
-    private GeometryCollection readShpFile() throws IOException {
+    private ArrayList<Geometry> readShpFile() throws IOException {
         // 读取文件数据集
         FileDataStore store = FileDataStoreFinder.getDataStore(shpFile);
         // 从数据集中获取属性源
@@ -85,10 +89,6 @@ public class Shp2Wkb {
 //            System.out.println(geomObj.toString());
             geometryArrayList.add((Geometry) geomObj);
         }
-
-        Geometry[] geometries = geometryArrayList.toArray(new Geometry[geometryArrayList.size()]);
-        GeometryCollection geometryCollection = Utils.getGeometryCollection(geometries);
-//        System.out.println(geometryCollection.toString());
-        return geometryCollection;
+        return geometryArrayList;
     }
 }

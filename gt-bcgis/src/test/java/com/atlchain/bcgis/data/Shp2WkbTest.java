@@ -1,18 +1,17 @@
 package com.atlchain.bcgis.data;
 
-import com.atlchain.sdk.ATLChain;
 import org.junit.Assert;
 import org.junit.Test;
 import org.locationtech.jts.geom.Geometry;
 import org.locationtech.jts.geom.GeometryCollection;
 import org.locationtech.jts.io.ParseException;
 import org.locationtech.jts.io.WKBReader;
-import org.locationtech.jts.io.WKBWriter;
 
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Paths;
+import java.util.ArrayList;
 
 public class Shp2WkbTest {
     private File certFile = new File(this.getClass().getResource("/certs/user/cert.pem").getPath());
@@ -43,11 +42,11 @@ public class Shp2WkbTest {
     @Test
     public void testGetRightGeometryValue() {
         try {
-            GeometryCollection geometryCollection = shp2WKB.getGeometry();
-//            for (int i = 0; i < geometryCollection.getNumGeometries(); i++){
-//                System.out.println(geometryCollection.getGeometryN(i));
+            ArrayList<Geometry> geometryArrayList = shp2WKB.getGeometry();
+//            for(Geometry geom : geometryArrayList) {
+//                System.out.println(geom);
 //            }
-            Assert.assertNotNull(geometryCollection);
+            Assert.assertNotNull(geometryArrayList);
         } catch (IOException e) {
             e.printStackTrace();
         }
@@ -66,10 +65,8 @@ public class Shp2WkbTest {
 
     @Test
     public void testSaveGeometryToChain() throws IOException {
-        WKBWriter wkbWriter = new WKBWriter();
         String key =  "LineWrite5";
-        GeometryCollection geometryCollection = shp2WKB.getGeometry();
-        byte[] bytes = wkbWriter.write(geometryCollection);
+        byte[] bytes = shp2WKB.getGeometryBytes();
 
         String result = client.putRecord(
                 key,
@@ -91,7 +88,7 @@ public class Shp2WkbTest {
                 "GetByteArray"
         );
 
-        Geometry geometry = new WKBReader().read(result[0]);
+        Geometry geometry = Utils.getGeometryFromBytes(result[0]);
         System.out.println(geometry);
     }
 }
