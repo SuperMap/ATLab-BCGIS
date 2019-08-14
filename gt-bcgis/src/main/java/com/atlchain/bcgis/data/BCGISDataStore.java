@@ -1,13 +1,16 @@
 package com.atlchain.bcgis.data;
 
+import com.google.common.io.Files;
 import org.geotools.data.Query;
 import org.geotools.data.store.ContentDataStore;
 import org.geotools.data.store.ContentEntry;
 import org.geotools.data.store.ContentFeatureSource;
 import org.geotools.feature.NameImpl;
 import org.locationtech.jts.geom.Geometry;
+import org.locationtech.jts.geom.GeometryCollection;
 import org.locationtech.jts.io.ParseException;
 import org.locationtech.jts.io.WKBReader;
+import org.locationtech.jts.io.WKBWriter;
 import org.opengis.feature.type.Name;
 
 import java.io.File;
@@ -30,19 +33,20 @@ public class BCGISDataStore extends ContentDataStore {
     private String functionName;
     private String recordKey;
 
-    public BCGISDataStore(File certFile,
-                          File keyFile,
-                          String peerName,
-                          String peerUrl,
-                          String mspId,
-                          String userName,
-                          String ordererName,
-                          String ordererUrl,
-                          String channelName,
-                          String chaincodeName,
-                          String functionName,
-                          String recordKey
-                          )
+    public BCGISDataStore(
+            File certFile,
+            File keyFile,
+            String peerName,
+            String peerUrl,
+            String mspId,
+            String userName,
+            String ordererName,
+            String ordererUrl,
+            String channelName,
+            String chaincodeName,
+            String functionName,
+            String recordKey
+    )
     {
         this.certFile = certFile;
         this.keyFile = keyFile;
@@ -56,6 +60,40 @@ public class BCGISDataStore extends ContentDataStore {
         this.chaincodeName = chaincodeName;
         this.functionName = functionName;
         this.recordKey = recordKey;
+    }
+
+    public String putDataOnBlockchain(File shpFile) throws IOException {
+        String ext = Files.getFileExtension(shpFile.getName());
+        if(!"shp".equals(ext)) {
+            throw new IOException("Only accept shp file");
+        }
+
+        BlockChainClient client = new BlockChainClient(
+                this.certFile,
+                this.keyFile,
+                this.peerName,
+                this.peerUrl,
+                this.mspId,
+                this.userName,
+                this.ordererName,
+                this.ordererUrl
+        );
+
+        Shp2Wkb shp2WKB = new Shp2Wkb(shpFile);
+        GeometryCollection geometryCollection = shp2WKB.getGeometry();
+        WKBWriter wkbWriter = new WKBWriter();
+        byte[] bytes = wkbWriter.write(geometryCollection);
+        String key = shpFile.getName().split(".")[0];
+        System.out.println("shapefile name： " + key);
+
+        String restult = client.putRecord(
+                key,
+                bytes,
+                channelName,
+                chaincodeName,
+                "PutByteArray"
+        );
+        return restult;
     }
 
     private Geometry getRecord() {

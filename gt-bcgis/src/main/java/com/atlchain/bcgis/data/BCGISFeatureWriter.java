@@ -139,7 +139,7 @@ public class BCGISFeatureWriter implements SimpleFeatureWriter {
                 "atlchannel",
                 "bincc",
                 "PutByteArray"
-                );
+        );
     }
 }
 

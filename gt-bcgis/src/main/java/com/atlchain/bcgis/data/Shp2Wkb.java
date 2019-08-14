@@ -7,7 +7,6 @@ import org.geotools.data.simple.SimpleFeatureIterator;
 import org.geotools.data.simple.SimpleFeatureSource;
 import org.locationtech.jts.geom.Geometry;
 import org.locationtech.jts.geom.GeometryCollection;
-import org.locationtech.jts.geom.GeometryFactory;
 import org.locationtech.jts.io.WKBWriter;
 import org.opengis.feature.simple.SimpleFeature;
 
@@ -92,7 +91,4 @@ public class Shp2Wkb {
 //        System.out.println(geometryCollection.toString());
         return geometryCollection;
     }
-
-
-
 }

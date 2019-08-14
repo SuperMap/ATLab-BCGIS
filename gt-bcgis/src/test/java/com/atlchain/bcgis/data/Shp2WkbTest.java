@@ -15,9 +15,21 @@ import java.nio.file.Files;
 import java.nio.file.Paths;
 
 public class Shp2WkbTest {
-    String shpURL = this.getClass().getResource("/Line/Line.shp").getFile();
-    File shpFile = new File(shpURL);
-    Shp2Wkb shp2WKB = new Shp2Wkb(shpFile);
+    private File certFile = new File(this.getClass().getResource("/certs/user/cert.pem").getPath());
+    private File skFile = new File(this.getClass().getResource("/certs/user/user_sk").getPath());
+    private String shpURL = this.getClass().getResource("/Line/Line.shp").getFile();
+    private File shpFile = new File(shpURL);
+    private Shp2Wkb shp2WKB = new Shp2Wkb(shpFile);
+    private BlockChainClient client = new BlockChainClient(
+            certFile,
+            skFile,
+            "TestOrgA",
+            "grpc://172.16.15.66:7051",
+            "TestOrgA",
+            "admin",
+            "OrdererTestOrgA",
+            "grpc://172.16.15.66:7050"
+    );
 
     @Test
     public void testGetRightGeometryCollectionType() {
@@ -54,56 +66,29 @@ public class Shp2WkbTest {
 
     @Test
     public void testSaveGeometryToChain() throws IOException {
-        File certFile = new File(this.getClass().getResource("/certs/user/cert.pem").getPath());
-        File skFile = new File(this.getClass().getResource("/certs/user/user_sk").getPath());
-
-        ATLChain atlChain = new ATLChain(
-                certFile,
-                skFile,
-                "TestOrgA",
-                "grpc://172.16.15.66:7051",
-                "TestOrgA",
-                "admin",
-                "OrdererTestOrgA",
-                "grpc://172.16.15.66:7050"
-        );
-        GeometryCollection geometryCollection = shp2WKB.getGeometry();
-
         WKBWriter wkbWriter = new WKBWriter();
+        String key =  "LineWrite5";
+        GeometryCollection geometryCollection = shp2WKB.getGeometry();
         byte[] bytes = wkbWriter.write(geometryCollection);
-        byte[] byteKey =  "Line".getBytes();
 
-        String result = atlChain.invokeByte(
+        String result = client.putRecord(
+                key,
+                bytes,
                 "atlchannel",
                 "bincc",
-                "PutByteArray",
-                new byte[][]{byteKey, bytes}
+                "PutByteArray"
         );
         System.out.println(result);
     }
 
     @Test
-    public void testQueryGeometryFromChain() throws IOException, ParseException {
-        File certFile = new File(this.getClass().getResource("/certs/user/cert.pem").getPath());
-        File skFile = new File(this.getClass().getResource("/certs/user/user_sk").getPath());
-
-        ATLChain atlChain = new ATLChain(
-                certFile,
-                skFile,
-                "TestOrgA",
-                "grpc://172.16.15.66:7051",
-                "TestOrgA",
-                "admin",
-                "OrdererTestOrgA",
-                "grpc://172.16.15.66:7050"
-        );
-
-        byte[] byteKey =  "LineWrite".getBytes();
-        byte[][] result = atlChain.queryByte(
+    public void testQueryGeometryFromChain() throws ParseException {
+        String key = "LineWrite6";
+        byte[][] result = client.getRecord(
+                key,
                 "atlchannel",
                 "bincc",
-                "GetByteArray",
-                new byte[][]{byteKey}
+                "GetByteArray"
         );
 
         Geometry geometry = new WKBReader().read(result[0]);

@@ -35,7 +35,8 @@ import java.util.HashMap;
 import java.util.Map;
 
 public class BCGISDataStoreTest {
-
+    private String shpURL = this.getClass().getResource("/Line/Line.shp").getFile();
+    private File shpFile = new File(shpURL);
     private File certFile = new File(this.getClass().getResource("/certs/user/cert.pem").getPath());
     private File keyFile = new File(this.getClass().getResource("/certs/user/user_sk").getPath());
     private String peerName = "TestOrgA";
@@ -44,10 +45,10 @@ public class BCGISDataStoreTest {
     private String userName= "admin";
     private String ordererName= "OrdererTestOrgA";
     private String ordererUrl = "grpc://172.16.15.66:7050";
-    private String channelName = "atlchannel" ;
+    private String channelName = "atlchannel";
     private String chaincodeName = "bincc";
     private String functionName = "GetByteArray";
-    private String recordKey = "LineWrite2";
+    private String recordKey = "LineWrite6";
 
     private BCGISDataStore bcgisDataStore = new BCGISDataStore(
             certFile,
@@ -63,6 +64,9 @@ public class BCGISDataStoreTest {
             functionName,
             recordKey
     );
+
+    // >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
+    // test FeatureStore read function
 
     @Test
     public void testFeatureSource() throws IOException {
@@ -179,20 +183,25 @@ public class BCGISDataStoreTest {
                 "Line"
         );
 
-       SimpleFeatureSource simpleFeatureSource = bcgisDataStore.getFeatureSource(bcgisDataStore.getTypeNames()[0]);
-       simpleFeatureSource.getSchema();
-       String typeName = bcgisDataStore.getTypeNames()[0];
-       SimpleFeatureType type = bcgisDataStore.getSchema(typeName);
-       MapContent map = new MapContent();
-       map.setTitle("testBCGIS");
+        SimpleFeatureSource simpleFeatureSource = bcgisDataStore.getFeatureSource(bcgisDataStore.getTypeNames()[0]);
+        simpleFeatureSource.getSchema();
+        String typeName = bcgisDataStore.getTypeNames()[0];
+        SimpleFeatureType type = bcgisDataStore.getSchema(typeName);
+        MapContent map = new MapContent();
+        map.setTitle("testBCGIS");
 //        Style style = SLD.createLineStyle(Color.BLACK, 2.0f);
-       Style style = SLD.createSimpleStyle(type);
+        Style style = SLD.createSimpleStyle(type);
 
-       Layer layer = new FeatureLayer(simpleFeatureSource, style);
-       map.addLayer(layer);
+        Layer layer = new FeatureLayer(simpleFeatureSource, style);
+        map.addLayer(layer);
 
-       JMapFrame.showMap(map);
-   }
+        JMapFrame.showMap(map);
+    }
+
+    // <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
+
+    // >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
+    // test FeatureStore write function
 
     @Test
     public void testFeatureWrite() throws IOException {
@@ -257,5 +266,13 @@ public class BCGISDataStoreTest {
         t1.close();
         t2.close();
         bcgisDataStore.dispose();
+    }
+
+    // <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
+
+    @Test
+    public void testPutDataOnBlockchain() throws IOException {
+        String result = bcgisDataStore.putDataOnBlockchain(shpFile);
+        Assert.assertTrue(result.contains("successfully"));
     }
 }
