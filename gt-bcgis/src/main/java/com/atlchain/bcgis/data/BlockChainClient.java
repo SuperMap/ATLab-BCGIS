@@ -1,8 +1,11 @@
 package com.atlchain.bcgis.data;
 
 import com.atlchain.sdk.ATLChain;
+import org.hyperledger.fabric.sdk.exception.InvalidArgumentException;
+import org.hyperledger.fabric.sdk.exception.NetworkConfigurationException;
 
 import java.io.File;
+import java.io.IOException;
 
 /**
  * 区块链操作类，用于和区块链进行交互
@@ -10,27 +13,8 @@ import java.io.File;
 public class BlockChainClient {
     private ATLChain atlChain;
 
-    BlockChainClient(
-            File certFile,
-            File keyFile,
-            String peerName,
-            String peerUrl,
-            String mspId,
-            String userName,
-            String ordererName,
-            String ordererUrl
-    )
-    {
-        this.atlChain = new ATLChain(
-                certFile,
-                keyFile,
-                peerName,
-                peerUrl,
-                mspId,
-                userName,
-                ordererName,
-                ordererUrl
-        );
+    BlockChainClient(File networkConfigFile) throws IOException, NetworkConfigurationException, InvalidArgumentException {
+        this.atlChain = new ATLChain(networkConfigFile);
     }
 
     // 读取链上数据，通道名、链码名称、方法名有默认值
@@ -49,7 +33,6 @@ public class BlockChainClient {
     public byte[][] getRecord(String recordKey, String channelName, String chaincodeName, String functionName) {
         byte[] byteKey = recordKey.getBytes();
         byte[][] result = atlChain.queryByte(
-                channelName,
                 chaincodeName,
                 functionName,
                 new byte[][]{byteKey}
@@ -77,7 +60,6 @@ public class BlockChainClient {
     public String putRecord(String recordKey, byte[] record, String channelName, String chaincodeName, String functionName) {
         byte[] byteKey = recordKey.getBytes();
         String result = atlChain.invokeByte(
-                channelName,
                 chaincodeName,
                 functionName,
                 new byte[][]{byteKey, record}

@@ -1,5 +1,7 @@
 package com.atlchain.bcgis.data;
 
+import org.hyperledger.fabric.sdk.exception.InvalidArgumentException;
+import org.hyperledger.fabric.sdk.exception.NetworkConfigurationException;
 import org.junit.Assert;
 import org.junit.Test;
 import org.locationtech.jts.geom.Geometry;
@@ -19,16 +21,23 @@ public class Shp2WkbTest {
     private String shpURL = this.getClass().getResource("/Line/Line.shp").getFile();
     private File shpFile = new File(shpURL);
     private Shp2Wkb shp2WKB = new Shp2Wkb(shpFile);
-    private BlockChainClient client = new BlockChainClient(
-            certFile,
-            skFile,
-            "TestOrgA",
-            "grpc://172.16.15.66:7051",
-            "TestOrgA",
-            "admin",
-            "OrdererTestOrgA",
-            "grpc://172.16.15.66:7050"
-    );
+    private BlockChainClient client;
+    private File networkFile = new File(this.getClass().getResource("/network-config-test.yaml").getPath());
+
+
+    public Shp2WkbTest() throws NetworkConfigurationException, IOException, InvalidArgumentException {
+//         client = new BlockChainClient(
+//                certFile,
+//                skFile,
+//                "TestOrgA",
+//                "grpc://172.16.15.66:7051",
+//                "TestOrgA",
+//                "admin",
+//                "OrdererTestOrgA",
+//                "grpc://172.16.15.66:7050"
+//        );
+        client = new BlockChainClient(networkFile);
+    }
 
     @Test
     public void testGetRightGeometryCollectionType() {
@@ -65,7 +74,7 @@ public class Shp2WkbTest {
 
     @Test
     public void testSaveGeometryToChain() throws IOException {
-        String key =  "LineWrite5";
+        String key =  "LineWrite51";
         byte[] bytes = shp2WKB.getGeometryBytes();
 
         String result = client.putRecord(
@@ -80,7 +89,7 @@ public class Shp2WkbTest {
 
     @Test
     public void testQueryGeometryFromChain() throws ParseException {
-        String key = "LineWrite6";
+        String key = "LineWrite51";
         byte[][] result = client.getRecord(
                 key,
                 "atlchannel",

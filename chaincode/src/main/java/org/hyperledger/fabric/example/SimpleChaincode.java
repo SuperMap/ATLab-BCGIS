@@ -190,6 +190,11 @@ public class SimpleChaincode extends ChaincodeBase {
         return newSuccessResponse(val, ByteString.copyFrom(val, UTF_8).toByteArray());
     }
 
+    // TODO 根据 key 范围查询
+    private Response GetRecordByRange(ChaincodeStub stub, List<String> args) {
+        return newSuccessResponse();
+    }
+
     // ============================== FastDFS Start ================================
 
     // private String fastDFSUploadFile(byte[] fileContent, String fileExtName) {
