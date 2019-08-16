@@ -10,10 +10,7 @@ import org.geotools.feature.FeatureIterator;
 import org.geotools.feature.simple.SimpleFeatureTypeBuilder;
 import org.geotools.geometry.jts.ReferencedEnvelope;
 import org.geotools.referencing.crs.DefaultGeographicCRS;
-import org.locationtech.jts.geom.Geometry;
-import org.locationtech.jts.geom.LineString;
-import org.locationtech.jts.geom.Point;
-import org.locationtech.jts.geom.Polygon;
+import org.locationtech.jts.geom.*;
 import org.opengis.feature.FeatureVisitor;
 import org.opengis.feature.simple.SimpleFeature;
 import org.opengis.feature.simple.SimpleFeatureType;
@@ -67,16 +64,23 @@ public class BCGISFeatureSource extends ContentFeatureSource {
         SimpleFeatureTypeBuilder builder = new SimpleFeatureTypeBuilder();
         builder.setName(entry.getName());
         builder.setCRS(DefaultGeographicCRS.WGS84);
+
         if (geometry.getNumGeometries() < 1) {
             builder.add("geom", LineString.class);
         } else {
             String geometryType = geometry.getGeometryN(0).getGeometryType().toLowerCase();
-            if (geometryType.contains("linestring")) {
-                builder.add("geom", LineString.class);
-            } else if (geometryType.contains("point")) {
+            if (geometryType.equals("point")) {
                 builder.add("geom", Point.class);
-            } else if (geometryType.contains("polygon")) {
+            } else if(geometryType.equals("multipoint")){
+                builder.add("geom",MultiPoint.class);
+            }else if(geometryType.equals("linestring")){
+                builder.add("geom",LineString.class);
+            }else if(geometryType.equals("multilinestring")){
+                builder.add("geom",MultiLineString.class);
+            }else if(geometryType.contains("polygon")){
                 builder.add("geom", Polygon.class);
+            } else if (geometryType.contains("multipolygon")) {
+                builder.add("geom", MultiPolygon.class);
             }
         }
 
