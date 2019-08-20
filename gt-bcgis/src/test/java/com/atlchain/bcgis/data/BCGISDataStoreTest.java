@@ -4,6 +4,7 @@ import org.geotools.data.*;
 import org.geotools.data.simple.SimpleFeatureCollection;
 import org.geotools.data.simple.SimpleFeatureSource;
 import org.geotools.data.simple.SimpleFeatureStore;
+import org.geotools.data.store.ContentFeatureCollection;
 import org.geotools.data.store.ContentFeatureSource;
 import org.geotools.factory.CommonFactoryFinder;
 import org.geotools.feature.FeatureCollection;
@@ -30,6 +31,9 @@ import org.opengis.filter.FilterFactory;
 import java.io.File;
 import java.io.IOException;
 import java.io.Serializable;
+import java.net.MalformedURLException;
+import java.net.URI;
+import java.net.URL;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
@@ -139,19 +143,36 @@ public class BCGISDataStoreTest {
         Assert.assertNotEquals(-1, n);
     }
 
-//    @Test
-//    public void testGetDataStoreByParam() throws IOException {
-//        Map<String, Serializable> params = new HashMap<>();
-//        params.put("bcgis", "bcgis");
-//        DataStore store = DataStoreFinder.getDataStore(params);
-//        ContentFeatureSource bcgisFeatureSource = (ContentFeatureSource) store.getFeatureSource(bcgisDataStore.getTypeNames()[0]);
-//        int n = bcgisFeatureSource.getCount(Query.ALL);
-//
-//        String names[] = store.getTypeNames();
-//        System.out.println("typenames: " + names.length);
-//        System.out.println("typename[0]: " + names[0]);
-//        System.out.println(n);
-//    }
+    @Test
+    public void testGetDataStoreByParam() throws IOException {
+        Map<String, Serializable> params = new HashMap<>();
+        params.put("config", networkFile);
+        params.put("chaincodeName", "bincc");
+        params.put("functionName", "GetByteArray");
+        params.put("recordKey", "Line");
+        DataStore store = DataStoreFinder.getDataStore(params);
+        Query query = new Query(bcgisDataStore.getTypeNames()[0]);
+        FeatureReader<SimpleFeatureType, SimpleFeature> reader =
+                bcgisDataStore.getFeatureReader(query, Transaction.AUTO_COMMIT);
+        try {
+            int count = 0;
+            while (reader.hasNext()) {
+                SimpleFeature feature = reader.next();
+                if (feature != null) {
+                    System.out.println("  " + feature.getID() + " " + feature.getAttribute("geom"));
+                    System.out.println(feature);
+                    Assert.assertNotNull(feature);
+                    count++;
+                }
+            }
+        } finally {
+            reader.close();
+        }
+
+        String names[] = store.getTypeNames();
+        System.out.println("typenames: " + names.length);
+        System.out.println("typename[0]: " + names[0]);
+    }
 
     // 以JFrame方式显示地图
     public static void main(String[] args) throws IOException {
@@ -250,7 +271,7 @@ public class BCGISDataStoreTest {
     // <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
 
     @Test
-    public void testPutDataOnBlockchain() throws IOException, InterruptedException {
+    public void testPutDataOnBlockchain() throws IOException {
         String result = bcgisDataStore.putDataOnBlockchain(shpFile);
         Assert.assertTrue(result.contains("successfully"));
     }

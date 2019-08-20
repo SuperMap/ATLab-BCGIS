@@ -8,6 +8,9 @@ import java.awt.*;
 import java.io.File;
 import java.io.IOException;
 import java.io.Serializable;
+import java.net.URI;
+import java.net.URISyntaxException;
+import java.net.URL;
 import java.util.Collections;
 import java.util.Map;
 
@@ -38,7 +41,7 @@ public class BCGISDataStoreFactory implements DataStoreFactorySpi {
     public static final Param NETWORK_CONFIG_PARAM = new Param("config", File.class, "network config file");
     public static final Param CC_NAME_PARAM = new Param("chaincodeName", String.class, "chaincode name");
     public static final Param FUNCTION_NAME_PARAM = new Param("functionName", String.class, "function name");
-    public static final Param KEY_PARAM = new Param("Key", String.class, "record key");
+    public static final Param KEY_PARAM = new Param("recordKey", String.class, "record key");
     @Override
     public Param[] getParametersInfo() {
         return new Param[] {
@@ -51,8 +54,13 @@ public class BCGISDataStoreFactory implements DataStoreFactorySpi {
 
     @Override
     public DataStore createDataStore(Map<String, Serializable> params) throws IOException {
-        File networkConfigFile = (File) NETWORK_CONFIG_PARAM.lookUp(params);
-
+        File file = (File)NETWORK_CONFIG_PARAM.lookUp(params);
+        File networkConfigFile = null;
+        if (file.getPath().startsWith("file:")) {
+            networkConfigFile = new File(URI.create(file.getPath()));
+        } else {
+            networkConfigFile = file;
+        }
         String chaincodeName = (String)CC_NAME_PARAM.lookUp(params);
         String functionName = (String)FUNCTION_NAME_PARAM.lookUp(params);
         String key = (String)KEY_PARAM.lookUp(params);
@@ -68,7 +76,7 @@ public class BCGISDataStoreFactory implements DataStoreFactorySpi {
 
     @Override
     public DataStore createNewDataStore(Map<String, Serializable> params) throws IOException {
-        File networkConfigFile = (File) NETWORK_CONFIG_PARAM.lookUp(params);
+        File networkConfigFile = new File(((File)NETWORK_CONFIG_PARAM.lookUp(params)).getPath());
 
         String chaincodeName = (String)CC_NAME_PARAM.lookUp(params);
         String functionName = (String)FUNCTION_NAME_PARAM.lookUp(params);

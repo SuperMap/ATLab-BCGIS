@@ -1,16 +1,14 @@
 package com.atlchain.bcgis.data;
 
-import org.hyperledger.fabric.sdk.exception.InvalidArgumentException;
-import org.hyperledger.fabric.sdk.exception.NetworkConfigurationException;
 import org.junit.Assert;
 import org.junit.Test;
 import org.locationtech.jts.geom.Geometry;
 import org.locationtech.jts.geom.GeometryCollection;
 import org.locationtech.jts.io.ParseException;
-import org.locationtech.jts.io.WKBReader;
 
 import java.io.File;
 import java.io.IOException;
+import java.net.URISyntaxException;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.util.ArrayList;
@@ -20,10 +18,10 @@ public class Shp2WkbTest {
     private File shpFile = new File(shpURL);
     private Shp2Wkb shp2WKB = new Shp2Wkb(shpFile);
     private BlockChainClient client;
-    private File networkFile = new File(this.getClass().getResource("/network-config-test.yaml").getPath());
+    private File networkFile = new File(this.getClass().getResource("/network-config-test.yaml").toURI());
 
 
-    public Shp2WkbTest() {
+    public Shp2WkbTest() throws URISyntaxException {
         client = new BlockChainClient(networkFile);
     }
 
@@ -62,7 +60,7 @@ public class Shp2WkbTest {
 
     @Test
     public void testSaveGeometryToChain() throws IOException {
-        String key =  "LineWrite52";
+        String key =  "Line2222";
         byte[] bytes = shp2WKB.getGeometryBytes();
 
         String result = client.putRecord(
@@ -76,7 +74,7 @@ public class Shp2WkbTest {
 
     @Test
     public void testQueryGeometryFromChain() throws ParseException {
-        String key = "LineWrite52";
+        String key = "Line2222";
         byte[][] result = client.getRecord(
                 key,
                 "bincc",
@@ -86,4 +84,5 @@ public class Shp2WkbTest {
         Geometry geometry = Utils.getGeometryFromBytes(result[0]);
         System.out.println(geometry);
     }
+
 }

@@ -13,9 +13,6 @@ import org.opengis.feature.type.Name;
 
 import java.io.File;
 import java.io.IOException;
-import java.net.URI;
-import java.net.URISyntaxException;
-import java.net.URL;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -32,8 +29,9 @@ public class BCGISDataStore extends ContentDataStore {
             String chaincodeName,
             String functionName,
             String recordKey
-    ) {
-        this.networkConfigFile = new File(networkConfigFile.toURI());
+    )
+    {
+        this.networkConfigFile = networkConfigFile;
         this.chaincodeName = chaincodeName;
         this.functionName = functionName;
         this.recordKey = recordKey;
