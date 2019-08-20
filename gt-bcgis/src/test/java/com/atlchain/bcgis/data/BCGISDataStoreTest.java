@@ -37,29 +37,16 @@ import java.util.Map;
 public class BCGISDataStoreTest {
     private String shpURL = this.getClass().getResource("/Line/Line.shp").getFile();
     private File shpFile = new File(shpURL);
-    private File certFile = new File(this.getClass().getResource("/certs/user/cert.pem").getPath());
-    private File keyFile = new File(this.getClass().getResource("/certs/user/user_sk").getPath());
-    private String peerName = "TestOrgA";
-    private String peerUrl = "grpc://172.16.15.66:7051";
-    private String mspId = "TestOrgA";
-    private String userName= "admin";
-    private String ordererName= "OrdererTestOrgA";
-    private String ordererUrl = "grpc://172.16.15.66:7050";
-    private String channelName = "atlchannel";
+
     private String chaincodeName = "bincc";
     private String functionName = "GetByteArray";
     private String recordKey = "LineWrite6";
 
+    private File networkFile = new File(this.getClass().getResource("/network-config-test.yaml").getPath());
+
+
     private BCGISDataStore bcgisDataStore = new BCGISDataStore(
-            certFile,
-            keyFile,
-            peerName,
-            peerUrl,
-            mspId,
-            userName,
-            ordererName,
-            ordererUrl,
-            channelName,
+            networkFile,
             chaincodeName,
             functionName,
             recordKey
@@ -152,32 +139,24 @@ public class BCGISDataStoreTest {
         Assert.assertNotEquals(-1, n);
     }
 
-    @Test
-    public void testGetDataStoreByParam() throws IOException {
-        Map<String, Serializable> params = new HashMap<>();
-        params.put("bcgis", "bcgis");
-        DataStore store = DataStoreFinder.getDataStore(params);
-        ContentFeatureSource bcgisFeatureSource = (ContentFeatureSource) store.getFeatureSource(bcgisDataStore.getTypeNames()[0]);
-        int n = bcgisFeatureSource.getCount(Query.ALL);
-
-        String names[] = store.getTypeNames();
-        System.out.println("typenames: " + names.length);
-        System.out.println("typename[0]: " + names[0]);
-        System.out.println(n);
-    }
+//    @Test
+//    public void testGetDataStoreByParam() throws IOException {
+//        Map<String, Serializable> params = new HashMap<>();
+//        params.put("bcgis", "bcgis");
+//        DataStore store = DataStoreFinder.getDataStore(params);
+//        ContentFeatureSource bcgisFeatureSource = (ContentFeatureSource) store.getFeatureSource(bcgisDataStore.getTypeNames()[0]);
+//        int n = bcgisFeatureSource.getCount(Query.ALL);
+//
+//        String names[] = store.getTypeNames();
+//        System.out.println("typenames: " + names.length);
+//        System.out.println("typename[0]: " + names[0]);
+//        System.out.println(n);
+//    }
 
     // 以JFrame方式显示地图
     public static void main(String[] args) throws IOException {
         BCGISDataStore bcgisDataStore = new BCGISDataStore(
-                new File(BCGISDataStoreTest.class.getResource("/certs/user/cert.pem").getPath()),
-                new File(BCGISDataStoreTest.class.getResource("/certs/user/user_sk").getPath()),
-                "TestOrgA",
-                "grpc://172.16.15.66:7051",
-                "TestOrgA",
-                "admin",
-                "OrdererTestOrgA",
-                "grpc://172.16.15.66:7050",
-                "atlchannel" ,
+                new File(BCGISDataStoreTest.class.getResource("/network-config-test.yaml").getPath()),
                 "bincc",
                 "GetByteArray",
                 "Line"

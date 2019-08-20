@@ -13,24 +13,20 @@ import java.io.IOException;
 public class BlockChainClient {
     private ATLChain atlChain;
 
-    BlockChainClient(File networkConfigFile) throws IOException, NetworkConfigurationException, InvalidArgumentException {
+    BlockChainClient(File networkConfigFile) {
         this.atlChain = new ATLChain(networkConfigFile);
     }
 
     // 读取链上数据，通道名、链码名称、方法名有默认值
     public byte[][] getRecord(String recordKey) {
-        return getRecord(recordKey, "atlchannel", "atlchaincc", "GetByteArray");
+        return getRecord(recordKey, "atlchaincc", "GetByteArray");
     }
 
-    public byte[][] getRecord(String recordKey, String channelName) {
-        return getRecord(recordKey, channelName, "atlchaincc", "GetByteArray");
+    public byte[][] getRecord(String recordKey, String chaincodeName) {
+        return getRecord(recordKey, chaincodeName, "GetByteArray");
     }
 
-    public byte[][] getRecord(String recordKey, String channelName, String chaincodeName) {
-        return getRecord(recordKey, channelName, chaincodeName, "GetByteArray");
-    }
-
-    public byte[][] getRecord(String recordKey, String channelName, String chaincodeName, String functionName) {
+    public byte[][] getRecord(String recordKey, String chaincodeName, String functionName) {
         byte[] byteKey = recordKey.getBytes();
         byte[][] result = atlChain.queryByte(
                 chaincodeName,
@@ -42,22 +38,18 @@ public class BlockChainClient {
 
     // 向链上写数据，通道名、链码名称、方法名有默认值，默认写入字符串“record”
     public String putRecord(String recordKey) {
-        return putRecord(recordKey, "record".getBytes(), "atlchannel", "atlchaincc", "PutByteArray");
+        return putRecord(recordKey, "record".getBytes(), "atlchaincc", "PutByteArray");
     }
 
     public String putRecord(String recordKey, byte[] record) {
-        return putRecord(recordKey, record, "atlchannel", "atlchaincc", "PutByteArray");
+        return putRecord(recordKey, record, "atlchaincc", "PutByteArray");
     }
 
-    public String putRecord(String recordKey, byte[] record, String channelName) {
-        return putRecord(recordKey, record, channelName, "atlchaincc", "PutByteArray");
+    public String putRecord(String recordKey, byte[] record, String chaincodeName) {
+        return putRecord(recordKey, record, chaincodeName, "PutByteArray");
     }
 
-    public String putRecord(String recordKey, byte[] record, String channelName, String chaincodeName) {
-        return putRecord(recordKey, record, channelName, chaincodeName, "PutByteArray");
-    }
-
-    public String putRecord(String recordKey, byte[] record, String channelName, String chaincodeName, String functionName) {
+    public String putRecord(String recordKey, byte[] record, String chaincodeName, String functionName) {
         byte[] byteKey = recordKey.getBytes();
         String result = atlChain.invokeByte(
                 chaincodeName,

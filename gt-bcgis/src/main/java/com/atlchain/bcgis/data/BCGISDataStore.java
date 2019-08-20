@@ -13,70 +13,39 @@ import org.opengis.feature.type.Name;
 
 import java.io.File;
 import java.io.IOException;
+import java.net.URI;
+import java.net.URISyntaxException;
+import java.net.URL;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
-// 目前只支持以明确指定BCGISDataStore的方式使用，不支持DataStoreFinder的方式根据Param自动搜索。
 public class BCGISDataStore extends ContentDataStore {
-    private File certFile;
-    private File keyFile;
-    private String peerName;
-    private String peerUrl;
-    private String mspId;
-    private String userName;
-    private String ordererName;
-    private String ordererUrl;
-    private String channelName;
+    private File networkConfigFile;
+
     private String chaincodeName;
     private String functionName;
     private String recordKey;
 
     public BCGISDataStore(
-            File certFile,
-            File keyFile,
-            String peerName,
-            String peerUrl,
-            String mspId,
-            String userName,
-            String ordererName,
-            String ordererUrl,
-            String channelName,
+            File networkConfigFile,
             String chaincodeName,
             String functionName,
             String recordKey
-    )
-    {
-        this.certFile = certFile;
-        this.keyFile = keyFile;
-        this.peerName = peerName;
-        this.peerUrl = peerUrl;
-        this.mspId = mspId;
-        this.userName = userName;
-        this.ordererName = ordererName;
-        this.ordererUrl = ordererUrl;
-        this.channelName = channelName;
+    ) {
+        this.networkConfigFile = new File(networkConfigFile.toURI());
         this.chaincodeName = chaincodeName;
         this.functionName = functionName;
         this.recordKey = recordKey;
     }
 
-    public String putDataOnBlockchain(File shpFile) throws IOException, InterruptedException {
+    public String putDataOnBlockchain(File shpFile) throws IOException {
         String ext = Files.getFileExtension(shpFile.getName());
         if(!"shp".equals(ext)) {
             throw new IOException("Only accept shp file");
         }
 
-        BlockChainClient client = new BlockChainClient(
-                this.certFile,
-                this.keyFile,
-                this.peerName,
-                this.peerUrl,
-                this.mspId,
-                this.userName,
-                this.ordererName,
-                this.ordererUrl
-        );
+        BlockChainClient client = new BlockChainClient(networkConfigFile);
 
         Shp2Wkb shp2WKB = new Shp2Wkb(shpFile);
         ArrayList<Geometry> geometryArrayList = shp2WKB.getGeometry();
@@ -85,7 +54,6 @@ public class BCGISDataStore extends ContentDataStore {
         String result = client.putRecord(
                 key,
                 bytes,
-                channelName,
                 chaincodeName,
                 "PutByteArray"
         );
@@ -97,7 +65,6 @@ public class BCGISDataStore extends ContentDataStore {
 //            result = client.putRecord(
 //                    key,
 //                    bytes,
-//                    channelName,
 //                    chaincodeName,
 //                    "PutByteArray"
 //            );
@@ -108,20 +75,10 @@ public class BCGISDataStore extends ContentDataStore {
     }
 
     private Geometry getRecord() {
-        BlockChainClient client = new BlockChainClient(
-                this.certFile,
-                this.keyFile,
-                this.peerName,
-                this.peerUrl,
-                this.mspId,
-                this.userName,
-                this.ordererName,
-                this.ordererUrl
-        );
+        BlockChainClient client = new BlockChainClient(networkConfigFile);
 
         byte[][] result = client.getRecord(
                 this.recordKey,
-                this.channelName,
                 this.chaincodeName,
                 this.functionName
         );

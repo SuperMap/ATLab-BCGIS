@@ -116,27 +116,15 @@ public class BCGISFeatureWriter implements SimpleFeatureWriter {
 
         Geometry[] geometries = geometryArrayList.toArray(new Geometry[geometryArrayList.size()]);
         GeometryCollection geometryCollection = Utils.getGeometryCollection(geometries);
+        File networkFile = new File(this.getClass().getResource("/network-config-test.yaml").getPath());
 
-        File certFile = new File(this.getClass().getResource("/certs/user/cert.pem").getPath());
-        File skFile = new File(this.getClass().getResource("/certs/user/user_sk").getPath());
-
-        BlockChainClient client = new BlockChainClient(
-                certFile,
-                skFile,
-                "TestOrgA",
-                "grpc://172.16.15.66:7051",
-                "TestOrgA",
-                "admin",
-                "OrdererTestOrgA",
-                "grpc://172.16.15.66:7050"
-        );
+        BlockChainClient client = new BlockChainClient(networkFile);
 
         WKBWriter wkbWriter = new WKBWriter();
         byte[] bytes = wkbWriter.write(geometryCollection);
         String result = client.putRecord(
                 "LineWrite2",
                 bytes,
-                "atlchannel",
                 "bincc",
                 "PutByteArray"
         );

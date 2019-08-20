@@ -16,8 +16,6 @@ import java.nio.file.Paths;
 import java.util.ArrayList;
 
 public class Shp2WkbTest {
-    private File certFile = new File(this.getClass().getResource("/certs/user/cert.pem").getPath());
-    private File skFile = new File(this.getClass().getResource("/certs/user/user_sk").getPath());
     private String shpURL = this.getClass().getResource("/Line/Line.shp").getFile();
     private File shpFile = new File(shpURL);
     private Shp2Wkb shp2WKB = new Shp2Wkb(shpFile);
@@ -25,17 +23,7 @@ public class Shp2WkbTest {
     private File networkFile = new File(this.getClass().getResource("/network-config-test.yaml").getPath());
 
 
-    public Shp2WkbTest() throws NetworkConfigurationException, IOException, InvalidArgumentException {
-//         client = new BlockChainClient(
-//                certFile,
-//                skFile,
-//                "TestOrgA",
-//                "grpc://172.16.15.66:7051",
-//                "TestOrgA",
-//                "admin",
-//                "OrdererTestOrgA",
-//                "grpc://172.16.15.66:7050"
-//        );
+    public Shp2WkbTest() {
         client = new BlockChainClient(networkFile);
     }
 
@@ -74,13 +62,12 @@ public class Shp2WkbTest {
 
     @Test
     public void testSaveGeometryToChain() throws IOException {
-        String key =  "LineWrite51";
+        String key =  "LineWrite52";
         byte[] bytes = shp2WKB.getGeometryBytes();
 
         String result = client.putRecord(
                 key,
                 bytes,
-                "atlchannel",
                 "bincc",
                 "PutByteArray"
         );
@@ -89,10 +76,9 @@ public class Shp2WkbTest {
 
     @Test
     public void testQueryGeometryFromChain() throws ParseException {
-        String key = "LineWrite51";
+        String key = "LineWrite52";
         byte[][] result = client.getRecord(
                 key,
-                "atlchannel",
                 "bincc",
                 "GetByteArray"
         );
