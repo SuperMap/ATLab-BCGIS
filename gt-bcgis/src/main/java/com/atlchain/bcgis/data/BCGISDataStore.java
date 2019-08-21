@@ -37,39 +37,46 @@ public class BCGISDataStore extends ContentDataStore {
         this.recordKey = recordKey;
     }
 
-    public String putDataOnBlockchain(File shpFile) throws IOException {
-        String ext = Files.getFileExtension(shpFile.getName());
+    public String putDataOnBlockchain(File shpFile) throws IOException, InterruptedException {
+        String fileName = shpFile.getName();
+        String ext = Files.getFileExtension(fileName);
         if(!"shp".equals(ext)) {
             throw new IOException("Only accept shp file");
         }
 
+        String result = "";
         BlockChainClient client = new BlockChainClient(networkConfigFile);
 
         Shp2Wkb shp2WKB = new Shp2Wkb(shpFile);
         ArrayList<Geometry> geometryArrayList = shp2WKB.getGeometry();
-        String key = "LineWrite7"; //shpFile.getName().split("\\.")[0];
-        byte[] bytes = Utils.getBytesFromGeometry(geometryArrayList.get(0));
-        String result = client.putRecord(
+        String key = fileName.substring(0, fileName.lastIndexOf('.'));
+        if (key == "") {
+            throw new IOException("Cannot get prefix filename");
+        }
+
+        byte[] bytes = null;
+        result = client.putRecord(
                 key,
                 bytes,
                 chaincodeName,
                 "PutByteArray"
         );
 
-//        int index = 0;
-//        for (Geometry geo : geometryArrayList) {
-//            byte[] bytes = Utils.getBytesFromGeometry(geo);
-//            key = key + "-" + index;
-//            result = client.putRecord(
-//                    key,
-//                    bytes,
-//                    chaincodeName,
-//                    "PutByteArray"
-//            );
-//            index++;
+        int index = 0;
+        for (Geometry geo : geometryArrayList) {
+            byte[] geoBytes = Utils.getBytesFromGeometry(geo);
+            String recordKey = key + "-" + index;
+            result = client.putRecord(
+                    recordKey,
+                    geoBytes,
+                    chaincodeName,
+                    "PutByteArray"
+            );
+            index++;
+            System.out.println(result);
 //            Thread.sleep(1000);
-//        }
-        return result;
+        }
+        return "result";
     }
 
     private Geometry getRecord() {

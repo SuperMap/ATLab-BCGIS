@@ -60,13 +60,13 @@ public class Shp2WkbTest {
 
     @Test
     public void testSaveGeometryToChain() throws IOException {
-        String key =  "Line2222";
+        String key =  "Line2";
         byte[] bytes = shp2WKB.getGeometryBytes();
 
         String result = client.putRecord(
                 key,
                 bytes,
-                "bincc",
+                "bcgiscc",
                 "PutByteArray"
         );
         System.out.println(result);
@@ -74,11 +74,11 @@ public class Shp2WkbTest {
 
     @Test
     public void testQueryGeometryFromChain() throws ParseException {
-        String key = "Line2222";
+        String key = "Line";
         byte[][] result = client.getRecord(
                 key,
-                "bincc",
-                "GetByteArray"
+                "bcgiscc",
+                "GetRecordByKey"
         );
 
         Geometry geometry = Utils.getGeometryFromBytes(result[0]);

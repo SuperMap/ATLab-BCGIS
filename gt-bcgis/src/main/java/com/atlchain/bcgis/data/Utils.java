@@ -7,6 +7,8 @@ import org.locationtech.jts.io.ParseException;
 import org.locationtech.jts.io.WKBReader;
 import org.locationtech.jts.io.WKBWriter;
 
+import java.util.UUID;
+
 /**
  * 工具类
  */
@@ -30,5 +32,10 @@ public class Utils {
     public static Geometry getGeometryFromBytes(byte[] bytes) throws ParseException {
         Geometry geometry = new WKBReader().read(bytes);
         return geometry;
+    }
+
+    public static UUID getUuid() {
+        UUID uuid = UUID.randomUUID();
+        return uuid;
     }
 }
