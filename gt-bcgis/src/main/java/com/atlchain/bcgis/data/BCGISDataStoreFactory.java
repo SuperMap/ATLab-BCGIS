@@ -13,8 +13,10 @@ import java.net.URISyntaxException;
 import java.net.URL;
 import java.util.Collections;
 import java.util.Map;
+import java.util.logging.Logger;
 
 public class BCGISDataStoreFactory implements DataStoreFactorySpi {
+    Logger logger = Logger.getLogger(BCGISDataStoreFactory.class.toString());
 
     public BCGISDataStoreFactory() {}
 
@@ -76,6 +78,7 @@ public class BCGISDataStoreFactory implements DataStoreFactorySpi {
 
     @Override
     public DataStore createNewDataStore(Map<String, Serializable> params) throws IOException {
+        logger.info("==============>createcreateNewDataStore" );
         File networkConfigFile = new File(((File)NETWORK_CONFIG_PARAM.lookUp(params)).getPath());
 
         String chaincodeName = (String)CC_NAME_PARAM.lookUp(params);

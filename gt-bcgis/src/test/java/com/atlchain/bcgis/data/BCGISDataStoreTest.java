@@ -39,12 +39,12 @@ import java.util.HashMap;
 import java.util.Map;
 
 public class BCGISDataStoreTest {
-    private String shpURL = this.getClass().getResource("/Line/Line.shp").getFile();
+    private String shpURL = this.getClass().getResource("/D/D.shp").getFile();
     private File shpFile = new File(shpURL);
 
-    private String chaincodeName = "bincc";
-    private String functionName = "GetByteArray";
-    private String recordKey = "LineWrite6";
+    private String chaincodeName = "bcgiscc";
+    private String functionName = "GetRecordByKey";
+    private String recordKey = "30496f46583734b9b0c6d44ca11822a176e4bad9db24081dbbfc8f4e1ac0cbfb";
 
     private File networkFile = new File(this.getClass().getResource("/network-config-test.yaml").getPath());
 
@@ -176,11 +176,13 @@ public class BCGISDataStoreTest {
 
     // 以JFrame方式显示地图
     public static void main(String[] args) throws IOException {
+        String LineKey = "30496f46583734b9b0c6d44ca11822a176e4bad9db24081dbbfc8f4e1ac0cbfb";
+        String DKey = "6bff876faa82c51aee79068a68d4a814af8c304a0876a08c0e8fe16e5645fde4";
         BCGISDataStore bcgisDataStore = new BCGISDataStore(
                 new File(BCGISDataStoreTest.class.getResource("/network-config-test.yaml").getPath()),
-                "bincc",
-                "GetByteArray",
-                "Line"
+                "bcgiscc",
+                "GetRecordByKey",
+                LineKey
         );
 
         SimpleFeatureSource simpleFeatureSource = bcgisDataStore.getFeatureSource(bcgisDataStore.getTypeNames()[0]);
@@ -276,7 +278,16 @@ public class BCGISDataStoreTest {
     public void testPutDataOnBlockchain() throws IOException, InterruptedException {
         String result = bcgisDataStore.putDataOnBlockchain(shpFile);
         System.out.println(result);
-//        Assert.assertTrue(result.contains("successfully"));
+        Assert.assertTrue(result.contains("successfully"));
     }
     // <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
+
+    // >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
+    // test getDataFromChain
+//    @Test
+//    public void testGetDataFromChain() {
+//        bcgisDataStore.getRecord();
+//    }
+    // <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
+
 }

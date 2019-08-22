@@ -1,5 +1,8 @@
 package com.atlchain.bcgis.data;
 
+import com.alibaba.fastjson.JSON;
+import com.alibaba.fastjson.JSONArray;
+import com.alibaba.fastjson.JSONObject;
 import com.google.common.io.Files;
 import org.geotools.data.Query;
 import org.geotools.data.store.ContentDataStore;
@@ -7,6 +10,7 @@ import org.geotools.data.store.ContentEntry;
 import org.geotools.data.store.ContentFeatureSource;
 import org.geotools.feature.NameImpl;
 import org.locationtech.jts.geom.Geometry;
+import org.locationtech.jts.geom.GeometryCollection;
 import org.locationtech.jts.io.ParseException;
 import org.locationtech.jts.io.WKBReader;
 import org.opengis.feature.type.Name;
@@ -14,10 +18,13 @@ import org.opengis.feature.type.Name;
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Base64;
 import java.util.Collections;
 import java.util.List;
+import java.util.logging.Logger;
 
 public class BCGISDataStore extends ContentDataStore {
+    Logger logger = Logger.getLogger(BCGISDataStore.class.toString());
     private File networkConfigFile;
 
     private String chaincodeName;
@@ -49,18 +56,27 @@ public class BCGISDataStore extends ContentDataStore {
 
         Shp2Wkb shp2WKB = new Shp2Wkb(shpFile);
         ArrayList<Geometry> geometryArrayList = shp2WKB.getGeometry();
-        String key = fileName.substring(0, fileName.lastIndexOf('.'));
-        if (key == "") {
-            throw new IOException("Cannot get prefix filename");
-        }
-
-        byte[] bytes = null;
+        String geometryStr = Utils.getGeometryStr(geometryArrayList);
+        String hash = Utils.getSHA256(geometryStr);
+        String key = hash;
+        System.out.println(key);
+        String mapname = fileName.substring(0, fileName.lastIndexOf("."));
+        JSONObject argsJson = new JSONObject();
+        argsJson.put("mapname", mapname);
+        argsJson.put("count", geometryArrayList.size());
+        argsJson.put("hash", key);
+        argsJson.put("geotype", geometryArrayList.get(0).getGeometryType());
+        argsJson.put("PID", "");
+        String args = argsJson.toJSONString();
         result = client.putRecord(
                 key,
-                bytes,
+                args,
                 chaincodeName,
-                "PutByteArray"
+                "PutRecord"
         );
+        if (!result.contains("successfully")) {
+            return "Put data on chain FAILED! MESSAGE:" + result;
+        }
 
         int index = 0;
         for (Geometry geo : geometryArrayList) {
@@ -70,39 +86,66 @@ public class BCGISDataStore extends ContentDataStore {
                     recordKey,
                     geoBytes,
                     chaincodeName,
-                    "PutByteArray"
+                    "PutRecordBytes"
             );
             index++;
-            System.out.println(result);
-//            Thread.sleep(1000);
+            if (!result.contains("successfully")) {
+                return "Put data on chain FAILED! MESSAGE:" + result;
+            }
+            //            Thread.sleep(1000);
         }
-        return "result";
+        return result;
     }
 
     private Geometry getRecord() {
+        logger.info("===================>getRecord");
         BlockChainClient client = new BlockChainClient(networkConfigFile);
 
-        byte[][] result = client.getRecord(
+        String result = client.getRecord(
                 this.recordKey,
                 this.chaincodeName,
                 this.functionName
         );
-        Geometry geometry = null;
-        try {
-            geometry = new WKBReader().read(result[0]);
-        } catch (ParseException e) {
-            e.printStackTrace();
-        }
-        geometry.getNumGeometries();
 
-        if (geometry == null) {
+        JSONObject jsonObject = (JSONObject)JSON.parse(result);
+        int count = (int)jsonObject.get("count");
+
+        Geometry geometry = null;
+        byte[][] results = client.getRecordByRange(
+                this.recordKey,
+                this.chaincodeName
+        );
+
+        ArrayList<Geometry> geometryArrayList = new ArrayList<>();
+        for (byte[] resultByte : results) {
+            String resultStr = new String(resultByte);
+            JSONArray jsonArray = (JSONArray)JSON.parse(resultStr);
+            if (count != jsonArray.size()) {
+                return null;
+            }
+            for (Object obj : jsonArray){
+                JSONObject jsonObj = (JSONObject) obj;
+                String recordBase64 = (String)jsonObj.get("Record");
+                byte[] bytes = Base64.getDecoder().decode(recordBase64);
+                try {
+                    geometry = new WKBReader().read(bytes);
+                } catch (ParseException e) {
+                    e.printStackTrace();
+                }
+                geometryArrayList.add(geometry);
+            }
+        }
+        Geometry[] geometries = geometryArrayList.toArray(new Geometry[geometryArrayList.size()]);
+        GeometryCollection geometryCollection = Utils.getGeometryCollection(geometries);
+
+        if (geometryArrayList == null) {
             try {
                 throw new IOException("Blockchain record is not available");
             } catch (IOException e) {
                 e.printStackTrace();
             }
         }
-        return geometry;
+        return geometryCollection;
     }
 
     @Override

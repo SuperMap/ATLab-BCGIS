@@ -9,6 +9,7 @@ import org.hyperledger.fabric.shim.ledger.KeyModification;
 import org.hyperledger.fabric.shim.ledger.KeyValue;
 import org.hyperledger.fabric.shim.ledger.QueryResultsIterator;
 
+import java.util.Base64;
 import java.util.Iterator;
 import java.util.List;
 
@@ -164,7 +165,7 @@ public class BCGISChaincode extends ChaincodeBase {
                 strBuilder.append(",");
             }
             KeyValue keyValue = iter.next();
-            strBuilder.append("{\"Key\":\"" + keyValue.getKey() + "\",\"Record\":" + keyValue.getStringValue() + "}");
+            strBuilder.append("{\"Key\":\"" + keyValue.getKey() + "\",\"Record\":\"" + Base64.getEncoder().encodeToString(keyValue.getValue()) + "\"}");
             shouldAddComma = true;
         }
         strBuilder.append("]");

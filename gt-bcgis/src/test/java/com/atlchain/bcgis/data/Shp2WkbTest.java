@@ -60,22 +60,22 @@ public class Shp2WkbTest {
 
     @Test
     public void testSaveGeometryToChain() throws IOException {
-        String key =  "Line2";
+        String key =  "Line4";
         byte[] bytes = shp2WKB.getGeometryBytes();
 
         String result = client.putRecord(
                 key,
                 bytes,
                 "bcgiscc",
-                "PutByteArray"
+                "PutRecordBytes"
         );
         System.out.println(result);
     }
 
     @Test
     public void testQueryGeometryFromChain() throws ParseException {
-        String key = "Line";
-        byte[][] result = client.getRecord(
+        String key = "Line4";
+        byte[][] result = client.getRecordBytes(
                 key,
                 "bcgiscc",
                 "GetRecordByKey"
@@ -85,4 +85,9 @@ public class Shp2WkbTest {
         System.out.println(geometry);
     }
 
+    @Test
+    public void testSha256() {
+        String sha256 = Utils.getSHA256("bbb");
+        Assert.assertEquals("3e744b9dc39389baf0c5a0660589b8402f3dbb49b89b3e75f2c9355852a3c677", sha256);
+    }
 }
