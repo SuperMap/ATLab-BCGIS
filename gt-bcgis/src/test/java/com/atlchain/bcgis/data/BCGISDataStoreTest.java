@@ -34,17 +34,19 @@ import java.io.Serializable;
 import java.net.MalformedURLException;
 import java.net.URI;
 import java.net.URL;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 
 public class BCGISDataStoreTest {
-    private String shpURL = this.getClass().getResource("/D/D.shp").getFile();
+    private String shpURL = this.getClass().getResource("/Line/Line.shp").getFile();
     private File shpFile = new File(shpURL);
 
     private String chaincodeName = "bcgiscc";
     private String functionName = "GetRecordByKey";
-    private String recordKey = "30496f46583734b9b0c6d44ca11822a176e4bad9db24081dbbfc8f4e1ac0cbfb";
+    private String recordKey = "6bff876faa82c51aee79068a68d4a814af8c304a0876a08c0e8fe16e5645fde4";
 
     private File networkFile = new File(this.getClass().getResource("/network-config-test.yaml").getPath());
 
@@ -140,6 +142,7 @@ public class BCGISDataStoreTest {
     public void testGetFeatureCount() throws IOException {
         ContentFeatureSource bcgisFeatureSource = bcgisDataStore.getFeatureSource(bcgisDataStore.getTypeNames()[0]);
         int n = bcgisFeatureSource.getCount(Query.ALL);
+        System.out.println(n);
         Assert.assertNotEquals(-1, n);
     }
 
@@ -160,7 +163,7 @@ public class BCGISDataStoreTest {
                 SimpleFeature feature = reader.next();
                 if (feature != null) {
                     System.out.println("  " + feature.getID() + " " + feature.getAttribute("geom"));
-                    System.out.println(feature);
+//                    System.out.println(feature);
                     Assert.assertNotNull(feature);
                     count++;
                 }
@@ -182,7 +185,7 @@ public class BCGISDataStoreTest {
                 new File(BCGISDataStoreTest.class.getResource("/network-config-test.yaml").getPath()),
                 "bcgiscc",
                 "GetRecordByKey",
-                LineKey
+                DKey
         );
 
         SimpleFeatureSource simpleFeatureSource = bcgisDataStore.getFeatureSource(bcgisDataStore.getTypeNames()[0]);
@@ -221,12 +224,9 @@ public class BCGISDataStoreTest {
 
         System.out.println("Step 1");
         System.out.println("------");
-        System.out.println(
-                "start     auto-commit: " + DataUtilities.fidSet(featureStore.getFeatures()));
-        System.out.println(
-                "start              t1: " + DataUtilities.fidSet(featureStore1.getFeatures()));
-        System.out.println(
-                "start              t2: " + DataUtilities.fidSet(featureStore2.getFeatures()));
+        System.out.println("start     auto-commit: " + DataUtilities.fidSet(featureStore.getFeatures()));
+        System.out.println("start              t1: " + DataUtilities.fidSet(featureStore1.getFeatures()));
+        System.out.println("start              t2: " + DataUtilities.fidSet(featureStore2.getFeatures()));
 
         // 测试删除 featureStore1 中的数据，在事务 t1 commit 之前，删除操作只会记录在 DataStore 中，commit 之后 才会写入数据库
         FilterFactory ff = CommonFactoryFinder.getFilterFactory(null);
@@ -235,45 +235,42 @@ public class BCGISDataStoreTest {
         System.out.println();
         System.out.println("Step 2 transaction 1 removes feature 'fid1'");
         System.out.println("------");
-        System.out.println(
-                "t1 remove auto-commit: " + DataUtilities.fidSet(featureStore.getFeatures()));
-        System.out.println(
-                "t1 remove          t1: " + DataUtilities.fidSet(featureStore1.getFeatures()));
-        System.out.println(
-                "t1 remove          t2: " + DataUtilities.fidSet(featureStore2.getFeatures()));
+        System.out.println("t1 remove auto-commit: " + DataUtilities.fidSet(featureStore.getFeatures()));
+        System.out.println("t1 remove          t1: " + DataUtilities.fidSet(featureStore1.getFeatures()));
+        System.out.println("t1 remove          t2: " + DataUtilities.fidSet(featureStore2.getFeatures()));
 
 
-        GeometryFactory geometryFactory = new GeometryFactory();
-        LineString lineString = geometryFactory.createLineString(new Coordinate[]{new Coordinate(10.0, 13.0), new Coordinate(23.0, 26.0)});
-        LineString[] lineStrings = {lineString, lineString};
-        MultiLineString multiLineString = geometryFactory.createMultiLineString(lineStrings);
-        SimpleFeature feature = SimpleFeatureBuilder.build(featureType, new Object[]{multiLineString}, "line1");
-        SimpleFeatureCollection collection = DataUtilities.collection(feature);
-        featureStore2.addFeatures(collection);
+//        GeometryFactory geometryFactory = new GeometryFactory();
+//        LineString lineString = geometryFactory.createLineString(new Coordinate[]{new Coordinate(10.0, 13.0), new Coordinate(23.0, 26.0)});
+//        LineString[] lineStrings = {lineString, lineString};
+//        MultiLineString multiLineString = geometryFactory.createMultiLineString(lineStrings);
+//        SimpleFeature feature = SimpleFeatureBuilder.build(featureType, new Object[]{multiLineString}, "line1");
+//        SimpleFeatureCollection collection = DataUtilities.collection(feature);
+//        featureStore2.addFeatures(collection);
 
-        System.out.println();
-        System.out.println("Step 3 transaction 2 adds a new feature '" + feature.getID() + "'");
-        System.out.println("------");
-        System.out.println(
-                "t2 add    auto-commit: " + DataUtilities.fidSet(featureStore.getFeatures()));
-        System.out.println(
-                "t2 add             t1: " + DataUtilities.fidSet(featureStore1.getFeatures()));
-        System.out.println(
-                "t1 add             t2: " + DataUtilities.fidSet(featureStore2.getFeatures()));
+//        System.out.println();
+//        System.out.println("Step 3 transaction 2 adds a new feature '" + feature.getID() + "'");
+//        System.out.println("------");
+//        System.out.println(
+//                "t2 add    auto-commit: " + DataUtilities.fidSet(featureStore.getFeatures()));
+//        System.out.println(
+//                "t2 add             t1: " + DataUtilities.fidSet(featureStore1.getFeatures()));
+//        System.out.println(
+//                "t1 add             t2: " + DataUtilities.fidSet(featureStore2.getFeatures()));
 
         // 提交事务
-        t1.commit();
+//        t1.commit();
 //        t2.commit();
 
-        t1.close();
-        t2.close();
+//        t1.close();
+//        t2.close();
         bcgisDataStore.dispose();
     }
 
     // <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
 
     // >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
-    // test putDataOnChain
+    // test putDataOnChain   result 即代表将数据存入到区块链之后返回的 hash 值  根据hash 值才可以从区块链上读取数据
     @Test
     public void testPutDataOnBlockchain() throws IOException, InterruptedException {
         String result = bcgisDataStore.putDataOnBlockchain(shpFile);
@@ -289,5 +286,46 @@ public class BCGISDataStoreTest {
 //        bcgisDataStore.getRecord();
 //    }
     // <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
+
+    @Test
+    public void testURI() throws MalformedURLException {
+//        // File.separator 表示//的意思
+
+        // 相对路径分析
+        System.out.println("==============相对路径分析");
+        String str = "data\\atlchain-sdk-0.0.3\\network-config-test.yaml";
+        String string = "data_dir" + File.separator +str;
+        File file1 = new File(string);
+        if(!file1.exists()) {
+            System.out.println(file1.toURI());
+//            System.out.println(file1.toURL());
+            System.out.println(file1.toPath().toUri());
+        }
+
+
+        System.out.println("==============绝对路径分析");
+        // 绝对路径分析
+        String str1 = "D:\\Program Files (x86)\\GeoServer 2.15.0\\data_dir\\data\\atlchain-sdk-0.0.3\\network-config-test.yaml";
+        File file = new File(str1);
+        if(file.exists()) {
+            System.out.println(file.toURI());
+//            System.out.println(file.toURL());
+            System.out.println(file.toPath().toUri());
+        }
+
+
+
+
+
+
+
+//        String path1="C:"+ File.separator+"Program Files"+File.separator+"a.txt";
+//        System.out.println(path1);//输出C:\Program Files\a.txt
+//
+//        String path2="C:\\Program Files\\a.txt";//第一个\表示转义
+//        path2 = path2.replace("\\",File.separator);
+//        System.out.println(path2);//输出C:\Program Files\a.txt
+
+    }
 
 }

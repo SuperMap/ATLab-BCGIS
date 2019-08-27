@@ -1,6 +1,7 @@
 package com.atlchain.bcgis.data;
 
 import org.geotools.data.FeatureReader;
+import org.geotools.data.Query;
 import org.geotools.data.store.ContentState;
 import org.geotools.feature.simple.SimpleFeatureBuilder;
 import org.locationtech.jts.geom.Geometry;
@@ -18,9 +19,10 @@ public class BCGISFeatureReader implements FeatureReader<SimpleFeatureType, Simp
 
     private int index = 0;
 
-    public BCGISFeatureReader(ContentState contentState, Geometry geometry) {
+    public BCGISFeatureReader(ContentState contentState, Query query) {
         this.state = contentState;
-        this.geometry = geometry;
+        BCGISDataStore bcgisDataStore = (BCGISDataStore)contentState.getEntry().getDataStore();
+        geometry = bcgisDataStore.getRecord();
         builder = new SimpleFeatureBuilder(state.getFeatureType());
     }
 

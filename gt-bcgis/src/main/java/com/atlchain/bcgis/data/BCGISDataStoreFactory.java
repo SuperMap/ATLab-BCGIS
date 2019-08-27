@@ -58,16 +58,31 @@ public class BCGISDataStoreFactory implements DataStoreFactorySpi {
 
     @Override
     public DataStore createDataStore(Map<String, Serializable> params) throws IOException {
+
+        logger.info("==============>createDataStore" );
+
         File file = (File)NETWORK_CONFIG_PARAM.lookUp(params);
-        System.out.println(file);
-        File networkConfigFile = null;
+        File networkConfigFile_InputValue = null;
 
         if (file.getPath().startsWith("file:")) {
             String path = file.getPath();
             path = path.replace("\\",File.separator);
-            networkConfigFile = new File(new URL(path).getPath());
+            networkConfigFile_InputValue = new File(new URL(path).getPath());
         } else {
-            networkConfigFile = file;
+            networkConfigFile_InputValue = file;
+        }
+        // TODO 路径判断，若是绝对路径则直接用，若是相对路径则加上"data_dir"后在用
+        String string_temp = null;
+        File file_temp = null;
+        File networkConfigFile = null;
+
+        if(networkConfigFile_InputValue.exists()){
+            networkConfigFile = networkConfigFile_InputValue;
+        }else{
+            string_temp = "data_dir" + File.separator + networkConfigFile_InputValue.getPath();
+            file_temp = new File(string_temp);
+            string_temp = file_temp.toURL().toString().replace("\\",File.separator);
+            networkConfigFile = new File(new URL(string_temp).getPath());
         }
 
         String chaincodeName = (String)CC_NAME_PARAM.lookUp(params);
@@ -85,7 +100,6 @@ public class BCGISDataStoreFactory implements DataStoreFactorySpi {
 
     @Override
     public DataStore createNewDataStore(Map<String, Serializable> params) throws IOException {
-        logger.info("==============>createcreateNewDataStore" );
         File networkConfigFile = new File(((File)NETWORK_CONFIG_PARAM.lookUp(params)).getPath());
 
         String chaincodeName = (String)CC_NAME_PARAM.lookUp(params);

@@ -28,7 +28,7 @@ public class Shp2WkbTest {
     @Test
     public void testGetRightGeometryCollectionType() {
         try {
-            Assert.assertEquals(GeometryCollection.class, shp2WKB.getGeometry().getClass());
+            Assert.assertEquals(ArrayList.class, shp2WKB.getGeometry().getClass());
         } catch (IOException e) {
             e.printStackTrace();
         }
@@ -50,7 +50,7 @@ public class Shp2WkbTest {
     @Test
     public void testSaveWKB(){
         try {
-            String path = "/home/cy/Documents/ATL/data/testShapfile/iDesktop/Line/Line.wkb";
+            String path = "E:\\DemoRecording\\WkbCode\\Line.wkb";
             shp2WKB.save(new File(path));
             Assert.assertTrue(Files.exists(Paths.get(path)));
         } catch (IOException e) {
@@ -58,6 +58,7 @@ public class Shp2WkbTest {
         }
     }
 
+    //
     @Test
     public void testSaveGeometryToChain() throws IOException {
         String key =  "Line4";

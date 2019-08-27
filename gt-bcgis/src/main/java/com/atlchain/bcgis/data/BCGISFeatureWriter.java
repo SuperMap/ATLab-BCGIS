@@ -1,6 +1,7 @@
 package com.atlchain.bcgis.data;
 
 import org.geotools.data.DataUtilities;
+import org.geotools.data.Query;
 import org.geotools.data.simple.SimpleFeatureWriter;
 import org.geotools.data.store.ContentState;
 import org.geotools.feature.simple.SimpleFeatureBuilder;
@@ -30,9 +31,9 @@ public class BCGISFeatureWriter implements SimpleFeatureWriter {
 
     private ArrayList<Geometry> geometryArrayList = new ArrayList<>();
 
-    public BCGISFeatureWriter(ContentState state, Geometry geometry) {
+    public BCGISFeatureWriter(ContentState state, Query query) {
         this.state = state;
-        this.delegate = new BCGISFeatureReader(state, geometry);
+        this.delegate = new BCGISFeatureReader(state, query);
     }
 
     @Override

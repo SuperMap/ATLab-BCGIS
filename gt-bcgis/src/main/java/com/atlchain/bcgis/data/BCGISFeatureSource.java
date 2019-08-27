@@ -19,14 +19,15 @@ import org.opengis.filter.Filter;
 import java.io.IOException;
 
 public class BCGISFeatureSource extends ContentFeatureSource {
-    private Geometry geometry;
+//    private Geometry geometry;
 
-    public BCGISFeatureSource(ContentEntry entry, Query query, Geometry geometry) {
+    public BCGISFeatureSource(ContentEntry entry, Query query) {
         super(entry, query);
-        this.geometry = geometry;
+//        this.geometry = geometry;
     }
 
     public BCGISDataStore getDataStore() {
+
         return (BCGISDataStore) super.getDataStore();
     }
 
@@ -47,7 +48,8 @@ public class BCGISFeatureSource extends ContentFeatureSource {
     @Override
     protected int getCountInternal(Query query) {
         if(query.getFilter() == Filter.INCLUDE){
-            int count = this.geometry.getNumGeometries();
+            Geometry geometry = getDataStore().getRecord();
+            int count = geometry.getNumGeometries();
             return count;
         }
         return -1;
@@ -55,7 +57,7 @@ public class BCGISFeatureSource extends ContentFeatureSource {
 
     @Override
     protected FeatureReader<SimpleFeatureType, SimpleFeature> getReaderInternal(Query query) {
-        return new BCGISFeatureReader(getState(), geometry);
+        return new BCGISFeatureReader(getState(), query);
     }
 
     // WKB中只有空间几何数据，没有其他属性信息，所以FeatureType中只有一个“geom”字段。
@@ -64,6 +66,9 @@ public class BCGISFeatureSource extends ContentFeatureSource {
         SimpleFeatureTypeBuilder builder = new SimpleFeatureTypeBuilder();
         builder.setName(entry.getName());
         builder.setCRS(DefaultGeographicCRS.WGS84);
+
+        BCGISDataStore bcgisDataStore = getDataStore();
+        Geometry geometry = bcgisDataStore.getRecord();
 
         if (geometry.getNumGeometries() < 1) {
             builder.add("geom", LineString.class);

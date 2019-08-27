@@ -15,6 +15,7 @@ import java.util.UUID;
  * 工具类
  */
 public class Utils {
+
     /**
      * 构造GeometryCollection对象
      * @param geomList 空间几何对象列表
@@ -61,6 +62,7 @@ public class Utils {
             throw new RuntimeException(e);}
     }
 
+    // StringBuffer 建立的字符串可以进行修改，并且不产生新的未使用对象
     private static String byte2Hex(byte[] bytes) {
         StringBuffer stringBuffer = new StringBuffer();
         String temp = null;

@@ -17,6 +17,7 @@ public class BlockChainClient {
         this.atlChain = new ATLChain(networkConfigFile);
     }
 
+
     // >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
     // 读取链上数据，通道名、链码名称、方法名有默认值
     public byte[][] getRecordBytes(String recordKey) {

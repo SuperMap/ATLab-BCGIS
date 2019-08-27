@@ -14,13 +14,13 @@ import org.opengis.feature.type.Name;
 import java.io.IOException;
 
 public class BCGISFeatureStore extends ContentFeatureStore {
-    private Geometry geometry;
+//    private Geometry geometry;
     private BCGISFeatureSource delegate;
 
-    public BCGISFeatureStore(ContentEntry entry, Query query, Geometry geometry) {
+    public BCGISFeatureStore(ContentEntry entry, Query query) {
         super(entry, query);
-        this.geometry = geometry;
-        this.delegate = new BCGISFeatureSource(entry, query, geometry) {
+//        this.geometry = geometry;
+        this.delegate = new BCGISFeatureSource(entry, query) {
             @Override
             public void setTransaction(Transaction transaction) {
                 super.setTransaction(transaction);
@@ -32,7 +32,7 @@ public class BCGISFeatureStore extends ContentFeatureStore {
     @Override
     protected FeatureWriter<SimpleFeatureType, SimpleFeature> getWriterInternal(
             Query query, int flags) {
-        return new BCGISFeatureWriter(getState(), geometry);
+        return new BCGISFeatureWriter(getState(), query);
     }
 
     @Override

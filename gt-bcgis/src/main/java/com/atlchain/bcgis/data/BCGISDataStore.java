@@ -17,6 +17,8 @@ import org.opengis.feature.type.Name;
 
 import java.io.File;
 import java.io.IOException;
+import java.net.MalformedURLException;
+import java.net.URL;
 import java.util.ArrayList;
 import java.util.Base64;
 import java.util.Collections;
@@ -44,6 +46,7 @@ public class BCGISDataStore extends ContentDataStore {
         this.recordKey = recordKey;
     }
 
+    // new add  目前只在测试中用到
     public String putDataOnBlockchain(File shpFile) throws IOException, InterruptedException {
         String fileName = shpFile.getName();
         String ext = Files.getFileExtension(fileName);
@@ -54,6 +57,7 @@ public class BCGISDataStore extends ContentDataStore {
         String result = "";
         BlockChainClient client = new BlockChainClient(networkConfigFile);
 
+        // 将shp文件转为wkb格式 然后
         Shp2Wkb shp2WKB = new Shp2Wkb(shpFile);
         ArrayList<Geometry> geometryArrayList = shp2WKB.getGeometry();
         String geometryStr = Utils.getGeometryStr(geometryArrayList);
@@ -61,6 +65,8 @@ public class BCGISDataStore extends ContentDataStore {
         String key = hash;
         System.out.println(key);
         String mapname = fileName.substring(0, fileName.lastIndexOf("."));
+
+        // JSONObject 如键值对一样将数据保存
         JSONObject argsJson = new JSONObject();
         argsJson.put("mapname", mapname);
         argsJson.put("count", geometryArrayList.size());
@@ -78,6 +84,7 @@ public class BCGISDataStore extends ContentDataStore {
             return "Put data on chain FAILED! MESSAGE:" + result;
         }
 
+        // 总体有一个 hash 值，然后将这个“值-index”就是每一个geo的值
         int index = 0;
         for (Geometry geo : geometryArrayList) {
             byte[] geoBytes = Utils.getBytesFromGeometry(geo);
@@ -97,8 +104,10 @@ public class BCGISDataStore extends ContentDataStore {
         return result;
     }
 
-    private Geometry getRecord() {
+    // 读取区块链上数据，然后返回一个新的集合 geometryCollection
+    protected Geometry getRecord(){
         logger.info("===================>getRecord");
+
         BlockChainClient client = new BlockChainClient(networkConfigFile);
 
         String result = client.getRecord(
@@ -161,6 +170,8 @@ public class BCGISDataStore extends ContentDataStore {
 
     @Override
     protected ContentFeatureSource createFeatureSource(ContentEntry entry) {
-        return new BCGISFeatureStore(entry, Query.ALL, getRecord());
+        logger.info("===================>createFeatureSource");
+        // TODO  原为  return new BCGISFeatureStore(entry, Query.ALL, getRecord());   改变去掉getRecord（）看小姑破如何
+        return new BCGISFeatureStore(entry, Query.ALL);
     }
 }
