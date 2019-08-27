@@ -11,6 +11,8 @@ import java.io.Serializable;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.net.URL;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.Collections;
 import java.util.Map;
 import java.util.logging.Logger;
@@ -57,12 +59,17 @@ public class BCGISDataStoreFactory implements DataStoreFactorySpi {
     @Override
     public DataStore createDataStore(Map<String, Serializable> params) throws IOException {
         File file = (File)NETWORK_CONFIG_PARAM.lookUp(params);
+        System.out.println(file);
         File networkConfigFile = null;
+
         if (file.getPath().startsWith("file:")) {
-            networkConfigFile = new File(URI.create(file.getPath()));
+            String path = file.getPath();
+            path = path.replace("\\",File.separator);
+            networkConfigFile = new File(new URL(path).getPath());
         } else {
             networkConfigFile = file;
         }
+
         String chaincodeName = (String)CC_NAME_PARAM.lookUp(params);
         String functionName = (String)FUNCTION_NAME_PARAM.lookUp(params);
         String key = (String)KEY_PARAM.lookUp(params);
