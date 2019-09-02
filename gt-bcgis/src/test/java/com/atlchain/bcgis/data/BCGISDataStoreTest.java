@@ -18,10 +18,7 @@ import org.geotools.styling.Style;
 import org.geotools.swing.JMapFrame;
 import org.junit.Assert;
 import org.junit.Test;
-import org.locationtech.jts.geom.Coordinate;
-import org.locationtech.jts.geom.GeometryFactory;
-import org.locationtech.jts.geom.LineString;
-import org.locationtech.jts.geom.MultiLineString;
+import org.locationtech.jts.geom.*;
 import org.opengis.feature.simple.SimpleFeature;
 import org.opengis.feature.simple.SimpleFeatureType;
 import org.opengis.feature.type.GeometryDescriptor;
@@ -303,7 +300,6 @@ public class BCGISDataStoreTest {
             System.out.println(file1.toPath().toUri());
         }
 
-
         System.out.println("==============绝对路径分析");
         // 绝对路径分析
         String str1 = "D:\\Program Files (x86)\\GeoServer 2.15.0\\data_dir\\data\\atlchain-sdk-0.0.3\\network-config-test.yaml";
@@ -314,12 +310,6 @@ public class BCGISDataStoreTest {
             System.out.println(file.toPath().toUri());
         }
 
-
-
-
-
-
-
 //        String path1="C:"+ File.separator+"Program Files"+File.separator+"a.txt";
 //        System.out.println(path1);//输出C:\Program Files\a.txt
 //
@@ -327,6 +317,15 @@ public class BCGISDataStoreTest {
 //        path2 = path2.replace("\\",File.separator);
 //        System.out.println(path2);//输出C:\Program Files\a.txt
 
+    }
+
+    // 测试连续从区块链上读取数据看程序运行是否会崩溃
+    @Test
+    public void testRead(){
+        for(int i = 0;i < 1000;i++){
+            Geometry geometry = bcgisDataStore.getRecord();
+            System.out.println(geometry.getNumGeometries() + "=========" + i);
+        }
     }
 
 }

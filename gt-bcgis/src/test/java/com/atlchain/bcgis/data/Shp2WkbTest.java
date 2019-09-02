@@ -87,6 +87,23 @@ public class Shp2WkbTest {
     }
 
     @Test
+    public void testQueryGeometryFromChain1() throws ParseException {
+        BlockChainClient client2 = new BlockChainClient(networkFile);
+
+        for(int i =0 ;i <10000;i++) {
+            String key = "Line4";
+            byte[][] result = client2.getRecordBytes(
+                    key,
+                    "bcgiscc",
+                    "GetRecordByKey"
+            );
+
+            Geometry geometry = Utils.getGeometryFromBytes(result[0]);
+            System.out.println(geometry.getNumGeometries()+"======" + i);
+        }
+    }
+
+    @Test
     public void testSha256() {
         String sha256 = Utils.getSHA256("bbb");
         Assert.assertEquals("3e744b9dc39389baf0c5a0660589b8402f3dbb49b89b3e75f2c9355852a3c677", sha256);
@@ -94,11 +111,13 @@ public class Shp2WkbTest {
 
     @Test
     public void testThread() throws URISyntaxException {
+
         for (int i=0; i< 1000 ; i++) {
-            new Utils.ThreadDemo("测试Thread" + i).run();
-//            UT1.start();
-//            UT1.run();
+            Utils.ThreadDemo threadDemo = new Utils.ThreadDemo("测试Thread" + i);
+//            threadDemo.start();
+            threadDemo.run();
         }
+
     }
 
 }

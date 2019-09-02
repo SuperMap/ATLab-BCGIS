@@ -78,7 +78,7 @@ public class Utils {
         return stringBuffer.toString();
     }
 
-    // 多线程的方式测试区块链读取数据的稳定性
+    // 多线程方式测试区块链读取数据的稳定性
     public static class ThreadDemo extends Thread {
         private File networkFile = new File(this.getClass().getResource("/network-config-test.yaml").toURI());
         public ThreadDemo(String string) throws URISyntaxException {
@@ -106,7 +106,12 @@ public class Utils {
                     } catch (ParseException e) {
                         e.printStackTrace();
                     }
-                    System.out.println("===============" + count + "========" + geometry);
+                    try {
+                        Thread.sleep(80);
+                    } catch (InterruptedException e) {
+                        e.printStackTrace();
+                    }
+                    System.out.println("===============" + count );
                     count--;
                 }
             }

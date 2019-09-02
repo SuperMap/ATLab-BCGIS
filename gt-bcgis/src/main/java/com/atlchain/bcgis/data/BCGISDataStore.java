@@ -27,10 +27,10 @@ public class BCGISDataStore extends ContentDataStore {
 
     Logger logger = Logger.getLogger(BCGISDataStore.class.toString());
 
-    private File networkConfigFile;
     private String chaincodeName;
     private String functionName;
     private String recordKey;
+    private BlockChainClient client;
 
     public BCGISDataStore(
             File networkConfigFile,
@@ -39,10 +39,10 @@ public class BCGISDataStore extends ContentDataStore {
             String recordKey
     )
     {
-        this.networkConfigFile = networkConfigFile;
         this.chaincodeName = chaincodeName;
         this.functionName = functionName;
         this.recordKey = recordKey;
+        client = new BlockChainClient(networkConfigFile);
     }
 
     // only use in the test
@@ -54,8 +54,6 @@ public class BCGISDataStore extends ContentDataStore {
         }
 
         String result = "";
-        BlockChainClient client = new BlockChainClient(networkConfigFile);
-
         Shp2Wkb shp2WKB = new Shp2Wkb(shpFile);
         ArrayList<Geometry> geometryArrayList = shp2WKB.getGeometry();
         String geometryStr = Utils.getGeometryStr(geometryArrayList);
@@ -101,8 +99,6 @@ public class BCGISDataStore extends ContentDataStore {
     }
 
     public Geometry getRecord(){
-
-        BlockChainClient client = new BlockChainClient(networkConfigFile);
 
         String result = client.getRecord(
                 this.recordKey,
