@@ -99,15 +99,6 @@ public class Shp2WkbTest {
 //            UT1.start();
 //            UT1.run();
         }
-//        Utils.ThreadDemo UU1 = new Utils.ThreadDemo("测试Thread1");
-//        Utils.ThreadDemo UU2 = new Utils.ThreadDemo("测试Thread2");
-//        Utils.ThreadDemo UU3 = new Utils.ThreadDemo("测试Thread3");
-//        UU1.run();
-//        UU2.run();
-//        UU3.run();
-//        UU1.start();
-//        UU2.start();
-//        UU3.start();
     }
 
 }

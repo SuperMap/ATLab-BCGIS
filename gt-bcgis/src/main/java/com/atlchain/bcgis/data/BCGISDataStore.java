@@ -17,8 +17,6 @@ import org.opengis.feature.type.Name;
 
 import java.io.File;
 import java.io.IOException;
-import java.net.MalformedURLException;
-import java.net.URL;
 import java.util.ArrayList;
 import java.util.Base64;
 import java.util.Collections;
@@ -47,7 +45,7 @@ public class BCGISDataStore extends ContentDataStore {
         this.recordKey = recordKey;
     }
 
-    // only use in the test :
+    // only use in the test
     public String putDataOnBlockchain(File shpFile) throws IOException, InterruptedException {
         String fileName = shpFile.getName();
         String ext = Files.getFileExtension(fileName);
@@ -102,8 +100,7 @@ public class BCGISDataStore extends ContentDataStore {
         return result;
     }
 
-    protected Geometry getRecord(){
-        logger.info("===================>getRecord========" +System.currentTimeMillis());
+    public Geometry getRecord(){
 
         BlockChainClient client = new BlockChainClient(networkConfigFile);
 
@@ -151,34 +148,20 @@ public class BCGISDataStore extends ContentDataStore {
                 e.printStackTrace();
             }
         }
-        logger.info("===============================>" + geometryCollection.getNumGeometries());
         return geometryCollection;
     }
 
     @Override
     protected List<Name> createTypeNames() {
-        // TODO 查询所有安装的链码，返回链码名列表。以链码名为 typenames。
-        // List<String>  chaincodes = getChaincodeList();
-        // return chaincodes;
-        // 暂时以一个固定的名字作为 TypeName
-        return Collections.singletonList(getTypeName());
-    }
 
-    Name getTypeName(){
-        String string = "featuresType" ;
-        return new NameImpl(string);
-
-    }
-
-    protected ContentFeatureSource getFeatureSource() throws IOException {
-        ContentEntry entry = ensureEntry(getTypeName());
-        return new BCGISFeatureStore(entry,Query.ALL);
-
+        String tempname = "tempfeaturesType" ;
+        Name name = new NameImpl(namespaceURI, tempname);
+        return Collections.singletonList(name);
     }
 
     @Override
     public ContentFeatureSource createFeatureSource(ContentEntry entry) throws IOException {
-        logger.info("===================>createFeatureSource==================" +  entry.getTypeName());
+
         return new BCGISFeatureStore(entry, Query.ALL);
     }
 }

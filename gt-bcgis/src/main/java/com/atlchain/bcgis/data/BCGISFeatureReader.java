@@ -4,7 +4,9 @@ import org.geotools.data.FeatureReader;
 import org.geotools.data.Query;
 import org.geotools.data.store.ContentState;
 import org.geotools.feature.simple.SimpleFeatureBuilder;
+import org.geotools.geometry.jts.JTSFactoryFinder;
 import org.locationtech.jts.geom.Geometry;
+import org.locationtech.jts.geom.GeometryFactory;
 import org.opengis.feature.simple.SimpleFeature;
 import org.opengis.feature.simple.SimpleFeatureType;
 
@@ -21,14 +23,16 @@ public class BCGISFeatureReader implements FeatureReader<SimpleFeatureType, Simp
 
     protected SimpleFeatureBuilder builder;
 
+    private GeometryFactory geometryFactory;
+
     private int index = 0;
 
     public BCGISFeatureReader(ContentState contentState, Query query) {
-        logger.info("============>the BCGISFeatureReader consturct ==========" + contentState.getEntry().getTypeName());
         this.state = contentState;
         BCGISDataStore bcgisDataStore = (BCGISDataStore)contentState.getEntry().getDataStore();
         geometry = bcgisDataStore.getRecord();
         builder = new SimpleFeatureBuilder(state.getFeatureType());
+        geometryFactory = JTSFactoryFinder.getGeometryFactory(null);
     }
 
     @Override
@@ -38,7 +42,6 @@ public class BCGISFeatureReader implements FeatureReader<SimpleFeatureType, Simp
     }
 
     private SimpleFeature next;
-
     @Override
     public SimpleFeature next() throws IllegalArgumentException, NoSuchElementException {
         SimpleFeature feature;
@@ -57,7 +60,8 @@ public class BCGISFeatureReader implements FeatureReader<SimpleFeatureType, Simp
             return null;
         }
         index ++;
-        builder.set("geom", geometry);
+//        builder.set("geom", geometry);
+        builder.set("geom",geometryFactory.createGeometry(geometry));
         return builder.buildFeature(state.getEntry().getTypeName() + "." + index);
     }
 
@@ -75,7 +79,11 @@ public class BCGISFeatureReader implements FeatureReader<SimpleFeatureType, Simp
 
     @Override
     public void close() {
+        if(geometry != null){
+            geometry = null;
+        }
         builder = null;
+        geometryFactory = null;
         next = null;
     }
 }

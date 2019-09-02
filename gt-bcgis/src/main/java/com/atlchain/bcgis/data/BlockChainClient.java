@@ -17,8 +17,6 @@ public class BlockChainClient {
 
     BlockChainClient(File networkConfigFile) {
         this.atlChain = new ATLChain(networkConfigFile);
-        logger.info("=========time=========" );
-
     }
 
 

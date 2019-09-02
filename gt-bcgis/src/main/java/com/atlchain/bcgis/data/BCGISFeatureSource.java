@@ -26,12 +26,10 @@ public class BCGISFeatureSource extends ContentFeatureSource {
     Logger logger = Logger.getLogger(BCGISFeatureSource.class.toString());
 
     public BCGISFeatureSource(ContentEntry entry, Query query) {
-        super(entry, Query.ALL);
-        logger.info("=======the BCGISFeatureSource contruct=========" + entry.getTypeName());
+        super(entry, query);
     }
 
     public BCGISDataStore getDataStore() {
-        logger.info("========== BCGISDataStore getDataStore() in the BCGISFeatureSource============");
 
         return (BCGISDataStore) super.getDataStore();
     }
@@ -39,24 +37,13 @@ public class BCGISFeatureSource extends ContentFeatureSource {
     @Override
     protected ReferencedEnvelope getBoundsInternal(Query query) throws IOException {
 
-        logger.info("=====================> getBoundsInternal");
-
-        // the method getFeatures() in the FeatureReader
         FeatureCollection featureCollection = getFeatures();
         FeatureIterator iterator = featureCollection.features();
         ReferencedEnvelope env = DataUtilities.bounds(iterator);
-
-        System.out.println("========getBoundsInternal=========>" + env.toString());
-
         return env;
 
     }
 
-    /**
-     * 根据查询条件查询属性条数
-     * @param query 查询条件
-     * @return 符合条件的属性条数，-1则表示不能计算该条件的数量，需要外部用户自己计算。
-     */
     @Override
     protected int getCountInternal(Query query) {
         if(query.getFilter() == Filter.INCLUDE){
@@ -74,8 +61,6 @@ public class BCGISFeatureSource extends ContentFeatureSource {
 
     @Override
     protected SimpleFeatureType buildFeatureType() {
-
-        logger.info("=========> buildFeatureType======" + entry.getName().toString());
 
         SimpleFeatureTypeBuilder builder = new SimpleFeatureTypeBuilder();
 

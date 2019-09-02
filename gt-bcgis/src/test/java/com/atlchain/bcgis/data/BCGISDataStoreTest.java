@@ -192,6 +192,7 @@ public class BCGISDataStoreTest {
         simpleFeatureSource.getSchema();
         String typeName = bcgisDataStore.getTypeNames()[0];
         SimpleFeatureType type = bcgisDataStore.getSchema(typeName);
+
         MapContent map = new MapContent();
         map.setTitle("testBCGIS");
 //        Style style = SLD.createLineStyle(Color.BLACK, 2.0f);

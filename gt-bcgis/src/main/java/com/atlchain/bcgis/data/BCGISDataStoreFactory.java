@@ -24,27 +24,29 @@ public class BCGISDataStoreFactory implements DataStoreFactorySpi {
     public BCGISDataStoreFactory() {}
 
     @Override
-    public String getDisplayName() { return "BCGIS"; }
+    public Map<RenderingHints.Key, ?> getImplementationHints() {
 
-    @Override
-    public boolean canProcess(Map<String, Serializable> params) {
-        return DataUtilities.canProcess(params, getParametersInfo());
+        return Collections.emptyMap();
     }
 
     @Override
-    public boolean isAvailable() { return true; }
+    public String getDisplayName() { return "BCGIS"; }
 
     @Override
     public String getDescription() { return "WKB binary file"; }
+
+    @Override
+    public boolean isAvailable() { return true; }
 
     public static final Param NETWORK_CONFIG_PARAM  = new Param("config", File.class, "network config file");
     public static final Param CC_NAME_PARAM         = new Param("chaincodeName", String.class, "chaincode name");
     public static final Param FUNCTION_NAME_PARAM   = new Param("functionName", String.class, "function name");
     public static final Param KEY_PARAM             = new Param("recordKey", String.class, "record key");
-
+    public static final Param NAMESPACE             = new Param("namespace", String.class, "Namespace URI", false);
     @Override
     public Param[] getParametersInfo() {
         return new Param[] {
+                NAMESPACE,
                 NETWORK_CONFIG_PARAM ,
                 CC_NAME_PARAM,
                 FUNCTION_NAME_PARAM,
@@ -53,8 +55,12 @@ public class BCGISDataStoreFactory implements DataStoreFactorySpi {
     }
 
     @Override
+    public boolean canProcess(Map<String, Serializable> params) {
+        return DataUtilities.canProcess(params, getParametersInfo());
+    }
+
+    @Override
     public DataStore createDataStore(Map<String, Serializable> params) throws IOException {
-        logger.info("==============>createDataStore" );
 
         File file = (File)NETWORK_CONFIG_PARAM.lookUp(params);
         File networkConfigFile_InputValue = null;
@@ -66,7 +72,7 @@ public class BCGISDataStoreFactory implements DataStoreFactorySpi {
         } else {
             networkConfigFile_InputValue = file;
         }
-        // TODO 路径判断，若为绝对路径直接用，若为相对路径加上"data_dir"后在用
+
         String string_temp = null;
         File file_temp = null;
         File networkConfigFile = null;
@@ -83,6 +89,7 @@ public class BCGISDataStoreFactory implements DataStoreFactorySpi {
         String chaincodeName = (String)CC_NAME_PARAM.lookUp(params);
         String functionName = (String)FUNCTION_NAME_PARAM.lookUp(params);
         String key = (String)KEY_PARAM.lookUp(params);
+        String uri = (String) NAMESPACE.lookUp(params);
 
         BCGISDataStore bcgisDataStore = new BCGISDataStore(
                 networkConfigFile,
@@ -90,6 +97,11 @@ public class BCGISDataStoreFactory implements DataStoreFactorySpi {
                 functionName,
                 key
         );
+
+        if (uri != null) {
+            bcgisDataStore.setNamespaceURI(uri);
+        }
+
         return bcgisDataStore;
     }
 
@@ -110,8 +122,4 @@ public class BCGISDataStoreFactory implements DataStoreFactorySpi {
         return bcgisDataStore;
     }
 
-    @Override
-    public Map<RenderingHints.Key, ?> getImplementationHints() {
-        return Collections.emptyMap();
-    }
 }

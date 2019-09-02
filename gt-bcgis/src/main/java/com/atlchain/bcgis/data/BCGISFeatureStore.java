@@ -17,21 +17,18 @@ import java.util.logging.Logger;
 public class BCGISFeatureStore extends ContentFeatureStore {
     Logger logger = Logger.getLogger(BCGISFeatureStore.class.toString());
 
-//    protected  BCGISFeatureSource delegate;
-
     public BCGISFeatureStore(ContentEntry entry, Query query) {
-        super(entry, Query.ALL);
-        logger.info("========>THE BCGISFeatureStore constrct=====" + entry.getTypeName());
-//        {
-//            @Override
-//            public void setTransaction(Transaction transaction) {
-//                logger.info("========================" + transaction.toString());
-//                super.setTransaction(transaction);
-//                BCGISFeatureStore.this.setTransaction(transaction);
-//            }
-//        };
+        super(entry, query);
     }
-    BCGISFeatureSource delegate = new BCGISFeatureSource(entry, Query.ALL);
+
+    BCGISFeatureSource delegate = new BCGISFeatureSource(entry, query){
+        @Override
+        public void setTransaction(Transaction transaction) {
+            super.setTransaction(transaction);
+            BCGISFeatureStore.this.setTransaction(transaction);
+        }
+    };
+
 
     @Override
     protected FeatureWriter<SimpleFeatureType, SimpleFeature> getWriterInternal(
@@ -49,7 +46,6 @@ public class BCGISFeatureStore extends ContentFeatureStore {
 
     @Override
     public BCGISDataStore getDataStore() {
-        logger.info("=============BCGISDataStore getDataStore in the  BCGISFeatureStore=======");
 
         return delegate.getDataStore();
     }
@@ -72,7 +68,6 @@ public class BCGISFeatureStore extends ContentFeatureStore {
 
     @Override
     public SimpleFeatureType buildFeatureType() {
-        logger.info("=========delegate.buildFeatureType()============");
         return delegate.buildFeatureType();
     }
 
@@ -83,7 +78,6 @@ public class BCGISFeatureStore extends ContentFeatureStore {
 
     @Override
     public ContentEntry getEntry() {
-        logger.info("==========return delegate.getEntry()========");
         return delegate.getEntry();
     }
 
@@ -104,7 +98,6 @@ public class BCGISFeatureStore extends ContentFeatureStore {
 
     @Override
     public Name getName() {
-        logger.info("==================Name getName==================");
         return delegate.getName();
     }
 
