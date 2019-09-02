@@ -91,4 +91,23 @@ public class Shp2WkbTest {
         String sha256 = Utils.getSHA256("bbb");
         Assert.assertEquals("3e744b9dc39389baf0c5a0660589b8402f3dbb49b89b3e75f2c9355852a3c677", sha256);
     }
+
+    @Test
+    public void testThread() throws URISyntaxException {
+        for (int i=0; i< 1000 ; i++) {
+            new Utils.ThreadDemo("测试Thread" + i).run();
+//            UT1.start();
+//            UT1.run();
+        }
+//        Utils.ThreadDemo UU1 = new Utils.ThreadDemo("测试Thread1");
+//        Utils.ThreadDemo UU2 = new Utils.ThreadDemo("测试Thread2");
+//        Utils.ThreadDemo UU3 = new Utils.ThreadDemo("测试Thread3");
+//        UU1.run();
+//        UU2.run();
+//        UU3.run();
+//        UU1.start();
+//        UU2.start();
+//        UU3.start();
+    }
+
 }

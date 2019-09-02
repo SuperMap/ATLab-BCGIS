@@ -7,6 +7,8 @@ import org.locationtech.jts.io.ParseException;
 import org.locationtech.jts.io.WKBReader;
 import org.locationtech.jts.io.WKBWriter;
 
+import java.io.File;
+import java.net.URISyntaxException;
 import java.security.MessageDigest;
 import java.util.ArrayList;
 import java.util.UUID;
@@ -75,4 +77,56 @@ public class Utils {
         }
         return stringBuffer.toString();
     }
+
+    // 多线程的方式测试区块链读取数据的稳定性
+    public static class ThreadDemo extends Thread {
+        private File networkFile = new File(this.getClass().getResource("/network-config-test.yaml").toURI());
+        public ThreadDemo(String string) throws URISyntaxException {
+            super(string);
+            System.out.println("====" + string);
+        }
+
+        @Override
+        public void run() {
+            Geometry geometry = null;
+            int count = 1;
+
+            synchronized (this) {
+                BlockChainClient client = new BlockChainClient(networkFile);
+                while (count > 0) {
+
+                    String key = "Line4";
+                    byte[][] result = client.getRecordBytes(
+                            key,
+                            "bcgiscc",
+                            "GetRecordByKey"
+                    );
+                    try {
+                        geometry = Utils.getGeometryFromBytes(result[0]);
+                    } catch (ParseException e) {
+                        e.printStackTrace();
+                    }
+                    System.out.println("===============" + count + "========" + geometry);
+                    count--;
+                }
+            }
+
+        }
+    }
+
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

@@ -26,9 +26,10 @@ import java.util.List;
 import java.util.logging.Logger;
 
 public class BCGISDataStore extends ContentDataStore {
-    Logger logger = Logger.getLogger(BCGISDataStore.class.toString());
-    private File networkConfigFile;
 
+    Logger logger = Logger.getLogger(BCGISDataStore.class.toString());
+
+    private File networkConfigFile;
     private String chaincodeName;
     private String functionName;
     private String recordKey;
@@ -46,7 +47,7 @@ public class BCGISDataStore extends ContentDataStore {
         this.recordKey = recordKey;
     }
 
-    // new add  目前只在测试中用到
+    // only use in the test :
     public String putDataOnBlockchain(File shpFile) throws IOException, InterruptedException {
         String fileName = shpFile.getName();
         String ext = Files.getFileExtension(fileName);
@@ -57,7 +58,6 @@ public class BCGISDataStore extends ContentDataStore {
         String result = "";
         BlockChainClient client = new BlockChainClient(networkConfigFile);
 
-        // 将shp文件转为wkb格式 然后
         Shp2Wkb shp2WKB = new Shp2Wkb(shpFile);
         ArrayList<Geometry> geometryArrayList = shp2WKB.getGeometry();
         String geometryStr = Utils.getGeometryStr(geometryArrayList);
@@ -66,7 +66,6 @@ public class BCGISDataStore extends ContentDataStore {
         System.out.println(key);
         String mapname = fileName.substring(0, fileName.lastIndexOf("."));
 
-        // JSONObject 如键值对一样将数据保存
         JSONObject argsJson = new JSONObject();
         argsJson.put("mapname", mapname);
         argsJson.put("count", geometryArrayList.size());
@@ -84,7 +83,6 @@ public class BCGISDataStore extends ContentDataStore {
             return "Put data on chain FAILED! MESSAGE:" + result;
         }
 
-        // 总体有一个 hash 值，然后将这个“值-index”就是每一个geo的值
         int index = 0;
         for (Geometry geo : geometryArrayList) {
             byte[] geoBytes = Utils.getBytesFromGeometry(geo);
@@ -104,9 +102,8 @@ public class BCGISDataStore extends ContentDataStore {
         return result;
     }
 
-    // 读取区块链上数据，然后返回一个新的集合 geometryCollection
     protected Geometry getRecord(){
-        logger.info("===================>getRecord");
+        logger.info("===================>getRecord========" +System.currentTimeMillis());
 
         BlockChainClient client = new BlockChainClient(networkConfigFile);
 
@@ -154,6 +151,7 @@ public class BCGISDataStore extends ContentDataStore {
                 e.printStackTrace();
             }
         }
+        logger.info("===============================>" + geometryCollection.getNumGeometries());
         return geometryCollection;
     }
 
@@ -162,16 +160,35 @@ public class BCGISDataStore extends ContentDataStore {
         // TODO 查询所有安装的链码，返回链码名列表。以链码名为 typenames。
         // List<String>  chaincodes = getChaincodeList();
         // return chaincodes;
-
         // 暂时以一个固定的名字作为 TypeName
-        Name typeName = new NameImpl("tmpTypeName");
-        return Collections.singletonList(typeName);
+        return Collections.singletonList(getTypeName());
+    }
+
+    Name getTypeName(){
+        String string = "featuresType" ;
+        return new NameImpl(string);
+
+    }
+
+    protected ContentFeatureSource getFeatureSource() throws IOException {
+        ContentEntry entry = ensureEntry(getTypeName());
+        return new BCGISFeatureStore(entry,Query.ALL);
+
     }
 
     @Override
-    protected ContentFeatureSource createFeatureSource(ContentEntry entry) {
-        logger.info("===================>createFeatureSource");
-        // TODO  原为  return new BCGISFeatureStore(entry, Query.ALL, getRecord());   改变去掉getRecord（）看小姑破如何
+    public ContentFeatureSource createFeatureSource(ContentEntry entry) throws IOException {
+        logger.info("===================>createFeatureSource==================" +  entry.getTypeName());
         return new BCGISFeatureStore(entry, Query.ALL);
     }
 }
+
+
+
+
+
+
+
+
+
+

@@ -9,8 +9,12 @@ import org.opengis.feature.simple.SimpleFeature;
 import org.opengis.feature.simple.SimpleFeatureType;
 
 import java.util.NoSuchElementException;
+import java.util.logging.Logger;
 
 public class BCGISFeatureReader implements FeatureReader<SimpleFeatureType, SimpleFeature> {
+
+    Logger logger = Logger.getLogger(BCGISFeatureReader.class.toString());
+
     protected ContentState state;
 
     protected Geometry geometry;
@@ -20,6 +24,7 @@ public class BCGISFeatureReader implements FeatureReader<SimpleFeatureType, Simp
     private int index = 0;
 
     public BCGISFeatureReader(ContentState contentState, Query query) {
+        logger.info("============>the BCGISFeatureReader consturct ==========" + contentState.getEntry().getTypeName());
         this.state = contentState;
         BCGISDataStore bcgisDataStore = (BCGISDataStore)contentState.getEntry().getDataStore();
         geometry = bcgisDataStore.getRecord();
@@ -28,7 +33,8 @@ public class BCGISFeatureReader implements FeatureReader<SimpleFeatureType, Simp
 
     @Override
     public SimpleFeatureType getFeatureType() {
-        return state.getFeatureType();
+
+        return (SimpleFeatureType) state.getFeatureType();
     }
 
     private SimpleFeature next;

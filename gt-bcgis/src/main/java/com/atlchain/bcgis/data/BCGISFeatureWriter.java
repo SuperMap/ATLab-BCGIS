@@ -16,12 +16,15 @@ import org.opengis.feature.simple.SimpleFeatureType;
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.logging.Logger;
 
 public class BCGISFeatureWriter implements SimpleFeatureWriter {
 
+    Logger logger = Logger.getLogger(BCGISFeatureWriter.class.toString());
+
     private ContentState state;
 
-    private BCGISFeatureReader delegate;
+    BCGISFeatureReader delegate;
 
     private int nextRow = 0;
 
@@ -115,20 +118,19 @@ public class BCGISFeatureWriter implements SimpleFeatureWriter {
             this.delegate = null;
         }
 
-        Geometry[] geometries = geometryArrayList.toArray(new Geometry[geometryArrayList.size()]);
-        GeometryCollection geometryCollection = Utils.getGeometryCollection(geometries);
-        File networkFile = new File(this.getClass().getResource("/network-config-test.yaml").getPath());
-
-        BlockChainClient client = new BlockChainClient(networkFile);
-
-        WKBWriter wkbWriter = new WKBWriter();
-        byte[] bytes = wkbWriter.write(geometryCollection);
-        String result = client.putRecord(
-                "LineWrite2",
-                bytes,
-                "bincc",
-                "PutByteArray"
-        );
+        logger.info("====================>write to the BlockChain");
+//        Geometry[] geometries = geometryArrayList.toArray(new Geometry[geometryArrayList.size()]);
+//        GeometryCollection geometryCollection = Utils.getGeometryCollection(geometries);
+//        File networkFile = new File(this.getClass().getResource("/network-config-test.yaml").getPath());
+//        BlockChainClient client = new BlockChainClient(networkFile);
+//        WKBWriter wkbWriter = new WKBWriter();
+//        byte[] bytes = wkbWriter.write(geometryCollection);
+//        String result = client.putRecord(
+//                "LineWrite2",
+//                bytes,
+//                "bincc",
+//                "PutByteArray"
+//        );
     }
 }
 

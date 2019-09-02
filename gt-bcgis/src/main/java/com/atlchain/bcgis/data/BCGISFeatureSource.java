@@ -3,6 +3,8 @@ package com.atlchain.bcgis.data;
 import org.geotools.data.DataUtilities;
 import org.geotools.data.FeatureReader;
 import org.geotools.data.Query;
+import org.geotools.data.simple.SimpleFeatureCollection;
+import org.geotools.data.simple.SimpleFeatureSource;
 import org.geotools.data.store.ContentEntry;
 import org.geotools.data.store.ContentFeatureSource;
 import org.geotools.feature.FeatureCollection;
@@ -17,27 +19,37 @@ import org.opengis.feature.simple.SimpleFeatureType;
 import org.opengis.filter.Filter;
 
 import java.io.IOException;
+import java.util.logging.Logger;
 
 public class BCGISFeatureSource extends ContentFeatureSource {
-//    private Geometry geometry;
+
+    Logger logger = Logger.getLogger(BCGISFeatureSource.class.toString());
 
     public BCGISFeatureSource(ContentEntry entry, Query query) {
-        super(entry, query);
-//        this.geometry = geometry;
+        super(entry, Query.ALL);
+        logger.info("=======the BCGISFeatureSource contruct=========" + entry.getTypeName());
     }
 
     public BCGISDataStore getDataStore() {
+        logger.info("========== BCGISDataStore getDataStore() in the BCGISFeatureSource============");
 
         return (BCGISDataStore) super.getDataStore();
     }
 
-    // 确定地图显示时的边界
     @Override
     protected ReferencedEnvelope getBoundsInternal(Query query) throws IOException {
+
+        logger.info("=====================> getBoundsInternal");
+
+        // the method getFeatures() in the FeatureReader
         FeatureCollection featureCollection = getFeatures();
         FeatureIterator iterator = featureCollection.features();
         ReferencedEnvelope env = DataUtilities.bounds(iterator);
+
+        System.out.println("========getBoundsInternal=========>" + env.toString());
+
         return env;
+
     }
 
     /**
@@ -60,13 +72,15 @@ public class BCGISFeatureSource extends ContentFeatureSource {
         return new BCGISFeatureReader(getState(), query);
     }
 
-    // WKB中只有空间几何数据，没有其他属性信息，所以FeatureType中只有一个“geom”字段。
     @Override
     protected SimpleFeatureType buildFeatureType() {
+
+        logger.info("=========> buildFeatureType======" + entry.getName().toString());
+
         SimpleFeatureTypeBuilder builder = new SimpleFeatureTypeBuilder();
+
         builder.setName(entry.getName());
         builder.setCRS(DefaultGeographicCRS.WGS84);
-
         BCGISDataStore bcgisDataStore = getDataStore();
         Geometry geometry = bcgisDataStore.getRecord();
 
@@ -96,7 +110,22 @@ public class BCGISFeatureSource extends ContentFeatureSource {
     @Override
     protected boolean handleVisitor(Query query, FeatureVisitor visitor) throws IOException{
         return super.handleVisitor(query,visitor);
-        // WARNING: Please note this method is in CSVFeatureSource!
+        // WARNING: Please note this method is in BCGISeatureSource!
     }
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 

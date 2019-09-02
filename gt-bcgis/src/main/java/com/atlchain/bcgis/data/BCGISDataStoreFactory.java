@@ -18,14 +18,13 @@ import java.util.Map;
 import java.util.logging.Logger;
 
 public class BCGISDataStoreFactory implements DataStoreFactorySpi {
+
     Logger logger = Logger.getLogger(BCGISDataStoreFactory.class.toString());
 
     public BCGISDataStoreFactory() {}
 
     @Override
-    public String getDisplayName() {
-        return "BCGIS";
-    }
+    public String getDisplayName() { return "BCGIS"; }
 
     @Override
     public boolean canProcess(Map<String, Serializable> params) {
@@ -33,19 +32,16 @@ public class BCGISDataStoreFactory implements DataStoreFactorySpi {
     }
 
     @Override
-    public boolean isAvailable() {
-        return true;
-    }
+    public boolean isAvailable() { return true; }
 
     @Override
-    public String getDescription() {
-        return "WKB binary file";
-    }
+    public String getDescription() { return "WKB binary file"; }
 
-    public static final Param NETWORK_CONFIG_PARAM = new Param("config", File.class, "network config file");
-    public static final Param CC_NAME_PARAM = new Param("chaincodeName", String.class, "chaincode name");
-    public static final Param FUNCTION_NAME_PARAM = new Param("functionName", String.class, "function name");
-    public static final Param KEY_PARAM = new Param("recordKey", String.class, "record key");
+    public static final Param NETWORK_CONFIG_PARAM  = new Param("config", File.class, "network config file");
+    public static final Param CC_NAME_PARAM         = new Param("chaincodeName", String.class, "chaincode name");
+    public static final Param FUNCTION_NAME_PARAM   = new Param("functionName", String.class, "function name");
+    public static final Param KEY_PARAM             = new Param("recordKey", String.class, "record key");
+
     @Override
     public Param[] getParametersInfo() {
         return new Param[] {
@@ -58,7 +54,6 @@ public class BCGISDataStoreFactory implements DataStoreFactorySpi {
 
     @Override
     public DataStore createDataStore(Map<String, Serializable> params) throws IOException {
-
         logger.info("==============>createDataStore" );
 
         File file = (File)NETWORK_CONFIG_PARAM.lookUp(params);
@@ -71,7 +66,7 @@ public class BCGISDataStoreFactory implements DataStoreFactorySpi {
         } else {
             networkConfigFile_InputValue = file;
         }
-        // TODO 路径判断，若是绝对路径则直接用，若是相对路径则加上"data_dir"后在用
+        // TODO 路径判断，若为绝对路径直接用，若为相对路径加上"data_dir"后在用
         String string_temp = null;
         File file_temp = null;
         File networkConfigFile = null;

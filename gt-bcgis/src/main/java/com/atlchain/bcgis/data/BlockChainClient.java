@@ -6,15 +6,19 @@ import org.hyperledger.fabric.sdk.exception.NetworkConfigurationException;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.logging.Logger;
 
 /**
  * 区块链操作类，用于和区块链进行交互
  */
 public class BlockChainClient {
+    Logger logger = Logger.getLogger(BlockChainClient.class.toString());
     private ATLChain atlChain;
 
     BlockChainClient(File networkConfigFile) {
         this.atlChain = new ATLChain(networkConfigFile);
+        logger.info("=========time=========" );
+
     }
 
 
