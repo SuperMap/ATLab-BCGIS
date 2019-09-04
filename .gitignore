@@ -5,9 +5,16 @@ gradlew
 gradlew.bat
 
 # Idea
+.classpath
 .idea/
+out/
+bin/
 
 # Vim
 
 # build files
 build/
+
+# eclipse
+.settings
+.project
