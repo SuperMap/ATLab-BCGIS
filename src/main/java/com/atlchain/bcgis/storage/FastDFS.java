@@ -17,14 +17,14 @@ import java.util.logging.Logger;
  */
 @Path("storage/fastdfs")
 public class FastDFS {
-    Logger logger = Logger.getLogger(FastDFS.class.toString());
+    private Logger logger = Logger.getLogger(FastDFS.class.toString());
     private final String conf_filename = FastDFS.class.getResource("/fdfs_client.conf").getPath();
 
     @Path("/uploading")
     @POST
     @Produces(MediaType.APPLICATION_JSON)
     @Consumes(MediaType.MULTIPART_FORM_DATA)
-    public String uploading(
+    public String upload(
             @FormDataParam("file") InputStream fileInputStream,
             @FormDataParam("file") FormDataContentDisposition disposition
     ) throws JSONException, IOException {
@@ -49,7 +49,7 @@ public class FastDFS {
             @HeaderParam("GroupID") String groupID,
             @HeaderParam("filePath_FastDFS") String filePath_FastDFS,
             @HeaderParam("savefilePath_Local")
-            @DefaultValue("E:\\DemoRecording\\File_storage\\JerseyTest\\test009.jpg")String savefilePath_Local
+            @DefaultValue("E:\\DemoRecording\\File_storage\\JerseyTest\\FastDFStest.jpg")String savefilePath_Local
     ){
         FastDFSDownloadFile(groupID, filePath_FastDFS, savefilePath_Local);
         return "=====GroupID: " + groupID + " =====filepath: " + filePath_FastDFS + "====fileExtName ：" + savefilePath_Local;
