@@ -1,15 +1,13 @@
 package com.atlchain.bcgis;
 
-<<<<<<< HEAD
+
 import java.security.MessageDigest;
-=======
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.OutputStream;
 import java.net.HttpURLConnection;
 import java.net.URL;
->>>>>>> 8b16c0a97c2225b73771d6440a571d270ea21902
 
 /**
  * 工具类
