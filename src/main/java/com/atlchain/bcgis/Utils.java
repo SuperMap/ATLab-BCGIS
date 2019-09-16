@@ -31,6 +31,10 @@ public class Utils {
         return fileName.substring(index, fileName.length()-1);
     }
 
+    public static String httpRequest(HttpRequestType type, URL url, String Authorization) throws IOException {
+        return Utils.httpRequest(type, url, Authorization, "");
+    }
+
     public static String httpRequest(HttpRequestType type, URL url, String Authorization, String jsonArgs) throws IOException {
         HttpURLConnection connection = (HttpURLConnection) url.openConnection();
         connection.setDoOutput(true);
