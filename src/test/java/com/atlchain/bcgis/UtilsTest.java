@@ -87,7 +87,7 @@ public class UtilsTest {
     }
 
     @Test
-    public void httpDelete() throws IOException, JSONException {
+    public void httpDelete() throws IOException {
         URL url = new URL("http://localhost:8080/geoserver/rest/workspaces/testWS/datastores/testDS/featuretypes/testFT");
         String Authorization = new sun.misc.BASE64Encoder().encode((USERNAME + ":" + PASSWD).getBytes());
         String result = Utils.httpRequest(Utils.HttpRequestType.DELETE, url, Authorization, "");
