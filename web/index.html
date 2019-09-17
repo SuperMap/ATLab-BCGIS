@@ -1,10 +1,40 @@
 <!DOCTYPE html>
 <html lang="en">
-<head>
+  <head>
     <meta charset="UTF-8">
-    <title>Title</title>
-</head>
-<body>
-
-</body>
+    <link rel="stylesheet" href="./ol.css" type="text/css">
+    <script src="./ol.js"></script>
+    <script src="https://cdn.polyfill.io/v2/polyfill.min.js?features=requestAnimationFrame,Element.prototype.classList,URL"></script>
+    <style>
+        .map {
+          height: 980px;
+          width: 100%;
+        }
+      </style>
+  </head>
+  <body>
+     <div id="map" class="map"></div>
+     <script type="text/javascript">
+      var map = new ol.Map({
+        target: 'map',
+        layers: [
+          new ol.layer.Tile({
+          source: new ol.source.TileWMS({
+            url: 'http://localhost:8080/geoserver/testWS/wms',
+            params: {
+              'LAYERS': 'testWS:testFT',
+              'TILED': true
+            },
+            serverType: 'geoserver',
+            transition: 0
+          })
+        })
+        ],
+        view: new ol.View({
+          center: ol.proj.fromLonLat([116.5, 40]), //[116.5, 40]
+          zoom: 9
+        })
+      });
+    </script>
+  </body>
 </html>
