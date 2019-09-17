@@ -24,3 +24,4 @@ build/
 /gt-bcgis/src/main/resources/BL/
 /gt-bcgis/src/main/resources/D/
 /gt-bcgis/src/test/resources/certs/
+/gt-bcgis/src/main/resources/geometryCollection.wkb
