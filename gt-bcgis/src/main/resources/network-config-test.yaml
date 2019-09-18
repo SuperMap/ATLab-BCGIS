@@ -39,7 +39,7 @@ organizations:
 
 orderers:
   OrdererTestOrgA:
-    url: grpc://172.16.15.66:7050
+    url: grpc://192.168.40.138:7050
     grpcOptions:
       grpc-max-send-message-length: 15
       grpc.keepalive_time_ms: 360000
@@ -47,7 +47,7 @@ orderers:
 
 peers:
   TestOrgA:
-    url: grpc://172.16.15.66:7051
+    url: grpc://192.168.40.138:7051
 
     grpcOptions:
       grpc.http2.keepalive_time: 15

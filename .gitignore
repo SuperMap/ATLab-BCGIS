@@ -9,6 +9,8 @@ gradlew.bat
 .idea/
 out/
 bin/
+classes/
+lib/
 
 # Vim
 
