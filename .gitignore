@@ -27,9 +27,6 @@ build/
 /gt-bcgis/src/main/resources/D/
 /gt-bcgis/src/test/resources/certs/
 /gt-bcgis/src/main/resources/geometryCollection.wkb
-
-# node_modules
-web/ui/node_modules/
 gt-bcgis/src/main/resources/rtree.bin
 chaincode/src/main/main1.iml
 gt-bcgis/src/test.wkb
@@ -38,3 +35,6 @@ gt-bcgis/src/main/main.iml
 gt-bcgis/src/main/resources/rtree.txt
 gt-bcgis/src/main/resources/WKB.wkb
 gt-bcgis/src/test/test.iml
+
+# node_modules
+web/node_modules/
