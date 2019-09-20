@@ -1,26 +1,35 @@
 import React from 'react';
 import 'ol/ol.css';
-import {Map, View} from 'ol';
+import { Map, View } from 'ol';
 import TileLayer from 'ol/layer/Tile';
-import OSM from 'ol/source/OSM';
+import TileWms from 'ol/source/TileWMS';
+import { fromLonLat } from 'ol/proj';
 
 class MapClass extends React.Component {
-    componentDidMount(){
+    componentDidMount() {
         let map = new Map({
             target: 'map',
             layers: [
-              new TileLayer({
-                source: new OSM()
-              })
+                new TileLayer({
+                    source: new TileWms({
+                        url: 'http://localhost:8070/geoserver/D/wms',
+                        params: {
+                            'LAYERS': 'D:D',
+                            'TILED': true
+                        },
+                        serverType: 'geoserver',
+                        transition: 0
+                    })
+                })
             ],
             view: new View({
-              center: [0, 0],
-              zoom: 0
+                center: fromLonLat([116.5, 40]),
+                zoom: 9
             })
-          });
+        });
     }
-    render(){
-        return(
+    render() {
+        return (
             <p id="map"></p>
         )
     }
