@@ -28,3 +28,14 @@ button {
     margin: 0;
 }
 
+#publish_form {
+    margin: 0 auto;
+    width: 30vw;
+    align-content: center;
+}
+
+#publish_form button {
+    margin: 0 auto;
+    background-color: aliceblue;
+}
+

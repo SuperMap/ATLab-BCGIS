@@ -6,9 +6,11 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import javax.ws.rs.DELETE;
+import javax.ws.rs.GET;
 import javax.ws.rs.POST;
 import javax.ws.rs.Path;
 import java.io.IOException;
+import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.logging.Logger;
 
@@ -18,6 +20,26 @@ public class WMS {
     private final String URI = "http://localhost:8080/geoserver/rest";
     private final String USERNAME = "admin";
     private final String PASSWD = "geoserver";
+
+    @GET
+    @Path("list")
+    public String list() {
+        URL url = null;
+        try {
+            url = new URL("http://localhost:8080/geoserver/rest/workspaces/tiger/datastores/nyc");
+        } catch (MalformedURLException e) {
+            e.printStackTrace();
+        }
+        String Authorization = new sun.misc.BASE64Encoder().encode((USERNAME + ":" + PASSWD).getBytes());
+        String result = null;
+        try {
+            result = Utils.httpRequest(Utils.HttpRequestType.GET, url, Authorization, "");
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        System.out.println(result);
+        return result;
+    }
 
     @POST
     @Path("publish")
