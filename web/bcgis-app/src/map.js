@@ -7,8 +7,8 @@ import { fromLonLat } from 'ol/proj';
 
 class MapClass extends React.Component {
     componentDidMount() {
-        let map = new Map({
-            target: 'map',
+        new Map({
+            target: 'mapdiv',
             layers: [
                 new TileLayer({
                     source: new TileWms({
@@ -23,15 +23,15 @@ class MapClass extends React.Component {
                 })
             ],
             view: new View({
-                center: fromLonLat([116.5, 40]),
+                center: fromLonLat([116.5, 40.18]),
                 zoom: 9
             })
         });
     }
     render() {
         return (
-            <p id="map"></p>
-        )
+            <div id="mapdiv"></div>
+        );
     }
 }
 
