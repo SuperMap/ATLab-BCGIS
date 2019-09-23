@@ -1,11 +1,10 @@
 import React from 'react';
-import 'ol/ol.css';
 import { Map, View } from 'ol';
 import TileLayer from 'ol/layer/Tile';
 import TileWms from 'ol/source/TileWMS';
 import { fromLonLat } from 'ol/proj';
-
-class MapClass extends React.Component {
+import { Map } from './MapClass';
+export class Map extends React.Component {
     componentDidMount() {
         new Map({
             target: 'mapdiv',
@@ -29,10 +28,6 @@ class MapClass extends React.Component {
         });
     }
     render() {
-        return (
-            <div id="mapdiv"></div>
-        );
+        return (<div id="mapdiv"></div>);
     }
 }
-
-export default MapClass;

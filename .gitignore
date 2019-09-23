@@ -39,3 +39,4 @@ gt-bcgis/src/test/test.iml
 # node_modules
 web/node_modules/
 web/package-lock.json
+web/bcgis-app/package-lock.json

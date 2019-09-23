@@ -1,7 +1,7 @@
 import React from 'react';
 import ReactDOM from 'react-dom';
-import MapClass from './map';
-import Publish from './publish';
+import MapClass from "./MapClass";
+import Publish from './Publish';
 import Axios from 'axios';
 
 class ToolBox extends React.Component {
