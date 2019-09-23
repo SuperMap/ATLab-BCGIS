@@ -15,6 +15,7 @@ public class main extends ResourceConfig {
         final ResourceConfig rc = new ResourceConfig().packages("com.atlchain.bcgis");
         // 注册multipart
         rc.register(MultiPartFeature.class);
+        rc.register(CorsFilter.class);
         return GrizzlyHttpServerFactory.createHttpServer(URI.create(BASE_URI), rc);
     }
 

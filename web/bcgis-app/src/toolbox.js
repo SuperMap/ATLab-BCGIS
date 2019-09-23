@@ -18,9 +18,7 @@ class ToolBox extends React.Component {
     }
 
     listMaps() {
-        Axios.get('http://localhost:8899/bcgis/mapservice/wms/list', {
-            headers: { 'Access-Control-Allow-Origin': '*' }
-        })
+        Axios.get('http://localhost:8899/bcgis/mapservice/wms/list')
             .then(function (response) {
                 console.log(response);
             })
@@ -34,7 +32,7 @@ class ToolBox extends React.Component {
             <div className="buttons">
                 <button id="btn_showPublish" onClick={this.showPublish} >发布地图</button>
                 <button id="btn_listMaps" onClick={this.listMaps} >地图列表</button>
-                <button id="btn_showMap" onClick={this.showPublish} >显示地图</button>
+                <button id="btn_showMap" onClick={this.showMap} >显示地图</button>
             </div>
         );
     }

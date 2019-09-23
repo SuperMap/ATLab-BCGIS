@@ -17,7 +17,7 @@ import java.util.logging.Logger;
 @Path("mapservice/wms")
 public class WMS {
     private Logger logger = Logger.getLogger(WMS.class.getName());
-    private final String URI = "http://localhost:8080/geoserver/rest";
+    private final String URI = "http://localhost:8070/geoserver/rest";
     private final String USERNAME = "admin";
     private final String PASSWD = "geoserver";
 
@@ -26,7 +26,7 @@ public class WMS {
     public String list() {
         URL url = null;
         try {
-            url = new URL("http://localhost:8080/geoserver/rest/workspaces/tiger/datastores/nyc");
+            url = new URL("http://localhost:8070/geoserver/rest/workspaces/D/datastores/D");
         } catch (MalformedURLException e) {
             e.printStackTrace();
         }
