@@ -13,7 +13,7 @@ public class UtilsTest {
 
     @Test
     public void httpGet() throws IOException {
-        URL url = new URL("http://localhost:8080/geoserver/rest/workspaces/tiger/datastores/nyc");
+        URL url = new URL("http://localhost:8070/geoserver/rest/workspaces/tiger/datastores/nyc");
         String Authorization = new sun.misc.BASE64Encoder().encode((USERNAME + ":" + PASSWD).getBytes());
         String result = Utils.httpRequest(Utils.HttpRequestType.GET, url, Authorization, "");
         System.out.println(result);
@@ -21,7 +21,7 @@ public class UtilsTest {
 
     @Test
     public void httpPost() throws IOException, JSONException {
-        URL url = new URL("http://localhost:8080/geoserver/rest/workspaces/testWS/datastores/testDS/featuretypes");
+        URL url = new URL("http://localhost:800/geoserver/rest/workspaces/testWS/datastores/testDS/featuretypes");
         String Authorization = new sun.misc.BASE64Encoder().encode((USERNAME + ":" + PASSWD).getBytes());
         String str = "{\n" +
                 "  \"featureType\": {\n" +
@@ -29,7 +29,7 @@ public class UtilsTest {
                 "    \"nativeName\": \"tempfeaturesType\",\n" +
                 "    \"namespace\": {\n" +
                 "      \"name\": \"testWS\",\n" +
-                "      \"href\": \"http://localhost:8080/geoserver/rest/namespaces/testWS.json\"\n" +
+                "      \"href\": \"http://localhost:8070/geoserver/rest/namespaces/testWS.json\"\n" +
                 "    },\n" +
                 "    \"title\": \"tempfeaturesType\",\n" +
                 "    \"keywords\": {\n" +
@@ -59,7 +59,7 @@ public class UtilsTest {
                 "    \"store\": {\n" +
                 "      \"@class\": \"dataStore\",\n" +
                 "      \"name\": \"testWS:testDS\",\n" +
-                "      \"href\": \"http://localhost:8080/geoserver/rest/workspaces/testWS/datastores/testDS.json\"\n" +
+                "      \"href\": \"http://localhost:8070/geoserver/rest/workspaces/testWS/datastores/testDS.json\"\n" +
                 "    },\n" +
                 "    \"serviceConfiguration\": false,\n" +
                 "    \"maxFeatures\": 0,\n" +
@@ -88,7 +88,7 @@ public class UtilsTest {
 
     @Test
     public void httpDelete() throws IOException {
-        URL url = new URL("http://localhost:8080/geoserver/rest/workspaces/testWS/datastores/testDS/featuretypes/testFT");
+        URL url = new URL("http://localhost:8070/geoserver/rest/workspaces/testWS/datastores/testDS/featuretypes/testFT");
         String Authorization = new sun.misc.BASE64Encoder().encode((USERNAME + ":" + PASSWD).getBytes());
         String result = Utils.httpRequest(Utils.HttpRequestType.DELETE, url, Authorization, "");
         System.out.println(result);
