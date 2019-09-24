@@ -8,7 +8,7 @@ import org.glassfish.jersey.server.ResourceConfig;
 import java.io.IOException;
 import java.net.URI;
 
-public class main extends ResourceConfig {
+public class Main extends ResourceConfig {
     public static final String BASE_URI = "http://localhost:8899/bcgis/";
 
     public static HttpServer startServer() {
