@@ -12,10 +12,15 @@ public class UtilsTest {
     final String PASSWD = "geoserver";
 
     @Test
-    public void httpGet() throws IOException {
-        URL url = new URL("http://localhost:8070/geoserver/rest/workspaces/tiger/datastores/nyc");
+    public void httpGet() throws IOException, JSONException {
+        URL url = new URL("http://localhost:8899/bcgis/mapservice/wms/list");
+//        URL url = new URL("http://localhost:8070/geoserver/rest/workspaces/D/datastores/D");
         String Authorization = new sun.misc.BASE64Encoder().encode((USERNAME + ":" + PASSWD).getBytes());
-        String result = Utils.httpRequest(Utils.HttpRequestType.GET, url, Authorization, "");
+        JSONObject json = new JSONObject();
+        json.put("workspaceName", "testWS");
+        json.put("datastoreName", "testDS");
+        String args = json.toString();
+        String result = Utils.httpRequest(Utils.HttpRequestType.GET, url, Authorization, args);
         System.out.println(result);
     }
 
@@ -87,10 +92,29 @@ public class UtilsTest {
     }
 
     @Test
-    public void httpDelete() throws IOException {
-        URL url = new URL("http://localhost:8070/geoserver/rest/workspaces/testWS/datastores/testDS/featuretypes/testFT");
+    public void httpPost2() throws IOException, JSONException {
+        URL url = new URL("http://localhost:8899/bcgis/mapservice/wms/publish");
         String Authorization = new sun.misc.BASE64Encoder().encode((USERNAME + ":" + PASSWD).getBytes());
-        String result = Utils.httpRequest(Utils.HttpRequestType.DELETE, url, Authorization, "");
+        JSONObject json = new JSONObject();
+        json.put("workspaceName", "testWS");
+        json.put("datastoreName", "testDS");
+        json.put("featuretypeName", "testFT");
+        String args = json.toString();
+        String result = Utils.httpRequest(Utils.HttpRequestType.POST, url, Authorization, args);
+        System.out.println(result);
+    }
+
+    @Test
+    public void httpDelete() throws IOException, JSONException {
+        URL url = new URL("http://localhost:8899/bcgis/mapservice/wms/delete");
+        String Authorization = new sun.misc.BASE64Encoder().encode((USERNAME + ":" + PASSWD).getBytes());
+        JSONObject json = new JSONObject();
+        json.put("workspaceName", "testWS");
+        json.put("layerName", "testFT");
+        json.put("datastoreName", "testDS");
+        json.put("featuretypeName", "testFT");
+        String args = json.toString();
+        String result = Utils.httpRequest(Utils.HttpRequestType.DELETE, url, Authorization, args);
         System.out.println(result);
     }
 }

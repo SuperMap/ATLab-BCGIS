@@ -1,14 +1,13 @@
 package com.atlchain.bcgis.mapservice;
 
 import com.atlchain.bcgis.Utils;
+import org.glassfish.jersey.media.multipart.FormDataParam;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-import javax.ws.rs.DELETE;
-import javax.ws.rs.GET;
-import javax.ws.rs.POST;
-import javax.ws.rs.Path;
+import javax.ws.rs.*;
+import javax.ws.rs.core.MediaType;
 import java.io.IOException;
 import java.net.MalformedURLException;
 import java.net.URL;
@@ -23,37 +22,51 @@ public class WMS {
 
     @GET
     @Path("list")
-    public String list() {
-        URL url = null;
-        try {
-            url = new URL("http://localhost:8070/geoserver/rest/workspaces/D/datastores/D");
-        } catch (MalformedURLException e) {
-            e.printStackTrace();
-        }
-        String Authorization = new sun.misc.BASE64Encoder().encode((USERNAME + ":" + PASSWD).getBytes());
-        String result = null;
-        try {
-            result = Utils.httpRequest(Utils.HttpRequestType.GET, url, Authorization, "");
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-        System.out.println(result);
-        return result;
+    @Consumes("application/json")
+    @Produces("application/json")
+    public String list(
+            @DefaultValue("green") @QueryParam("workspaceName") String workspaceName,
+            @DefaultValue("green") @QueryParam("datastoreName") String datastoreName
+    ) {
+//        URL url = null;
+//        try {
+//            url = new URL(URI + "/workspaces/" + workspaceName + "/datastores/" + datastoreName);
+//        } catch (MalformedURLException e) {
+//            e.printStackTrace();
+//        }
+//        String Authorization = new sun.misc.BASE64Encoder().encode((USERNAME + ":" + PASSWD).getBytes());
+//        String result = null;
+//        try {
+//            result = Utils.httpRequest(Utils.HttpRequestType.GET, url, Authorization);
+//        } catch (IOException e) {
+//            e.printStackTrace();
+//        }
+//        return result;
+        System.out.println("agdsgd" + workspaceName);
+        return null;
     }
 
     @POST
     @Path("publish")
-    public String publish() {
+    @Consumes(MediaType.APPLICATION_JSON)
+    @Produces("application/json")
+    public String publish(
+            @FormDataParam("workspaceName") String workspaceName,
+            @FormDataParam("datastoreName") String datastoreName,
+            @FormDataParam("featuretypeName") String featuretypeName
+    ) {
+        System.out.println("sswww" + workspaceName);
+
         // 创建工作区
-        if (!createWorkspace("testWS")) {
+        if (!createWorkspace(workspaceName)) {
             logger.info("Cannot create workspace. It is already exist or something wrong happened, please check the logs.");
         }
         // 创建数据存储
-        if (!createDataStore("testWS", "testDS")) {
+        if (!createDataStore(workspaceName, datastoreName)) {
             logger.info("Cannot create dataStore. It is already exist or something wrong happened, please check the logs.");
         }
         // 发布图层
-        if (!createFeatureTypes("testWS", "testDS", "testFT")) {
+        if (!createFeatureTypes(workspaceName, datastoreName, featuretypeName)) {
             logger.info("Cannot create featureType. It is already exist or something wrong happened, please check the logs.");
         }
 
@@ -62,8 +75,16 @@ public class WMS {
 
     @DELETE
     @Path("delete")
-    public void delete() {
-        if(!deleteFeatureTypes("testWS","testFT" , "testDS", "testFT")) {
+    @Consumes("application/json")
+    @Produces("application/json")
+    public void delete(
+            @FormDataParam("workspaceName") String workspaceName,
+            @FormDataParam("layerName") String layerName,
+            @FormDataParam("datastoreName") String datastoreName,
+            @FormDataParam("featuretypeName") String featuretypeName
+    ) {
+        System.out.println("sswww" + workspaceName);
+        if(!deleteFeatureTypes(workspaceName, layerName, datastoreName, featuretypeName)) {
             logger.info("Cannot delete layer. It is already exist or something wrong happened, please check the logs.");
         }
     }
