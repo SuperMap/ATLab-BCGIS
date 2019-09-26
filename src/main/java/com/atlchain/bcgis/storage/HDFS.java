@@ -1,5 +1,7 @@
 package com.atlchain.bcgis.storage;
 
+import com.alibaba.fastjson.JSONException;
+import com.alibaba.fastjson.JSONObject;
 import com.atlchain.bcgis.Utils;
 import org.apache.commons.io.IOUtils;
 import org.apache.hadoop.conf.Configuration;
@@ -7,8 +9,6 @@ import org.apache.hadoop.fs.FSDataOutputStream;
 import org.apache.hadoop.fs.FileSystem;
 import org.glassfish.jersey.media.multipart.FormDataContentDisposition;
 import org.glassfish.jersey.media.multipart.FormDataParam;
-import org.json.JSONException;
-import org.json.JSONObject;
 
 import javax.ws.rs.Consumes;
 import javax.ws.rs.POST;

@@ -1,6 +1,5 @@
 package com.atlchain.bcgis.storage;
 
-import com.squareup.okhttp.MultipartBuilder;
 import org.apache.http.Consts;
 import org.apache.http.HttpEntity;
 import org.apache.http.HttpResponse;
