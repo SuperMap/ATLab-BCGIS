@@ -111,7 +111,7 @@ public class FastDFS {
             StorageClient storageClient = new StorageClient(trackerServer,storageServer);
             byte[] bytes = storageClient.download_file(groupID,filepath);
             if(bytes == null){
-                return "DownloadFile is failed";
+                return "DownloadFile is failed ,because the bytes is null";
             }
             OutputStream out = new FileOutputStream(storePath);
             out.write(bytes);
@@ -154,7 +154,11 @@ public class FastDFS {
                 e.printStackTrace();
             }
         }
-        logger.info("delete file sucessful!");
+        String deletemessage = null;
+        if(i == 0){
+            deletemessage = "delete file sucessful!";
+        }
+        logger.info(deletemessage);
         return null;
     }
 }

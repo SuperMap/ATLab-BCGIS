@@ -28,6 +28,8 @@ import java.util.logging.Logger;
 public class MongoDB {
 
     private Logger logger = Logger.getLogger(FastDFS.class.toString());
+    private String MongoDBIP = "localhost";
+    private int MongoDBport = 27017;
 
     @Path("/uploading")
     @POST
@@ -83,9 +85,8 @@ public class MongoDB {
     }
 
     private String MongoDBUploadFile(String databaseName ,String collectionName,String fileExtName ,byte[] dataByte){
-
         final String ID = Utils.getSHA256(dataByte.toString());
-        MongoClient mongoClient = new MongoClient("localhost", 27017);
+        MongoClient mongoClient = new MongoClient(MongoDBIP, MongoDBport);
         MongoDatabase mongoDatabase = mongoClient.getDatabase(databaseName);
         MongoCollection<Document> collection = mongoDatabase.getCollection(collectionName);
         Document document = new Document("title", "MongoDB")
@@ -102,7 +103,7 @@ public class MongoDB {
 
     private void MongoDBDownloadFile(String databaseName ,String collectionName,String downloadID ,String localStorePathName){
         try {
-            MongoClient mongoClient = new MongoClient("localhost", 27017);
+            MongoClient mongoClient = new MongoClient(MongoDBIP, MongoDBport);
             MongoDatabase mongoDatabase = mongoClient.getDatabase(databaseName);
             MongoCollection<Document> collection = mongoDatabase.getCollection(collectionName);
             FindIterable<Document> findIterable = collection.find();
@@ -120,7 +121,7 @@ public class MongoDB {
     }
 
     private void MongoDBDeleteFile(String databaseName ,String collectionName,String deleteID){
-        MongoClient mongoClient = new MongoClient("localhost", 27017);
+        MongoClient mongoClient = new MongoClient(MongoDBIP, MongoDBport);
         MongoDatabase mongoDatabase = mongoClient.getDatabase(databaseName);
         MongoCollection<Document> collection = mongoDatabase.getCollection(collectionName);
         collection.deleteMany(Filters.eq("ID",deleteID));

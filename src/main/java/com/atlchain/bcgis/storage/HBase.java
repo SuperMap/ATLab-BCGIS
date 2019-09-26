@@ -36,11 +36,11 @@ public class HBase {
         }
     }
 
-    @Path("/uploading")
+    @Path("/uploadFile")
     @POST
     @Produces(MediaType.APPLICATION_JSON)
     @Consumes(MediaType.MULTIPART_FORM_DATA)
-    public String upload(
+    public String uploadFile(
             @FormDataParam("tableName")String tableName,
             @FormDataParam("file") InputStream inputStream,
             @FormDataParam("file") FormDataContentDisposition disposition
@@ -56,6 +56,27 @@ public class HBase {
         byte[] byteArray = byteArrayOutputStream.toByteArray();
         String rowKey = String.valueOf(byteArray.hashCode()) +tableName.hashCode();
         HBASEUploadFile(tableName,rowKey,"info",fileExtName,byteArray);
+        close(connection,admin);
+        result.put("upload_tableName",tableName);
+        result.put("upload_rowKey",rowKey);
+        result.put("upload_info","info");
+        result.put("upload_cn",fileExtName);
+        return result.toString();
+    }
+
+    @Path("/uploadString")
+    @POST
+    @Produces(MediaType.APPLICATION_JSON)
+    @Consumes(MediaType.MULTIPART_FORM_DATA)
+    public String uploadString(
+            @FormDataParam("tableName")String tableName,
+            @FormDataParam("value")String value,
+            @FormDataParam("file") FormDataContentDisposition disposition
+    ) throws JSONException, IOException {
+        JSONObject result = new JSONObject();
+        String fileExtName = Utils.getExtName(disposition.getFileName());
+        String rowKey = String.valueOf(value.hashCode()) +tableName.hashCode();
+        HBASEUploadFile(tableName,rowKey,"info",fileExtName,value);
         close(connection,admin);
         result.put("upload_tableName",tableName);
         result.put("upload_rowKey",rowKey);
@@ -86,7 +107,7 @@ public class HBase {
     }
 
     @POST
-    @Path("/delete")
+    @Path("/deleteValue")
     public String delete(
             @FormDataParam("tableName") String tableName,
             @FormDataParam("rowKey")String rowKey,
@@ -102,6 +123,18 @@ public class HBase {
         return result.toString();
     }
 
+    @POST
+    @Path("/deleteTable")
+    public String delete(
+            @FormDataParam("tableName") String tableName
+    ) throws JSONException {
+        JSONObject result = new JSONObject();
+        HBASEDeleteTable(tableName);
+        close(connection,admin);
+        result.put("delete_tableName",tableName);
+        return result.toString();
+    }
+
     private void HBASEUploadFile(String tableName,String rowKey,String cf,String cn,byte[] value){
         if(!tableExist(tableName)){
             creatTable(tableName,cf);
@@ -111,6 +144,21 @@ public class HBase {
             Table table =  connection.getTable(TableName.valueOf(tableName));
             Put put = new Put(Bytes.toBytes(rowKey));
             put.addColumn(Bytes.toBytes(cf),Bytes.toBytes(cn),Bytes.toBytes(ByteBuffer.wrap(value)));
+            table.put(put);
+            table.close();
+        }catch (IOException e){
+        }
+    }
+
+    private void HBASEUploadFile(String tableName,String rowKey,String cf,String cn,String value){
+        if(!tableExist(tableName)){
+            creatTable(tableName,cf);
+            logger.info("create table ,the name is: " + tableName);
+        }
+        try {
+            Table table =  connection.getTable(TableName.valueOf(tableName));
+            Put put = new Put(Bytes.toBytes(rowKey));
+            put.addColumn(Bytes.toBytes(cf),Bytes.toBytes(cn),Bytes.toBytes(value));
             table.put(put);
             table.close();
         }catch (IOException e){
@@ -141,6 +189,18 @@ public class HBase {
             delete.addColumns(Bytes.toBytes(cf),Bytes.toBytes(cn));
             table.delete(delete);
             table.close();
+        }catch (IOException e){
+        }
+        logger.info("this table" + tableName + "is delete");
+    }
+
+    public void HBASEDeleteTable(String tableName)  {
+        try{
+            if(!tableExist(tableName)){
+                return;
+            }
+            admin.disableTable(TableName.valueOf(tableName));
+            admin.deleteTable(TableName.valueOf(tableName));
         }catch (IOException e){
         }
         logger.info("this table" + tableName + "is delete");
