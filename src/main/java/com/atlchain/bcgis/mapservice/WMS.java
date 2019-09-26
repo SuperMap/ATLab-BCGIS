@@ -7,10 +7,12 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import javax.ws.rs.*;
+import javax.ws.rs.core.Context;
 import javax.ws.rs.core.MediaType;
 import java.io.IOException;
 import java.net.MalformedURLException;
 import java.net.URL;
+import java.util.Map;
 import java.util.logging.Logger;
 
 @Path("mapservice/wms")
@@ -22,11 +24,11 @@ public class WMS {
 
     @GET
     @Path("list")
-    @Consumes("application/json")
-    @Produces("application/json")
+    @Consumes({MediaType.APPLICATION_JSON, MediaType.APPLICATION_FORM_URLENCODED})
+    @Produces(MediaType.APPLICATION_JSON)
     public String list(
-            @DefaultValue("green") @QueryParam("workspaceName") String workspaceName,
-            @DefaultValue("green") @QueryParam("datastoreName") String datastoreName
+            @HeaderParam ("workspaceName") String workspaceName,
+            @QueryParam("datastoreName") String datastoreName
     ) {
 //        URL url = null;
 //        try {
@@ -48,12 +50,12 @@ public class WMS {
 
     @POST
     @Path("publish")
-    @Consumes(MediaType.APPLICATION_JSON)
+    @Consumes("application/json")
     @Produces("application/json")
     public String publish(
-            @FormDataParam("workspaceName") String workspaceName,
-            @FormDataParam("datastoreName") String datastoreName,
-            @FormDataParam("featuretypeName") String featuretypeName
+            @FormParam("workspaceName") String workspaceName,
+            @FormParam("datastoreName") String datastoreName,
+            @FormParam("featuretypeName") String featuretypeName
     ) {
         System.out.println("sswww" + workspaceName);
 
@@ -78,11 +80,13 @@ public class WMS {
     @Consumes("application/json")
     @Produces("application/json")
     public void delete(
-            @FormDataParam("workspaceName") String workspaceName,
-            @FormDataParam("layerName") String layerName,
-            @FormDataParam("datastoreName") String datastoreName,
-            @FormDataParam("featuretypeName") String featuretypeName
+            @Context Map<String,Object> map,
+            @FormParam("workspaceName") String workspaceName,
+            @FormParam("layerName") String layerName,
+            @FormParam("datastoreName") String datastoreName,
+            @FormParam("featuretypeName") String featuretypeName
     ) {
+        System.out.println(map);
         System.out.println("sswww" + workspaceName);
         if(!deleteFeatureTypes(workspaceName, layerName, datastoreName, featuretypeName)) {
             logger.info("Cannot delete layer. It is already exist or something wrong happened, please check the logs.");
