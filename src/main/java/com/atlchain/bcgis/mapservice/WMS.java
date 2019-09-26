@@ -7,6 +7,7 @@ import javax.ws.rs.core.Context;
 import javax.ws.rs.core.MediaType;
 import java.io.IOException;
 import java.net.MalformedURLException;
+import java.net.URI;
 import java.net.URL;
 import java.util.Map;
 import java.util.logging.Logger;
@@ -31,43 +32,43 @@ public class WMS {
         } catch (MalformedURLException e) {
             e.printStackTrace();
         }
-        String Authorization = new sun.misc.BASE64Encoder().encode((USERNAME + ":" + PASSWD).getBytes());
         String result = null;
-//        try {
-////            result = Utils.httpRequest(Utils.HttpRequestType.GET, url, Authorization);
-//        } catch (IOException e) {
-//            e.printStackTrace();
-//        }
+        try {
+            result = Utils.httpRequest(Utils.HttpRequestType.GET, java.net.URI.create(url.toString()), null, USERNAME, PASSWD);
+
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
         return result;
     }
 
-//    @POST
-//    @Path("publish")
-//    @Consumes(MediaType.APPLICATION_FORM_URLENCODED)
-//    @Produces("application/json")
-//    public String publish(
-//
-//            @FormParam("workspaceName") String workspaceName,
-//            @FormParam("datastoreName") String datastoreName,
-//            @FormParam("featuretypeName") String featuretypeName
-//    ) {
-//        System.out.println("sswww" + workspaceName);
-//
-////        // 创建工作区
-////        if (!createWorkspace(workspaceName)) {
-////            logger.info("Cannot create workspace. It is already exist or something wrong happened, please check the logs.");
-////        }
-////        // 创建数据存储
-////        if (!createDataStore(workspaceName, datastoreName)) {
-////            logger.info("Cannot create dataStore. It is already exist or something wrong happened, please check the logs.");
-////        }
-////        // 发布图层
-////        if (!createFeatureTypes(workspaceName, datastoreName, featuretypeName)) {
-////            logger.info("Cannot create featureType. It is already exist or something wrong happened, please check the logs.");
-////        }
-//
-//        return "successfully";
-//    }
+    @POST
+    @Path("publish")
+    @Consumes(MediaType.APPLICATION_FORM_URLENCODED)
+    @Produces("application/json")
+    public String publish(
+
+            @FormParam("workspaceName") String workspaceName,
+            @FormParam("datastoreName") String datastoreName,
+            @FormParam("featuretypeName") String featuretypeName
+    ) {
+        System.out.println("sswww" + workspaceName);
+
+//        // 创建工作区
+//        if (!createWorkspace(workspaceName)) {
+//            logger.info("Cannot create workspace. It is already exist or something wrong happened, please check the logs.");
+//        }
+//        // 创建数据存储
+//        if (!createDataStore(workspaceName, datastoreName)) {
+//            logger.info("Cannot create dataStore. It is already exist or something wrong happened, please check the logs.");
+//        }
+//        // 发布图层
+//        if (!createFeatureTypes(workspaceName, datastoreName, featuretypeName)) {
+//            logger.info("Cannot create featureType. It is already exist or something wrong happened, please check the logs.");
+//        }
+
+        return "successfully";
+    }
 //
 //    @DELETE
 //    @Path("delete")

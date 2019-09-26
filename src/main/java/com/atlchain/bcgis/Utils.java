@@ -1,11 +1,14 @@
 package com.atlchain.bcgis;
 
 
+import com.alibaba.fastjson.JSONObject;
 import org.apache.http.auth.AuthScope;
 import org.apache.http.auth.UsernamePasswordCredentials;
 import org.apache.http.client.CredentialsProvider;
 import org.apache.http.client.methods.CloseableHttpResponse;
 import org.apache.http.client.methods.HttpGet;
+import org.apache.http.client.methods.HttpPost;
+import org.apache.http.entity.StringEntity;
 import org.apache.http.impl.client.BasicCredentialsProvider;
 import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.http.impl.client.HttpClientBuilder;
@@ -70,18 +73,59 @@ public class Utils {
     }
 
     // Http Get Request
-    public static String httpRequest(URI uri) throws IOException {
-        return httpRequest(uri, null, null, null);
+    public static String httpRequest(HttpRequestType type, URI uri) throws IOException {
+        return httpRequest(type, uri, null, null, null);
     }
 
-    public static String httpRequest(URI uri, Map<String, String> params) throws IOException {
-        return httpRequest(uri, params, null, null);
+    public static String httpRequest(HttpRequestType type, URI uri, String jsonParams) throws IOException {
+        return httpRequest(type, uri, jsonParams, null, null);
     }
 
-    public static String httpRequest(URI uri, Map<String, String> params, String username, String passwd) throws IOException {
-
+    public static String httpRequest(HttpRequestType type, URI uri, String jsonParams, String username, String passwd) throws IOException {
         // 是否有用户名密码
-        CloseableHttpClient httpClient = null;
+        CloseableHttpClient httpClient = getHttpClient(uri, username, passwd);
+
+        // 发送请求
+        int code = 0;
+        String result = "";
+        CloseableHttpResponse response = null;
+        try {
+            switch (type) {
+                case GET:
+                    HttpGet httpGet = new HttpGet(uri + getParamsForGet(jsonParams));
+                    httpGet.addHeader("Accept", "application/json");
+                    response = httpClient.execute(httpGet);
+                    break;
+                case POST:
+                    HttpPost httpPost = new HttpPost(uri);
+                    httpPost.addHeader("Content-Type", "application/json");
+                    httpPost.addHeader("Accept", "application/json");
+                    StringEntity entity = new StringEntity(jsonParams, "UTF-8");
+                    System.out.println(jsonParams);
+                    httpPost.setEntity(entity);
+//                    getParamsForPost(jsonParams);
+                    break;
+                default:
+                    break;
+            }
+            code = response.getStatusLine().getStatusCode();
+            result = EntityUtils.toString(response.getEntity());
+        } finally {
+            if (null != response) {
+                response.close();
+            }
+            if (null != httpClient) {
+                httpClient.close();
+            }
+        }
+        if (200 != code) {
+            return response.getStatusLine().getReasonPhrase() + ", status code: " + code;
+        }
+        return result;
+    }
+
+    private static CloseableHttpClient getHttpClient(URI uri, String username, String passwd) {
+        CloseableHttpClient httpClient;
         if (null != username && null != passwd ) {
             CredentialsProvider credentialsProvider = new BasicCredentialsProvider();
             credentialsProvider.setCredentials(
@@ -94,52 +138,38 @@ public class Utils {
         } else {
             httpClient = HttpClientBuilder.create().build();
         }
+        return httpClient;
+    }
 
-        HttpGet httpGet = null;
-        if ( null != params) {
-            // 构造 url 参数，并对参数进行编码以防有特殊字符
-            StringBuilder paramsStr = new StringBuilder();
-            boolean firstElement = true;
-            for (Map.Entry<String, String> entry : params.entrySet()) {
-                if (firstElement) {
-                    paramsStr.append("?");
-                    firstElement = false;
-                } else {
-                    paramsStr.append("&");
-                }
-                paramsStr.append(URLEncoder.encode(entry.getKey(), "utf-8"));
-                paramsStr.append("=");
-                paramsStr.append(URLEncoder.encode(entry.getValue(), "utf-8"));
+    private static String getParamsForGet(String jsonString) throws UnsupportedEncodingException {
+        if (null == jsonString) {
+            return "";
+        }
+        // 构造 url 参数，并对参数进行编码以防有特殊字符
+        JSONObject jsonObject = (JSONObject) JSONObject.parse(jsonString);
+        StringBuilder paramsStrBuilder = new StringBuilder();
+        boolean firstElement = true;
+        for (Map.Entry<String, Object> entry : jsonObject.entrySet()) {
+            if (firstElement) {
+                paramsStrBuilder.append("?");
+                firstElement = false;
+            } else {
+                paramsStrBuilder.append("&");
             }
-            httpGet = new HttpGet(uri + paramsStr.toString());
-        } else {
-            httpGet = new HttpGet(uri);
+            paramsStrBuilder.append(URLEncoder.encode(entry.getKey(), "utf-8"));
+            paramsStrBuilder.append("=");
+            paramsStrBuilder.append(URLEncoder.encode(entry.getValue().toString(), "utf-8"));
         }
+        return paramsStrBuilder.toString();
+    }
 
-        httpGet.addHeader("Accept", "application/json");
-
-        // 发送请求
-        int code = 0;
-        String result = "";
-        CloseableHttpResponse response = null;
-        try {
-            response = httpClient.execute(httpGet);
-            code = response.getStatusLine().getStatusCode();
-            result = EntityUtils.toString(response.getEntity());
-        } finally {
-            if (null != response){
-                try {
-                    response.close();
-                    httpClient.close();
-                } catch (IOException e) {
-                    e.printStackTrace();
-                }
-            }
+    private static String getParamsForPost(String jsonString) {
+        if (null == jsonString) {
+            return "";
         }
-        if (200 != code) {
-            return response.getStatusLine().getReasonPhrase() + ", status code: " + code;
-        }
-        return result;
+        // 构造 url 参数，并对参数进行编码以防有特殊字符
+        JSONObject jsonObject = (JSONObject) JSONObject.parse(jsonString);
+        return null;
     }
 
     // Http Post Request

@@ -1,12 +1,11 @@
 package com.atlchain.bcgis;
 
+import com.alibaba.fastjson.JSONObject;
 import org.junit.Assert;
 import org.junit.Test;
 
 import java.io.IOException;
 import java.net.URI;
-import java.util.HashMap;
-import java.util.Map;
 
 public class UtilsTest {
     final String USERNAME = "admin";
@@ -14,12 +13,13 @@ public class UtilsTest {
 
     @Test
     public void httpGet() {
-        Map<String, String> params = new HashMap<>();
-        params.put("workspaceName", "D");
-        params.put("datastoreName", "D");
+        JSONObject jsonObject = new JSONObject();
+        jsonObject.put("workspaceName", "D");
+        jsonObject.put("datastoreName", "D");
+        String jsonParams = jsonObject.toJSONString();
         String result = "";
         try {
-            result = Utils.httpRequest(URI.create("http://localhost:8899/bcgis/mapservice/wms/list"), params, USERNAME, PASSWD);
+            result = Utils.httpRequest(Utils.HttpRequestType.GET, URI.create("http://localhost:8899/bcgis/mapservice/wms/list"), jsonParams, USERNAME, PASSWD);
         } catch (IOException e) {
             e.printStackTrace();
         }
@@ -27,18 +27,22 @@ public class UtilsTest {
         Assert.assertNotEquals("", result);
     }
 
-//        @Test
-//    public void httpPost2() throws IOException, JSONException {
-//        URL url = new URL("http://localhost:8899/bcgis/mapservice/wms/publish");
-//        String Authorization = new sun.misc.BASE64Encoder().encode((USERNAME + ":" + PASSWD).getBytes());
-//        JSONObject json = new JSONObject();
-//        json.put("workspaceName", "testWS");
-//        json.put("datastoreName", "testDS");
-//        json.put("featuretypeName", "testFT");
-//        String args = json.toString();
-//        String result = Utils.httpRequest(Utils.HttpRequestType.POST, url, Authorization, args);
-//        System.out.println(result);
-//    }
+    @Test
+    public void httpPost() {
+        //TODO 构造POST
+        JSONObject jsonObject = new JSONObject();
+        jsonObject.put("workspaceName", "D");
+        jsonObject.put("datastoreName", "D");
+        String jsonParams = jsonObject.toJSONString();
+        String result = "";
+        try {
+            result = Utils.httpRequest(Utils.HttpRequestType.POST, URI.create("http://localhost:8899/bcgis/mapservice/wms/publish"), jsonParams, USERNAME, PASSWD);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        System.out.println(result);
+        Assert.assertNotEquals("", result);
+    }
 
 //    @Test
 //    public void httpPost() throws IOException, JSONException {
