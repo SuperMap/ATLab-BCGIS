@@ -1,0 +1,41 @@
+html,
+body {
+    overflow:hidden;
+    background-color: lightgray;
+    width: 100vw;
+    height: 100vh;
+    margin: 0;
+    font-size: 2vmin;
+}
+
+button {
+    background-color: blanchedalmond;
+    width: 5vw;
+    height: 5vh;
+    font-size: 1.5vmin;
+}
+
+#toolbox {
+    width: 100vw;
+    height: 10vh;
+    margin: 0;
+}
+
+#map {
+    background-color: rgb(187, 247, 255);
+    width: 100vw;
+    height: 90vh;
+    margin: 0;
+}
+
+#publish_form {
+    margin: 0 auto;
+    width: 30vw;
+    align-content: center;
+}
+
+#publish_form button {
+    margin: 0 auto;
+    background-color: aliceblue;
+}
+

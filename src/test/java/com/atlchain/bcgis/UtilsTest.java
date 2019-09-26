@@ -12,16 +12,21 @@ public class UtilsTest {
     final String PASSWD = "geoserver";
 
     @Test
-    public void httpGet() throws IOException {
-        URL url = new URL("http://localhost:8080/geoserver/rest/workspaces/tiger/datastores/nyc");
+    public void httpGet() throws IOException, JSONException {
+        URL url = new URL("http://localhost:8899/bcgis/mapservice/wms/list");
+//        URL url = new URL("http://localhost:8070/geoserver/rest/workspaces/D/datastores/D");
         String Authorization = new sun.misc.BASE64Encoder().encode((USERNAME + ":" + PASSWD).getBytes());
-        String result = Utils.httpRequest(Utils.HttpRequestType.GET, url, Authorization, "");
+        JSONObject json = new JSONObject();
+        json.put("workspaceName", "testWS");
+        json.put("datastoreName", "testDS");
+        String args = json.toString();
+        String result = Utils.httpRequest(Utils.HttpRequestType.GET, url, Authorization, args);
         System.out.println(result);
     }
 
     @Test
     public void httpPost() throws IOException, JSONException {
-        URL url = new URL("http://localhost:8080/geoserver/rest/workspaces/testWS/datastores/testDS/featuretypes");
+        URL url = new URL("http://localhost:800/geoserver/rest/workspaces/testWS/datastores/testDS/featuretypes");
         String Authorization = new sun.misc.BASE64Encoder().encode((USERNAME + ":" + PASSWD).getBytes());
         String str = "{\n" +
                 "  \"featureType\": {\n" +
@@ -29,7 +34,7 @@ public class UtilsTest {
                 "    \"nativeName\": \"tempfeaturesType\",\n" +
                 "    \"namespace\": {\n" +
                 "      \"name\": \"testWS\",\n" +
-                "      \"href\": \"http://localhost:8080/geoserver/rest/namespaces/testWS.json\"\n" +
+                "      \"href\": \"http://localhost:8070/geoserver/rest/namespaces/testWS.json\"\n" +
                 "    },\n" +
                 "    \"title\": \"tempfeaturesType\",\n" +
                 "    \"keywords\": {\n" +
@@ -59,7 +64,7 @@ public class UtilsTest {
                 "    \"store\": {\n" +
                 "      \"@class\": \"dataStore\",\n" +
                 "      \"name\": \"testWS:testDS\",\n" +
-                "      \"href\": \"http://localhost:8080/geoserver/rest/workspaces/testWS/datastores/testDS.json\"\n" +
+                "      \"href\": \"http://localhost:8070/geoserver/rest/workspaces/testWS/datastores/testDS.json\"\n" +
                 "    },\n" +
                 "    \"serviceConfiguration\": false,\n" +
                 "    \"maxFeatures\": 0,\n" +
@@ -87,10 +92,29 @@ public class UtilsTest {
     }
 
     @Test
-    public void httpDelete() throws IOException {
-        URL url = new URL("http://localhost:8080/geoserver/rest/workspaces/testWS/datastores/testDS/featuretypes/testFT");
+    public void httpPost2() throws IOException, JSONException {
+        URL url = new URL("http://localhost:8899/bcgis/mapservice/wms/publish");
         String Authorization = new sun.misc.BASE64Encoder().encode((USERNAME + ":" + PASSWD).getBytes());
-        String result = Utils.httpRequest(Utils.HttpRequestType.DELETE, url, Authorization, "");
+        JSONObject json = new JSONObject();
+        json.put("workspaceName", "testWS");
+        json.put("datastoreName", "testDS");
+        json.put("featuretypeName", "testFT");
+        String args = json.toString();
+        String result = Utils.httpRequest(Utils.HttpRequestType.POST, url, Authorization, args);
+        System.out.println(result);
+    }
+
+    @Test
+    public void httpDelete() throws IOException, JSONException {
+        URL url = new URL("http://localhost:8899/bcgis/mapservice/wms/delete");
+        String Authorization = new sun.misc.BASE64Encoder().encode((USERNAME + ":" + PASSWD).getBytes());
+        JSONObject json = new JSONObject();
+        json.put("workspaceName", "testWS");
+        json.put("layerName", "testFT");
+        json.put("datastoreName", "testDS");
+        json.put("featuretypeName", "testFT");
+        String args = json.toString();
+        String result = Utils.httpRequest(Utils.HttpRequestType.DELETE, url, Authorization, args);
         System.out.println(result);
     }
 }

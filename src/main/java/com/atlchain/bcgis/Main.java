@@ -8,13 +8,14 @@ import org.glassfish.jersey.server.ResourceConfig;
 import java.io.IOException;
 import java.net.URI;
 
-public class main extends ResourceConfig {
+public class Main extends ResourceConfig {
     public static final String BASE_URI = "http://localhost:8899/bcgis/";
 
     public static HttpServer startServer() {
         final ResourceConfig rc = new ResourceConfig().packages("com.atlchain.bcgis");
         // 注册multipart
         rc.register(MultiPartFeature.class);
+        rc.register(CorsFilter.class);
         return GrizzlyHttpServerFactory.createHttpServer(URI.create(BASE_URI), rc);
     }
 

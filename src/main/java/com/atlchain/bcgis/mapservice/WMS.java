@@ -1,37 +1,72 @@
 package com.atlchain.bcgis.mapservice;
 
 import com.atlchain.bcgis.Utils;
+import org.glassfish.jersey.media.multipart.FormDataParam;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-import javax.ws.rs.DELETE;
-import javax.ws.rs.POST;
-import javax.ws.rs.Path;
+import javax.ws.rs.*;
+import javax.ws.rs.core.MediaType;
 import java.io.IOException;
+import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.logging.Logger;
 
 @Path("mapservice/wms")
 public class WMS {
     private Logger logger = Logger.getLogger(WMS.class.getName());
-    private final String URI = "http://localhost:8080/geoserver/rest";
+    private final String URI = "http://localhost:8070/geoserver/rest";
     private final String USERNAME = "admin";
     private final String PASSWD = "geoserver";
 
+    @GET
+    @Path("list")
+    @Consumes("application/json")
+    @Produces("application/json")
+    public String list(
+            @DefaultValue("green") @QueryParam("workspaceName") String workspaceName,
+            @DefaultValue("green") @QueryParam("datastoreName") String datastoreName
+    ) {
+//        URL url = null;
+//        try {
+//            url = new URL(URI + "/workspaces/" + workspaceName + "/datastores/" + datastoreName);
+//        } catch (MalformedURLException e) {
+//            e.printStackTrace();
+//        }
+//        String Authorization = new sun.misc.BASE64Encoder().encode((USERNAME + ":" + PASSWD).getBytes());
+//        String result = null;
+//        try {
+//            result = Utils.httpRequest(Utils.HttpRequestType.GET, url, Authorization);
+//        } catch (IOException e) {
+//            e.printStackTrace();
+//        }
+//        return result;
+        System.out.println("agdsgd" + workspaceName);
+        return null;
+    }
+
     @POST
     @Path("publish")
-    public String publish() {
+    @Consumes(MediaType.APPLICATION_JSON)
+    @Produces("application/json")
+    public String publish(
+            @FormDataParam("workspaceName") String workspaceName,
+            @FormDataParam("datastoreName") String datastoreName,
+            @FormDataParam("featuretypeName") String featuretypeName
+    ) {
+        System.out.println("sswww" + workspaceName);
+
         // 创建工作区
-        if (!createWorkspace("testWS")) {
+        if (!createWorkspace(workspaceName)) {
             logger.info("Cannot create workspace. It is already exist or something wrong happened, please check the logs.");
         }
         // 创建数据存储
-        if (!createDataStore("testWS", "testDS")) {
+        if (!createDataStore(workspaceName, datastoreName)) {
             logger.info("Cannot create dataStore. It is already exist or something wrong happened, please check the logs.");
         }
         // 发布图层
-        if (!createFeatureTypes("testWS", "testDS", "testFT")) {
+        if (!createFeatureTypes(workspaceName, datastoreName, featuretypeName)) {
             logger.info("Cannot create featureType. It is already exist or something wrong happened, please check the logs.");
         }
 
@@ -40,8 +75,16 @@ public class WMS {
 
     @DELETE
     @Path("delete")
-    public void delete() {
-        if(!deleteFeatureTypes("testWS","testFT" , "testDS", "testFT")) {
+    @Consumes("application/json")
+    @Produces("application/json")
+    public void delete(
+            @FormDataParam("workspaceName") String workspaceName,
+            @FormDataParam("layerName") String layerName,
+            @FormDataParam("datastoreName") String datastoreName,
+            @FormDataParam("featuretypeName") String featuretypeName
+    ) {
+        System.out.println("sswww" + workspaceName);
+        if(!deleteFeatureTypes(workspaceName, layerName, datastoreName, featuretypeName)) {
             logger.info("Cannot delete layer. It is already exist or something wrong happened, please check the logs.");
         }
     }
@@ -161,7 +204,7 @@ public class WMS {
                 "    \"nativeName\": \"tempfeaturesType\",\n" +
                 "    \"namespace\": {\n" +
                 "      \"name\": \"" + workspaceName + "\",\n" +
-                "      \"href\": \"http://localhost:8080/geoserver/rest/namespaces/" + workspaceName + ".json\"\n" +
+                "      \"href\": \"http://localhost:8070/geoserver/rest/namespaces/" + workspaceName + ".json\"\n" +
                 "    },\n" +
                 "    \"title\": \"" + featureTypeName + "\",\n" +
                 "    \"keywords\": {\n" +
@@ -191,7 +234,7 @@ public class WMS {
                 "    \"store\": {\n" +
                 "      \"@class\": \"dataStore\",\n" +
                 "      \"name\": \"" + workspaceName + ":" + datastore + "\",\n" +
-                "      \"href\": \"http://localhost:8080/geoserver/rest/workspaces/" + workspaceName + "/datastores/" + datastore + ".json\"\n" +
+                "      \"href\": \"http://localhost:8070/geoserver/rest/workspaces/" + workspaceName + "/datastores/" + datastore + ".json\"\n" +
                 "    },\n" +
                 "    \"serviceConfiguration\": false,\n" +
                 "    \"maxFeatures\": 0,\n" +
@@ -214,7 +257,7 @@ public class WMS {
                 "}";
         JSONObject json = null;
         try {
-            URL url = new URL("http://localhost:8080/geoserver/rest/workspaces/" + workspaceName + "/datastores/" + datastore + "/featuretypes");
+            URL url = new URL("http://localhost:8070/geoserver/rest/workspaces/" + workspaceName + "/datastores/" + datastore + "/featuretypes");
 
             // 判断属性类型是否已存在
             String response = Utils.httpRequest(Utils.HttpRequestType.GET, url, Authorization);
@@ -247,13 +290,13 @@ public class WMS {
         String Authorization = new sun.misc.BASE64Encoder().encode((USERNAME + ":" + PASSWD).getBytes());
         try {
             String response = "";
-            URL layerUrl = new URL("http://localhost:8080/geoserver/rest/workspaces/" + workspaceName + "/layers/" + layername);
+            URL layerUrl = new URL("http://localhost:8070/geoserver/rest/workspaces/" + workspaceName + "/layers/" + layername);
             response = Utils.httpRequest(Utils.HttpRequestType.DELETE, layerUrl, Authorization);
             if (!("".equals(response))) {
                 logger.warning("Cannot not delete layer " + layername);
                 return false;
             }
-            URL featureUrl = new URL("http://localhost:8080/geoserver/rest/workspaces/" + workspaceName + "/datastores/" + datastore + "/featuretypes/" + featureTypeName);
+            URL featureUrl = new URL("http://localhost:8070/geoserver/rest/workspaces/" + workspaceName + "/datastores/" + datastore + "/featuretypes/" + featureTypeName);
             response = Utils.httpRequest(Utils.HttpRequestType.DELETE, featureUrl, Authorization);
             if (!("".equals(response))) {
                 logger.warning("Cannot not delete featureType " + featureTypeName);

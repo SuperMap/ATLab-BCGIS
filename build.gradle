@@ -14,6 +14,10 @@ repositories {
 }
 
 dependencies {
+    // JTS
+    compile group: 'org.locationtech.jts', name: 'jts-core', version: '1.16.1'
+
+    // Jersey
     testCompile group: 'junit', name: 'junit', version: '4.12'
     compile group: 'org.glassfish.jersey.containers', name: 'jersey-container-grizzly2-http', version: '2.29'
     compile group: 'org.glassfish.jersey.inject', name: 'jersey-hk2', version: '2.29'
@@ -26,14 +30,14 @@ dependencies {
     // FastDFS
     compile group: 'org.csource', name: 'fastdfs-client-java', version: '1.27-RELEASE'
     compile group: 'org.slf4j', name: 'slf4j-api', version: '1.7.28'
+//    compile group: 'org.slf4j', name: 'slf4j-nop', version: '1.7.28'
+
     // mongodb
     compile group: 'org.mongodb', name: 'mongo-java-driver', version: '3.11.0'
     compile group: 'org.apache.commons', name: 'commons-collections4', version: '4.4'
+
     // hdfs
     compile group: 'org.apache.hadoop', name: 'hadoop-client', version: '3.2.0'
-    // hbase
-    compile group: 'org.apache.hbase', name: 'hbase-client', version: '1.3.1'
-    
-    // test
+
     compile group: 'org.wso2.apache.httpcomponents', name: 'httpmime', version: '4.3.1.wso2v1'
 }
