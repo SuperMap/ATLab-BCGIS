@@ -20,6 +20,7 @@ dependencies {
     // Jersey
     compile group: 'org.glassfish.jersey.containers', name: 'jersey-container-grizzly2-http', version: '2.29'
     compile group: 'org.glassfish.jersey.inject', name: 'jersey-hk2', version: '2.29'
+
     compile group: 'org.glassfish.jersey.media', name: 'jersey-media-multipart', version: '2.28'
     compile group: 'org.glassfish.jersey.test-framework', name: 'jersey-test-framework-core', version: '2.28'
     compile group: 'org.glassfish.jersey.examples', name: 'multipart-webapp', version: '2.29'
