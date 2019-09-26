@@ -1,5 +1,6 @@
 package com.atlchain.bcgis.storage;
 
+import com.squareup.okhttp.MultipartBuilder;
 import org.apache.http.Consts;
 import org.apache.http.HttpEntity;
 import org.apache.http.HttpResponse;
@@ -24,6 +25,7 @@ public class HDFSTest {
         File file = new File(filePath);
         try {
             InputStream in = new FileInputStream(file);
+
             MultipartEntityBuilder entityBuilder = MultipartEntityBuilder.create();
             entityBuilder.addBinaryBody("file", in, ContentType.MULTIPART_FORM_DATA, ".jpg");
             entityBuilder.addTextBody("uploadpath", "testHDFS_test");

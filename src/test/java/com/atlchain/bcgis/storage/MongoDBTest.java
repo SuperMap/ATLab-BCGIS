@@ -24,6 +24,7 @@ public class MongoDBTest {
         File file = new File(filePath);
         try {
             InputStream in = new FileInputStream(file);
+
             MultipartEntityBuilder entityBuilder = MultipartEntityBuilder.create();
             entityBuilder.addTextBody("databaseName", "Test_bcgis");
             entityBuilder.addTextBody("collectionName", "Test1");
