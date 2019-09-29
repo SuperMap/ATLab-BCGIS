@@ -8,6 +8,9 @@ import javax.ws.rs.*;
 import javax.ws.rs.core.MediaType;
 import java.util.logging.Logger;
 
+/**
+ * 缓冲区分析类
+ */
 @Path("mapservice/buffer")
 public class BufferAnalysis {
 
