@@ -1,11 +1,12 @@
 package com.atlchain.bcgis;
 
 
+import org.geotools.geojson.geom.GeometryJSON;
+import org.locationtech.jts.geom.Geometry;
+
+
+import java.io.*;
 import java.security.MessageDigest;
-import java.io.BufferedReader;
-import java.io.IOException;
-import java.io.InputStreamReader;
-import java.io.OutputStream;
 import java.net.HttpURLConnection;
 import java.net.URL;
 
@@ -94,5 +95,30 @@ public class Utils {
             connection.disconnect();
         }
         return builder.toString();
+    }
+
+    public static String geometryTogeometryJSON(Geometry geometry){
+        GeometryJSON geometryJSON = new GeometryJSON();
+        String stringgeometry = null;
+        try{
+            StringWriter writer = new StringWriter();
+            geometryJSON.write(geometry, writer);
+            stringgeometry = writer.toString();
+        }catch (IOException e) {
+            e.printStackTrace();
+        }
+        return stringgeometry;
+    }
+
+    public static Geometry geometryjsonToGeometry(String JSONstring){
+        Geometry geometry = null;
+        try {
+            GeometryJSON geometryJSON1 = new GeometryJSON();
+            Reader reader = new StringReader(JSONstring);
+            geometry = geometryJSON1.read(reader);
+        }catch (IOException e){
+            e.printStackTrace();
+        }
+        return geometry;
     }
 }

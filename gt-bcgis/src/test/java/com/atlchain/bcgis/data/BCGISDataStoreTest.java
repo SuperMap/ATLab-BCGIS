@@ -197,7 +197,6 @@ public class BCGISDataStoreTest {
 
         Layer layer = new FeatureLayer(simpleFeatureSource, style);
         map.addLayer(layer);
-
         JMapFrame.showMap(map);
     }
 
