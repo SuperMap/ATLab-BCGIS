@@ -64,16 +64,21 @@ public class Utils {
         return stringBuffer.toString();
     }
 
-    public static String getSHA256(String str) {
-        if (str == null) {
-            return null;}
+    public static String getSHA256(byte[] bytes) {
+        if (null == bytes) {
+            return null;
+        }
         try {
             MessageDigest messageDigest = MessageDigest.getInstance("SHA-256");
             messageDigest.reset();
-            messageDigest.update(str.getBytes());
+            messageDigest.update(bytes);
             return byte2Hex(messageDigest.digest());
         } catch (Exception e) {
             throw new RuntimeException(e);}
+    }
+
+    public static String getSHA256(String str) {
+        return getSHA256(str.getBytes());
     }
 
     /**
