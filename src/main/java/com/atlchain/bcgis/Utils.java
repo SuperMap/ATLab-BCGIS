@@ -17,11 +17,15 @@ import org.apache.http.util.EntityUtils;
 
 import org.geotools.geojson.geom.GeometryJSON;
 import org.locationtech.jts.geom.Geometry;
+import org.locationtech.jts.io.ParseException;
+import org.locationtech.jts.io.WKBReader;
 
 import javax.ws.rs.core.MediaType;
 import java.io.*;
 import java.net.URI;
 import java.net.URLEncoder;
+import java.nio.file.Files;
+import java.nio.file.Paths;
 import java.security.MessageDigest;
 import java.util.Map;
 
@@ -221,6 +225,19 @@ public class Utils {
             Reader reader = new StringReader(JSONstring);
             geometry = geometryJSON1.read(reader);
         }catch (IOException e){
+            e.printStackTrace();
+        }
+        return geometry;
+    }
+
+    public static Geometry wkbToGeometry(File file){
+        WKBReader reader = new WKBReader();
+        Geometry geometry = null;
+        try {
+            geometry = reader.read(Files.readAllBytes(Paths.get(file.getPath())));
+        } catch (IOException e) {
+            e.printStackTrace();
+        } catch (ParseException e) {
             e.printStackTrace();
         }
         return geometry;

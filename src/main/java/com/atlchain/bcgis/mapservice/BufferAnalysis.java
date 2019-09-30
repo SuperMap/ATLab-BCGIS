@@ -6,6 +6,10 @@ import org.locationtech.jts.geom.Geometry;
 
 import javax.ws.rs.*;
 import javax.ws.rs.core.MediaType;
+import java.io.File;
+import java.util.Arrays;
+import java.util.LinkedList;
+import java.util.List;
 import java.util.logging.Logger;
 
 /**
@@ -32,11 +36,16 @@ public class BufferAnalysis {
     @POST
     @Produces(MediaType.APPLICATION_JSON)
     @Consumes(MediaType.MULTIPART_FORM_DATA)
-    public String union(
-            @FormDataParam("JSONS1") String JSONS1,
-            @FormDataParam("JSONS2") String JSONS2
+    public String unionFeatureIDs(
+            @FormDataParam("Key") String key,
+            @FormDataParam("FeatureIDs") String FeatureIDs
     ){
-        String unionJSON = unionAnalysis(JSONS1,JSONS2);
+        String unionJSON = null;
+        if(!key.equals("union")){
+            unionJSON = "please inter the right key ";
+        }else {
+            unionJSON = union( FeatureIDs);
+        }
         return unionJSON;
     }
 
@@ -45,10 +54,15 @@ public class BufferAnalysis {
     @Produces(MediaType.APPLICATION_JSON)
     @Consumes(MediaType.MULTIPART_FORM_DATA)
     public String intersectionJSON(
-            @FormDataParam("JSONS1") String JSONS1,
-            @FormDataParam("JSONS2") String JSONS2
+            @FormDataParam("Key") String key,
+            @FormDataParam("FeatureIDs") String FeatureIDs
     ){
-        String intersectionJSON = intersectionAnalysis(JSONS1,JSONS2);
+        String intersectionJSON ;
+        if(!key.equals("intersection")){
+            intersectionJSON = "please inter the right key ";
+        }else {
+            intersectionJSON = intersection(FeatureIDs);
+        }
         return intersectionJSON;
     }
 
@@ -59,25 +73,63 @@ public class BufferAnalysis {
         return bufferJSON;
     }
 
-    private String unionAnalysis(String...jsons){
-        Geometry geometry ;
-        Geometry geometryUnion = Utils.geometryjsonToGeometry(jsons[0]);
-        for (String json : jsons) {
-            geometry =Utils.geometryjsonToGeometry(json);
-            geometryUnion = geometryUnion.union(geometry);
+    private String intersection(String FeatureIDs){
+        File file = new File("E:\\DemoRecording\\File_storage\\Test_SpaceAnalysis\\D.wkb");
+        Geometry geometry = Utils.wkbToGeometry(file);
+        List<String> list = new LinkedList<>();
+        List<String> listAdd = Arrays.asList(FeatureIDs.split(","));
+        for(String str:listAdd){
+            list.add(str.trim());
         }
-        String unionJSON = Utils.geometryTogeometryJSON(geometryUnion);
-        return  unionJSON;
+        Geometry geometryIntersection ;
+        List<Geometry> gemetryList = new LinkedList<>();
+        for(int i=0;i<list.size();i++){
+            gemetryList.add(geometry.getGeometryN(Integer.valueOf(list.get(i))));
+        }
+        geometryIntersection = intersectionAnalysis(gemetryList);
+        String unionJSON = Utils.geometryTogeometryJSON(geometryIntersection);
+        if(unionJSON.equals( "null")){
+            unionJSON = "the selected part without intersection area";
+        }
+        return unionJSON;
     }
 
-    private String intersectionAnalysis(String...jsons){
+    private Geometry intersectionAnalysis(List<Geometry> geometryList){
         Geometry geometry ;
-        Geometry geometryIntersection = Utils.geometryjsonToGeometry(jsons[0]);
-        for (String json : jsons) {
-            geometry =Utils.geometryjsonToGeometry(json);
+        Geometry geometryIntersection = geometryList.get(0);
+        for (Geometry geo : geometryList) {
+            geometry = geo;
             geometryIntersection = geometryIntersection.intersection(geometry);
         }
-        String intersectionJSON = Utils.geometryTogeometryJSON(geometryIntersection);
-        return intersectionJSON;
+        return geometryIntersection;
+    }
+
+    private String union(String FeatureIDs){
+        // 这部分需要进行替换，替换为根据FeatureID查询出对应的Geometry
+        File file = new File("E:\\DemoRecording\\File_storage\\Test_SpaceAnalysis\\D.wkb");
+        Geometry geometry = Utils.wkbToGeometry(file);
+        List<String> list = new LinkedList<>();
+        List<String> listAdd = Arrays.asList(FeatureIDs.split(","));
+        for(String str:listAdd){
+            list.add(str.trim());
+        }
+        Geometry geometryUnion ;
+        List<Geometry> gemetryList = new LinkedList<>();
+        for(int i=0;i<list.size();i++){
+            gemetryList.add(geometry.getGeometryN(Integer.valueOf(list.get(i))));
+        }
+        geometryUnion = unionAnalysis(gemetryList);
+        String unionJSON = Utils.geometryTogeometryJSON(geometryUnion);
+        return unionJSON;
+    }
+
+    private Geometry unionAnalysis(List<Geometry> geometryList){
+        Geometry geometry ;
+        Geometry geometryUnion = geometryList.get(0);
+        for (Geometry geolist : geometryList) {
+            geometry = geolist;
+            geometryUnion = geometryUnion.union(geometry);
+        }
+        return  geometryUnion;
     }
 }
