@@ -18,7 +18,7 @@ import java.io.*;
 public class MongoDBTest {
 
     @Test
-    public  static void upload() {
+    public void upload() {
         String url = "http://localhost:8899/bcgis/storage/mongodb/uploading";
         String filePath = "E:\\DemoRecording\\File_storage\\JerseyTest\\test2.jpg";
         File file = new File(filePath);

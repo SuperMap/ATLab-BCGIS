@@ -33,8 +33,8 @@ import java.util.logging.Logger;
 public class MongoDB {
 
     private Logger logger = Logger.getLogger(FastDFS.class.toString());
-    private String MongoDBIP = "localhost";
-    private int MongoDBport = 27017;
+    private String mongodbIp = "localhost";
+    private int mongodbPort = 27017;
 
     @Path("/uploading")
     @POST
@@ -42,7 +42,7 @@ public class MongoDB {
     @Consumes(MediaType.MULTIPART_FORM_DATA)
     public String upload(
             @FormDataParam("databaseName") String databaseName,
-            @FormDataParam("collectionName")String collectionName,
+            @FormDataParam("collectionName") String collectionName,
             @FormDataParam("file") InputStream fileInputStream,
             @FormDataParam("file") FormDataContentDisposition disposition
     )throws IOException, JSONException {
@@ -55,9 +55,9 @@ public class MongoDB {
         }
         byte[] byteArray = byteArrayOutputStream.toByteArray();
         String fileExtName = Utils.getExtName(disposition.getFileName());
-        String ID = MongoDBUploadFile(databaseName,collectionName,fileExtName,byteArray);
+        String ID = mongodbUploadFile(databaseName, collectionName, fileExtName, byteArray);
         result.put("ID", ID);
-        result.put("fileExtName",fileExtName);
+        result.put("fileExtName", fileExtName);
         return result.toString();
     }
 
@@ -71,8 +71,8 @@ public class MongoDB {
     ) throws JSONException {
         JSONObject result = new JSONObject();
         String localpath = "E:\\DemoRecording\\File_storage\\JerseyTest\\MongoDBtest" + fileExtName;
-        MongoDBDownloadFile(databaseName,collectionName,ID,localpath);
-        result.put("savefilePath_Local",localpath);
+        mongodbDownloadFile(databaseName, collectionName, ID, localpath);
+        result.put("savefilePath_Local", localpath);
         return result.toString();
     }
 
@@ -84,20 +84,20 @@ public class MongoDB {
             @FormDataParam("ID") String ID
     ) throws JSONException {
         JSONObject result = new JSONObject();
-        MongoDBDeleteFile(databaseName,collectionName,ID);
-        result.put("the delete file id is",ID);
+        mongodbDeleteFile(databaseName,collectionName, ID);
+        result.put("the delete file id is", ID);
         return result.toString();
     }
 
-    private String MongoDBUploadFile(String databaseName ,String collectionName,String fileExtName ,byte[] dataByte){
+    private String mongodbUploadFile(String databaseName, String collectionName, String fileExtName, byte[] dataByte){
         final String ID = Utils.getSHA256(dataByte.toString());
-        MongoClient mongoClient = new MongoClient(MongoDBIP, MongoDBport);
+        MongoClient mongoClient = new MongoClient(mongodbIp, mongodbPort);
         MongoDatabase mongoDatabase = mongoClient.getDatabase(databaseName);
         MongoCollection<Document> collection = mongoDatabase.getCollection(collectionName);
         Document document = new Document("title", "MongoDB")
                                   .append("fileExtName", fileExtName)
-                                  .append("ID",ID)
-                                  .append(ID,dataByte);
+                                  .append("ID", ID)
+                                  .append(ID, dataByte);
         List<Document> documents = new ArrayList<>();
         documents.add(document);
         collection.insertMany(documents);
@@ -106,17 +106,17 @@ public class MongoDB {
         return  ID ;
     }
 
-    private void MongoDBDownloadFile(String databaseName ,String collectionName,String downloadID ,String localStorePathName){
+    private void mongodbDownloadFile(String databaseName, String collectionName, String downloadID, String localStorePathName){
         try {
-            MongoClient mongoClient = new MongoClient(MongoDBIP, MongoDBport);
+            MongoClient mongoClient = new MongoClient(mongodbIp, mongodbPort);
             MongoDatabase mongoDatabase = mongoClient.getDatabase(databaseName);
             MongoCollection<Document> collection = mongoDatabase.getCollection(collectionName);
             FindIterable<Document> findIterable = collection.find();
             MongoCursor<Document> mongoCursor = findIterable.iterator();
             while (mongoCursor.hasNext()) {
-                Document doc1 = mongoCursor.next();
-                Binary doc2 = (Binary) doc1.get(downloadID);
-                byte[] data1 = doc2.getData();
+                Document document = mongoCursor.next();
+                Binary binary = (Binary) document.get(downloadID);
+                byte[] data1 = binary.getData();
             Files.write(Paths.get(localStorePathName), data1);
             }
             mongoClient.close();
@@ -125,12 +125,12 @@ public class MongoDB {
         }
     }
 
-    private void MongoDBDeleteFile(String databaseName ,String collectionName,String deleteID){
-        MongoClient mongoClient = new MongoClient(MongoDBIP, MongoDBport);
+    private void mongodbDeleteFile(String databaseName, String collectionName, String deleteID){
+        MongoClient mongoClient = new MongoClient(mongodbIp, mongodbPort);
         MongoDatabase mongoDatabase = mongoClient.getDatabase(databaseName);
         MongoCollection<Document> collection = mongoDatabase.getCollection(collectionName);
-        collection.deleteMany(Filters.eq("ID",deleteID));
-        logger.info("The delete file id is : " +deleteID);
+        collection.deleteMany(Filters.eq("ID", deleteID));
+        logger.info("The delete file id is : " + deleteID);
         mongoClient.close();
     }
 }

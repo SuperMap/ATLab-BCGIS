@@ -40,7 +40,7 @@ public class BufferAnalysis {
             @FormDataParam("Key") String key,
             @FormDataParam("FeatureIDs") String FeatureIDs
     ){
-        String unionJSON = null;
+        String unionJSON ;
         if(!key.equals("union")){
             unionJSON = "please inter the right key ";
         }else {
@@ -106,7 +106,7 @@ public class BufferAnalysis {
 
     private String union(String FeatureIDs){
         // 这部分需要进行替换，替换为根据FeatureID查询出对应的Geometry
-        File file = new File("E:\\DemoRecording\\File_storage\\Test_SpaceAnalysis\\D.wkb");
+        File file = new File("E:\\DemoRecording\\File_storage\\Test_SpaceAnalysis\\BL.wkb");
         Geometry geometry = Utils.wkbToGeometry(file);
         List<String> list = new LinkedList<>();
         List<String> listAdd = Arrays.asList(FeatureIDs.split(","));

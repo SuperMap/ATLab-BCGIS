@@ -14,7 +14,7 @@ import java.nio.file.Paths;
 import java.util.ArrayList;
 
 public class Shp2WkbTest {
-    private String shpURL = this.getClass().getResource("/Line/Line.shp").getFile();
+    private String shpURL = this.getClass().getResource("/BL/BL.shp").getFile();
     private File shpFile = new File(shpURL);
     private Shp2Wkb shp2WKB = new Shp2Wkb(shpFile);
     private BlockChainClient client;
@@ -58,7 +58,6 @@ public class Shp2WkbTest {
         }
     }
 
-    //
     @Test
     public void testSaveGeometryToChain() throws IOException {
         String key =  "Line4";
@@ -97,7 +96,6 @@ public class Shp2WkbTest {
                     "bcgiscc",
                     "GetRecordByKey"
             );
-
             Geometry geometry = Utils.getGeometryFromBytes(result[0]);
             System.out.println(geometry.getNumGeometries()+"======" + i);
         }
@@ -117,7 +115,6 @@ public class Shp2WkbTest {
 //            threadDemo.start();
             threadDemo.run();
         }
-
     }
 
 }

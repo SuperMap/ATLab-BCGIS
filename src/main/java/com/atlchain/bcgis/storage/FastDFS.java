@@ -36,7 +36,7 @@ public class FastDFS {
             byteArrayOutputStream.write(bytes, 0, n);
         }
         byte[] byteArray = byteArrayOutputStream.toByteArray();
-        String[] strs = FastDFSUploadFile(byteArray, Utils.getExtName(disposition.getFileName()));
+        String[] strs = fastdfsUploadFile(byteArray, Utils.getExtName(disposition.getFileName()));
         result.put("GroupID", strs[0]);
         result.put("FilePath", strs[1]);
         return result.toString();
@@ -51,10 +51,10 @@ public class FastDFS {
             @DefaultValue("E:\\DemoRecording\\File_storage\\JerseyTest\\FastDFStest.jpg")String savefilePath_Local
     ) throws JSONException {
         JSONObject result = new JSONObject();
-        FastDFSDownloadFile(groupID, filePath_FastDFS, savefilePath_Local);
-        result.put("GroupID",groupID);
-        result.put("filepath",filePath_FastDFS);
-        result.put("savefilePath_Local",savefilePath_Local);
+        fastdfsDownloadFile(groupID, filePath_FastDFS, savefilePath_Local);
+        result.put("GroupID", groupID);
+        result.put("filepath", filePath_FastDFS);
+        result.put("savefilePath_Local", savefilePath_Local);
         return result.toString();
     }
 
@@ -65,12 +65,12 @@ public class FastDFS {
             @QueryParam("deleteFilepath") String deleteFilepath
     ) throws JSONException {
         JSONObject result = new JSONObject();
-        FastDFSDeleteFile(deleteFileId, deleteFilepath);
-        result.put("the deleteFilepath is",deleteFilepath);
+        fastdfsDeleteFile(deleteFileId, deleteFilepath);
+        result.put("the deleteFilepath is", deleteFilepath);
         return result.toString();
     }
 
-    private String[] FastDFSUploadFile(byte[] fileContent, String fileExtName){
+    private String[] fastdfsUploadFile(byte[] fileContent, String fileExtName){
         String fileIds[] = new String[2];
         StorageServer storageServer = null;
         TrackerServer trackerServer = null;
@@ -79,8 +79,8 @@ public class FastDFS {
             ClientGlobal.init(conf_filename);
             TrackerClient tracker = new TrackerClient();
             trackerServer = tracker.getConnection();
-            StorageClient storageClient = new StorageClient(trackerServer,storageServer);
-            fileIds = storageClient.upload_appender_file(fileContent,fileExtName,null);
+            StorageClient storageClient = new StorageClient(trackerServer, storageServer);
+            fileIds = storageClient.upload_appender_file(fileContent,fileExtName, null);
             if(fileIds == null){
                 logger.info("DFSUploadFile failed , Because the fileIds is null");
             }
@@ -100,7 +100,7 @@ public class FastDFS {
         return fileIds ;
     }
 
-    private String FastDFSDownloadFile(String groupID, String filepath, String storePath){
+    private String fastdfsDownloadFile(String groupID, String filepath, String storePath){
         TrackerServer trackerServer = null;
         StorageServer storageServer = null;
         try{
@@ -131,7 +131,7 @@ public class FastDFS {
         return null;
     }
 
-    private String FastDFSDeleteFile(String groupId, String Filepath){
+    private String fastdfsDeleteFile(String groupId, String Filepath){
         TrackerServer trackerServer = null;
         StorageServer storageServer = null;
         int i = 0 ;

@@ -54,16 +54,16 @@ public class HBase {
         byte[] bytes = new byte[1024];
         int n = 0;
         while (-1 != (n = inputStream.read(bytes))){
-            byteArrayOutputStream.write(bytes,0, n);
+            byteArrayOutputStream.write(bytes, 0, n);
         }
         byte[] byteArray = byteArrayOutputStream.toByteArray();
         String rowKey = String.valueOf(byteArray.hashCode()) +tableName.hashCode();
-        HBASEUploadFile(tableName,rowKey,"info",fileExtName,byteArray);
+        hbaseUploadFile(tableName, rowKey, "info", fileExtName, byteArray);
         close(connection,admin);
-        result.put("upload_tableName",tableName);
-        result.put("upload_rowKey",rowKey);
-        result.put("upload_info","info");
-        result.put("upload_cn",fileExtName);
+        result.put("upload_tableName", tableName);
+        result.put("upload_rowKey", rowKey);
+        result.put("upload_info", "info");
+        result.put("upload_cn", fileExtName);
         return result.toString();
     }
 
@@ -75,16 +75,16 @@ public class HBase {
             @FormDataParam("tableName")String tableName,
             @FormDataParam("value")String value,
             @FormDataParam("file") FormDataContentDisposition disposition
-    ) throws JSONException, IOException {
+    ) throws JSONException{
         JSONObject result = new JSONObject();
         String fileExtName = Utils.getExtName(disposition.getFileName());
         String rowKey = String.valueOf(value.hashCode()) +tableName.hashCode();
-        HBASEUploadFile(tableName,rowKey,"info",fileExtName,value);
+        hbaseUploadFile(tableName,rowKey,"info",fileExtName,value);
         close(connection,admin);
-        result.put("upload_tableName",tableName);
-        result.put("upload_rowKey",rowKey);
-        result.put("upload_info","info");
-        result.put("upload_cn",fileExtName);
+        result.put("upload_tableName", tableName);
+        result.put("upload_rowKey", rowKey);
+        result.put("upload_info", "info");
+        result.put("upload_cn", fileExtName);
         return result.toString();
     }
 
@@ -97,15 +97,15 @@ public class HBase {
     ) throws JSONException, IOException {
         JSONObject result = new JSONObject();
         String store_LocalPath = "E:\\DemoRecording\\File_storage\\JerseyTest\\HBasetest" + fileExtName;
-        byte[] data = HBASEDownloadFile(tableName,rowKey,"info",fileExtName);
-        close(connection,admin);
+        byte[] data = hbaseDownloadFile(tableName, rowKey, "info", fileExtName);
+        close(connection, admin);
         OutputStream out = new FileOutputStream(store_LocalPath);
         out.write(data);
-        result.put("download_tableName",tableName);
-        result.put("download_rowKey",rowKey);
-        result.put("download_info","info");
-        result.put("download_cn",fileExtName);
-        result.put("download_localpath",store_LocalPath);
+        result.put("download_tableName", tableName);
+        result.put("download_rowKey", rowKey);
+        result.put("download_info", "info");
+        result.put("download_cn", fileExtName);
+        result.put("download_localpath", store_LocalPath);
         return result.toString();
     }
 
@@ -117,12 +117,12 @@ public class HBase {
             @FormDataParam("fileExtName") String fileExtName
     ) throws JSONException {
         JSONObject result = new JSONObject();
-        HBASEDeleteFile(tableName, rowKey,"info",fileExtName);
+        hbaseDeleteFile(tableName, rowKey, "info", fileExtName);
         close(connection,admin);
-        result.put("delete_tableName",tableName);
-        result.put("delete_rowKey",rowKey);
-        result.put("delete_info","info");
-        result.put("delete_cn",fileExtName);
+        result.put("delete_tableName", tableName);
+        result.put("delete_rowKey", rowKey);
+        result.put("delete_info", "info");
+        result.put("delete_cn", fileExtName);
         return result.toString();
     }
 
@@ -132,15 +132,15 @@ public class HBase {
             @FormDataParam("tableName") String tableName
     ) throws JSONException {
         JSONObject result = new JSONObject();
-        HBASEDeleteTable(tableName);
+        hbaseDeleteTable(tableName);
         close(connection,admin);
-        result.put("delete_tableName",tableName);
+        result.put("delete_tableName", tableName);
         return result.toString();
     }
 
-    private void HBASEUploadFile(String tableName,String rowKey,String cf,String cn,byte[] value){
+    private void hbaseUploadFile(String tableName, String rowKey, String cf, String cn, byte[] value){
         if(!tableExist(tableName)){
-            creatTable(tableName,cf);
+            creatTable(tableName, cf);
             logger.info("create table ,the name is: " + tableName);
         }
         try {
@@ -153,22 +153,22 @@ public class HBase {
         }
     }
 
-    private void HBASEUploadFile(String tableName,String rowKey,String cf,String cn,String value){
+    private void hbaseUploadFile(String tableName, String rowKey, String cf, String cn, String value){
         if(!tableExist(tableName)){
-            creatTable(tableName,cf);
+            creatTable(tableName, cf);
             logger.info("create table ,the name is: " + tableName);
         }
         try {
             Table table =  connection.getTable(TableName.valueOf(tableName));
             Put put = new Put(Bytes.toBytes(rowKey));
-            put.addColumn(Bytes.toBytes(cf),Bytes.toBytes(cn),Bytes.toBytes(value));
+            put.addColumn(Bytes.toBytes(cf), Bytes.toBytes(cn), Bytes.toBytes(value));
             table.put(put);
             table.close();
         }catch (IOException e){
         }
     }
 
-    private byte[] HBASEDownloadFile(String tableName,String rowKey,String cf,String cn){
+    private byte[] hbaseDownloadFile(String tableName, String rowKey, String cf, String cn){
         byte[] Value = null;
         try {
             Table table = connection.getTable(TableName.valueOf(tableName));
@@ -185,11 +185,11 @@ public class HBase {
         return Value;
     }
 
-    private void HBASEDeleteFile(String tableName,String rowKey,String cf,String cn){
+    private void hbaseDeleteFile(String tableName, String rowKey, String cf, String cn){
         try {
             Table table = connection.getTable(TableName.valueOf(tableName));
             Delete delete = new Delete(Bytes.toBytes(rowKey));
-            delete.addColumns(Bytes.toBytes(cf),Bytes.toBytes(cn));
+            delete.addColumns(Bytes.toBytes(cf), Bytes.toBytes(cn));
             table.delete(delete);
             table.close();
         }catch (IOException e){
@@ -197,7 +197,7 @@ public class HBase {
         logger.info("this table" + tableName + "is delete");
     }
 
-    public void HBASEDeleteTable(String tableName)  {
+    public void hbaseDeleteTable(String tableName)  {
         try{
             if(!tableExist(tableName)){
                 return;
@@ -220,7 +220,7 @@ public class HBase {
         return tableExists;
     }
 
-    private void creatTable(String tableName,String info) {
+    private void creatTable(String tableName, String info) {
         if(tableExist(tableName)){
             logger.info("this table " + tableName + "is already exist !");
             return;

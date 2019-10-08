@@ -39,8 +39,8 @@ public class HDFS {
     ) throws JSONException, IOException {
         JSONObject result = new JSONObject();
         String fileExtName = Utils.getExtName(disposition.getFileName());
-        String upload_location = HDFSUploadFile(inputStream ,uploadpath,fileExtName);
-        result.put("upload_location",upload_location);
+        String upload_location = hdfsUploadFile(inputStream, uploadpath, fileExtName);
+        result.put("upload_location", upload_location);
         return result.toString();
     }
 
@@ -52,8 +52,8 @@ public class HDFS {
     ) throws JSONException {
         JSONObject result = new JSONObject();
         String store_LocalPath = "E:\\DemoRecording\\File_storage\\JerseyTest\\HDFStest" + fileExtName;
-        HDFSDownloadFile(store_LocalPath,download_Path,fileExtName);
-        result.put("savefilePath_Local",store_LocalPath);
+        hdfsDownloadFile(store_LocalPath, download_Path, fileExtName);
+        result.put("savefilePath_Local", store_LocalPath);
         return result.toString();
     }
 
@@ -61,15 +61,15 @@ public class HDFS {
     @Path("/delete")
     public String delete(
             @FormDataParam("delete_Path") String delete_Path,
-            @FormDataParam("fileExtName")String fileExtName
+            @FormDataParam("fileExtName") String fileExtName
     ) throws JSONException {
         JSONObject result = new JSONObject();
-        String deletepath = HDFSDeleteFile(delete_Path,fileExtName);
-        result.put("the delete file path is" ,deletepath);
+        String deletepath = hdfsDeleteFile(delete_Path, fileExtName);
+        result.put("the delete file path is", deletepath);
         return result.toString();
     }
 
-    private FileSystem Get_fs() {
+    private FileSystem getFs() {
         Configuration conf = new Configuration();
         conf.set("bcgis",ipAddress);
         conf.set("dfs.replication", "3");
@@ -80,8 +80,8 @@ public class HDFS {
         return fs;
     }
 
-    private String HDFSUploadFile(InputStream fileInputStream,String upload_Path,String fileExtName) throws IOException {
-        FileSystem fs = new HDFS().Get_fs();
+    private String hdfsUploadFile(InputStream fileInputStream, String upload_Path, String fileExtName) throws IOException {
+        FileSystem fs = new HDFS().getFs();
         String upload_Location = "/user/bcgis/" + upload_Path + fileExtName;
         org.apache.hadoop.fs.Path dst = new org.apache.hadoop.fs.Path(ipAddress + upload_Location);
         FSDataOutputStream os = fs.create(dst);
@@ -91,9 +91,9 @@ public class HDFS {
         return  upload_Location;
     }
 
-    private void HDFSDownloadFile(String store_LocalPath ,String download_Path,String fileExtName){
-        FileSystem fs = new HDFS().Get_fs();
-        download_Path = ipAddress + "/user/bcgis/" + download_Path +fileExtName;
+    private void hdfsDownloadFile(String store_LocalPath, String download_Path, String fileExtName){
+        FileSystem fs = new HDFS().getFs();
+        download_Path = ipAddress + "/user/bcgis/" + download_Path + fileExtName;
         try {
             fs.copyToLocalFile(new org.apache.hadoop.fs.Path(download_Path),
                     new org.apache.hadoop.fs.Path(store_LocalPath));
@@ -103,9 +103,9 @@ public class HDFS {
         logger.info("sucessful download file !");
     }
 
-    private String HDFSDeleteFile(String delete_Path,String fileExtName){
-        FileSystem fs = new HDFS().Get_fs();
-        delete_Path = "/user/bcgis/"+ delete_Path +fileExtName;
+    private String hdfsDeleteFile(String delete_Path, String fileExtName){
+        FileSystem fs = new HDFS().getFs();
+        delete_Path = "/user/bcgis/"+ delete_Path + fileExtName;
         try {
             fs.deleteOnExit(new org.apache.hadoop.fs.Path(delete_Path));
             fs.close();
