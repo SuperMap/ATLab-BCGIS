@@ -3,7 +3,6 @@ package com.atlchain.bcgis.data;
 import org.junit.Assert;
 import org.junit.Test;
 import org.locationtech.jts.geom.Geometry;
-import org.locationtech.jts.geom.GeometryCollection;
 import org.locationtech.jts.io.ParseException;
 
 import java.io.File;
@@ -14,12 +13,11 @@ import java.nio.file.Paths;
 import java.util.ArrayList;
 
 public class Shp2WkbTest {
-    private String shpURL = this.getClass().getResource("/BL/BL.shp").getFile();
+    private String shpURL = this.getClass().getResource("/D/D.shp").getFile();//   /Point/Point
     private File shpFile = new File(shpURL);
     private Shp2Wkb shp2WKB = new Shp2Wkb(shpFile);
     private BlockChainClient client;
     private File networkFile = new File(this.getClass().getResource("/network-config-test.yaml").toURI());
-
 
     public Shp2WkbTest() throws URISyntaxException {
         client = new BlockChainClient(networkFile);
@@ -60,7 +58,7 @@ public class Shp2WkbTest {
 
     @Test
     public void testSaveGeometryToChain() throws IOException {
-        String key =  "Line4";
+        String key =  "D";
         byte[] bytes = shp2WKB.getGeometryBytes();
 
         String result = client.putRecord(
@@ -72,23 +70,22 @@ public class Shp2WkbTest {
         System.out.println(result);
     }
 
+    // 在BCGISDataStore中定义了如下的FeatureID（hash-index）的形式，直接查询即可  这个只能查询部分的，查询整体会出错
     @Test
     public void testQueryGeometryFromChain() throws ParseException {
-        String key = "Line4";
+        String key = "6bff876faa82c51aee79068a68d4a814af8c304a0876a08c0e8fe16e5645fde4";
         byte[][] result = client.getRecordBytes(
                 key,
                 "bcgiscc",
                 "GetRecordByKey"
         );
-
         Geometry geometry = Utils.getGeometryFromBytes(result[0]);
-        System.out.println(geometry);
+        System.out.println(geometry.getNumGeometries());
     }
 
     @Test
     public void testQueryGeometryFromChain1() throws ParseException {
         BlockChainClient client2 = new BlockChainClient(networkFile);
-
         for(int i =0 ;i <10000;i++) {
             String key = "Line4";
             byte[][] result = client2.getRecordBytes(
@@ -109,12 +106,10 @@ public class Shp2WkbTest {
 
     @Test
     public void testThread() throws URISyntaxException {
-
         for (int i=0; i< 1000 ; i++) {
             Utils.ThreadDemo threadDemo = new Utils.ThreadDemo("测试Thread" + i);
 //            threadDemo.start();
             threadDemo.run();
         }
     }
-
 }

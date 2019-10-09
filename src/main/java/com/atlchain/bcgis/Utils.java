@@ -19,6 +19,7 @@ import org.geotools.geojson.geom.GeometryJSON;
 import org.locationtech.jts.geom.Geometry;
 import org.locationtech.jts.io.ParseException;
 import org.locationtech.jts.io.WKBReader;
+import org.locationtech.jts.io.WKBWriter;
 
 import javax.ws.rs.core.MediaType;
 import java.io.*;
@@ -245,6 +246,23 @@ public class Utils {
         } catch (ParseException e) {
             e.printStackTrace();
         }
+        return geometry;
+    }
+
+    public static void geometryToWkbFile(Geometry geometry,File file){
+        WKBWriter writer = new WKBWriter();
+        byte[] WKBByteArray = writer.write(geometry);
+        FileOutputStream out = null;
+        try {
+            out = new FileOutputStream(file);
+            out.write(WKBByteArray);
+            out.close();
+        } catch (IOException e){
+        }
+    }
+
+    public static Geometry getGeometryFromBytes(byte[] bytes) throws ParseException {
+        Geometry geometry = new WKBReader().read(bytes);
         return geometry;
     }
 }

@@ -34,9 +34,7 @@ public class Shp2Wkb {
         if (!wkbFile.exists()) {
             wkbFile.createNewFile();
         }
-
         byte[] WKBByteArray = getGeometryBytes();
-
         FileOutputStream out = null;
         try {
             out = new FileOutputStream(wkbFile);
@@ -78,7 +76,6 @@ public class Shp2Wkb {
         FileDataStore store = FileDataStoreFinder.getDataStore(shpFile);
         // 从数据集中获取属性源
         SimpleFeatureSource featureSource = store.getFeatureSource();
-
         // 获取属性
         SimpleFeatureCollection featureCollection = featureSource.getFeatures();
         SimpleFeatureIterator featureIterator = featureCollection.features();

@@ -1,4 +1,4 @@
-package com.atlchain.bcgis.data;
+package com.atlchain.bcgis.storage;
 
 import com.atlchain.sdk.ATLChain;
 
@@ -8,22 +8,23 @@ import java.util.logging.Logger;
 /**
  * 区块链操作类，用于和区块链进行交互
  */
-public class BlockChainClient {
-    Logger logger = Logger.getLogger(BlockChainClient.class.toString());
+public class BlockChain {
+    Logger logger = Logger.getLogger(BlockChain.class.toString());
     private ATLChain atlChain;
 
-    BlockChainClient(File networkConfigFile) {
-        this.atlChain = new ATLChain(networkConfigFile);
+    public BlockChain(File networkConfigFile) {
+        atlChain = new ATLChain(networkConfigFile);
     }
-
 
     // >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
     // 读取链上数据，通道名、链码名称、方法名有默认值
     public byte[][] getRecordBytes(String recordKey) {
+
         return getRecordBytes(recordKey, "atlchaincc", "GetByteArray");
     }
 
     public byte[][] getRecordBytes(String recordKey, String chaincodeName) {
+
         return getRecordBytes(recordKey, chaincodeName, "GetByteArray");
     }
 

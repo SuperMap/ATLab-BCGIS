@@ -7,7 +7,6 @@ import org.locationtech.jts.index.strtree.STRtree;
 
 import java.io.File;
 import java.io.IOException;
-import java.net.URISyntaxException;
 import java.util.List;
 
 import static org.junit.Assert.assertEquals;

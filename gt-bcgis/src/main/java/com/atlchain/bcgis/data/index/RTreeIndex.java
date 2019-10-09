@@ -4,14 +4,11 @@
 
 package com.atlchain.bcgis.data.index;
 
-import com.atlchain.bcgis.data.Shp2Wkb;
 import org.locationtech.jts.geom.*;
 import org.locationtech.jts.geom.impl.CoordinateArraySequence;
 import org.locationtech.jts.index.strtree.STRtree;
 
 import java.io.*;
-import java.net.URI;
-import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
 

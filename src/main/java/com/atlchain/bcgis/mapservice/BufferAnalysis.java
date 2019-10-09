@@ -1,12 +1,16 @@
 package com.atlchain.bcgis.mapservice;
 
 import com.atlchain.bcgis.Utils;
+import com.atlchain.bcgis.storage.BlockChain;
 import org.glassfish.jersey.media.multipart.FormDataParam;
+import org.junit.Test;
 import org.locationtech.jts.geom.Geometry;
+import org.locationtech.jts.io.ParseException;
 
 import javax.ws.rs.*;
 import javax.ws.rs.core.MediaType;
 import java.io.File;
+import java.net.URISyntaxException;
 import java.util.Arrays;
 import java.util.LinkedList;
 import java.util.List;
@@ -19,6 +23,12 @@ import java.util.logging.Logger;
 public class BufferAnalysis {
 
     private Logger logger = Logger.getLogger(BufferAnalysis.class.toString());
+    private BlockChain client;
+    private File networkFile = new File(this.getClass().getResource("/network-config-test.yaml").toURI());
+
+    public BufferAnalysis() throws URISyntaxException {
+        client = new BlockChain(networkFile);
+    }
 
     @Path("/bufferAnalysis")
     @POST
@@ -74,7 +84,7 @@ public class BufferAnalysis {
     }
 
     private String intersection(String FeatureIDs){
-        File file = new File("E:\\DemoRecording\\File_storage\\Test_SpaceAnalysis\\D.wkb");
+        File file = new File("E:\\DemoRecording\\testFileStorage\\Test_SpaceAnalysis\\D.wkb");
         Geometry geometry = Utils.wkbToGeometry(file);
         List<String> list = new LinkedList<>();
         List<String> listAdd = Arrays.asList(FeatureIDs.split(","));
@@ -106,8 +116,9 @@ public class BufferAnalysis {
 
     private String union(String FeatureIDs){
         // 这部分需要进行替换，替换为根据FeatureID查询出对应的Geometry
-        File file = new File("E:\\DemoRecording\\File_storage\\Test_SpaceAnalysis\\BL.wkb");
-        Geometry geometry = Utils.wkbToGeometry(file);
+//        File file = new File("E:\\DemoRecording\\testFileStorage\\Test_SpaceAnalysis\\BL.wkb");
+//        Geometry geometry = Utils.wkbToGeometry(file);
+        Geometry geometry;
         List<String> list = new LinkedList<>();
         List<String> listAdd = Arrays.asList(FeatureIDs.split(","));
         for(String str:listAdd){
@@ -116,7 +127,9 @@ public class BufferAnalysis {
         Geometry geometryUnion ;
         List<Geometry> gemetryList = new LinkedList<>();
         for(int i=0;i<list.size();i++){
-            gemetryList.add(geometry.getGeometryN(Integer.valueOf(list.get(i))));
+//            gemetryList.add(geometry.getGeometryN(Integer.valueOf(list.get(i))));
+            geometry = queryGeometryFromChain(list.get(i));
+            gemetryList.add(geometry);
         }
         geometryUnion = unionAnalysis(gemetryList);
         String unionJSON = Utils.geometryTogeometryJSON(geometryUnion);
@@ -131,5 +144,27 @@ public class BufferAnalysis {
             geometryUnion = geometryUnion.union(geometry);
         }
         return  geometryUnion;
+    }
+
+    /**
+     *  根据FeatureID从区块链上查询数据
+     *  只能单独查询，整体查询需要用bcgis里面的getRecord
+     * @throws ParseException
+     */
+    private Geometry queryGeometryFromChain(String featureID) {
+        String key = featureID;
+        byte[][] result = client.getRecordBytes(
+                key,
+                "bcgiscc",
+                "GetRecordByKey"
+        );
+        Geometry geometry = null;
+        try {
+            geometry = Utils.getGeometryFromBytes(result[0]);
+        } catch (ParseException e) {
+            e.printStackTrace();
+        }
+        System.out.println(geometry.getNumGeometries());
+        return geometry;
     }
 }
