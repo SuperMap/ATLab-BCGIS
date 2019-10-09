@@ -1,5 +1,7 @@
 package com.atlchain.bcgis.mapservice;
 
+import com.alibaba.fastjson.JSONArray;
+import com.alibaba.fastjson.JSONObject;
 import com.atlchain.bcgis.Utils;
 import org.apache.http.Consts;
 import org.apache.http.HttpEntity;
@@ -58,6 +60,14 @@ public class BufferAnalysisTest {
         return result;
     }
 
+    public String buffer_1(String JerseyPath, JSONObject jsonObject) {
+        MultipartEntityBuilder entityBuilder = MultipartEntityBuilder.create();
+        entityBuilder.addTextBody("JSONObject", String.valueOf(jsonObject));
+        String url = BASE_URI + JerseyPath;
+        String result = httpPost(entityBuilder, url);
+        return result;
+    }
+
     public String intersection(String JerseyPath, String FeatureIDs, String key) {
         MultipartEntityBuilder entityBuilder = MultipartEntityBuilder.create();
         entityBuilder.addTextBody("Key", key);
@@ -91,13 +101,30 @@ public class BufferAnalysisTest {
         Utils.geometryToWkbFile(bufferGeometry, bufferfile);
     }
 
+    // 缓冲区分析
+    @Test
+    public void testBuffer_1() {
+        File bufferfile = new File("E:\\DemoRecording\\testFileStorage\\Test_SpaceAnalysis\\bufferD2222.wkb");
+        JSONObject jsonObject = new JSONObject();
+        JSONArray fid = new JSONArray();
+        jsonObject.put("bufferRadius","0.001");
+        fid.add("d7e94bf0c86c94579e8b564d2dea995ed3746108f98f003fb555bcd41831f885-0");
+        fid.add("d7e94bf0c86c94579e8b564d2dea995ed3746108f98f003fb555bcd41831f885-1");
+        fid.add("d7e94bf0c86c94579e8b564d2dea995ed3746108f98f003fb555bcd41831f885-20");
+        fid.add("d7e94bf0c86c94579e8b564d2dea995ed3746108f98f003fb555bcd41831f885-3");
+        jsonObject.put("fid",fid);
+        String stringJSON = buffer_1("mapservice/buffer/bufferAnalysis",jsonObject);
+        Geometry bufferGeometry = Utils.geometryjsonToGeometry(stringJSON);
+        Utils.geometryToWkbFile(bufferGeometry, bufferfile);
+    }
+
     // 联合分析
     @Test
     public void testUnion() {
         Long start = System.nanoTime() / 1000000L;
         File unionfile = new File("E:\\DemoRecording\\testFileStorage\\Test_SpaceAnalysis\\BL_FeatureIDs_toChain.wkb");
         List<String> list = new LinkedList<>();
-        for (int i = 0; i < 10000; i++) {
+        for (int i = 0; i < 10; i++) {
             list.add("d7e94bf0c86c94579e8b564d2dea995ed3746108f98f003fb555bcd41831f885-"+ i);
             // d7e94bf0c86c94579e8b564d2dea995ed3746108f98f003fb555bcd41831f885
             // 6bff876faa82c51aee79068a68d4a814af8c304a0876a08c0e8fe16e5645fde4
