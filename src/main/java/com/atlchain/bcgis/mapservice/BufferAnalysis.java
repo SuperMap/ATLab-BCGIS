@@ -29,7 +29,6 @@ public class BufferAnalysis {
     private Logger logger = Logger.getLogger(BufferAnalysis.class.toString());
     private BlockChain client;
     private File networkFile = new File(this.getClass().getResource("/network-config-test.yaml").toURI());
-
     public BufferAnalysis() throws URISyntaxException {
         client = new BlockChain(networkFile);
     }
@@ -38,7 +37,7 @@ public class BufferAnalysis {
     @POST
     @Produces(MediaType.APPLICATION_JSON)
     @Consumes(MediaType.MULTIPART_FORM_DATA)
-    public String bufferFeatureIDs(
+    public String buffer(
             @FormDataParam("JSONObject") String params
 //            String params
     ){
@@ -65,16 +64,24 @@ public class BufferAnalysis {
     @POST
     @Produces(MediaType.APPLICATION_JSON)
     @Consumes(MediaType.MULTIPART_FORM_DATA)
-    public String unionFeatureIDs(
-            @FormDataParam("Key") String key,
-            @FormDataParam("FeatureIDs") String FeatureIDs
+    public String union(
+            @FormDataParam("JSONObject") String params
     ){
-        String unionJSON ;
-        if(!key.equals("union")){
-            unionJSON = "please inter the right key ";
-        }else {
-            unionJSON = union( FeatureIDs);
+        JSONObject result = new JSONObject();
+        if (!JSONObject.isValid(params)) {
+            result.put("result", "Bad params format, json format expected!");
+            return result.toString();
         }
+        JSONObject jsonObject = JSONObject.parseObject(params);
+        JSONArray fidJsonArray = jsonObject.getJSONArray("fid");
+        ArrayList<String> fids = new ArrayList<>();
+        if (!fidJsonArray.isEmpty()) {
+            for (int i = 0; i < fidJsonArray.size(); i++) {
+                String fid = fidJsonArray.getString(i);
+                fids.add(fid);
+            }
+        }
+        String unionJSON = union(fids);
         return unionJSON;
     }
 
@@ -82,16 +89,24 @@ public class BufferAnalysis {
     @POST
     @Produces(MediaType.APPLICATION_JSON)
     @Consumes(MediaType.MULTIPART_FORM_DATA)
-    public String intersectionJSON(
-            @FormDataParam("Key") String key,
-            @FormDataParam("FeatureIDs") String FeatureIDs
+    public String intersection(
+            @FormDataParam("JSONObject") String params
     ){
-        String intersectionJSON ;
-        if(!key.equals("intersection")){
-            intersectionJSON = "please inter the right key ";
-        }else {
-            intersectionJSON = intersection(FeatureIDs);
+        JSONObject result = new JSONObject();
+        if (!JSONObject.isValid(params)) {
+            result.put("result", "Bad params format, json format expected!");
+            return result.toString();
         }
+        JSONObject jsonObject = JSONObject.parseObject(params);
+        JSONArray fidJsonArray = jsonObject.getJSONArray("fid");
+        ArrayList<String> fids = new ArrayList<>();
+        if (!fidJsonArray.isEmpty()) {
+            for (int i = 0; i < fidJsonArray.size(); i++) {
+                String fid = fidJsonArray.getString(i);
+                fids.add(fid);
+            }
+        }
+        String intersectionJSON = intersection(fids);
         return intersectionJSON;
     }
 
@@ -109,10 +124,6 @@ public class BufferAnalysis {
     }
 
     private Geometry bufferAnalysis(String bufferRadius, List<Geometry> geometryList){
-//        Geometry geometry = Utils.geometryjsonToGeometry(json);
-//        Geometry bufferGeometry = geometry.buffer(Double.valueOf(bufferRadius));
-//        String bufferJSON = Utils.geometryTogeometryJSON(bufferGeometry);
-        // 即将每次缓冲区分析的值都联合在一起返回即可
         Geometry geometry ;
         Geometry geometryBuffer = geometryList.get(0).buffer(Double.valueOf(bufferRadius));
         for (Geometry geolist : geometryList) {
@@ -122,25 +133,20 @@ public class BufferAnalysis {
         return  geometryBuffer;
     }
 
-    private String intersection(String FeatureIDs){
-        File file = new File("E:\\DemoRecording\\testFileStorage\\Test_SpaceAnalysis\\D.wkb");
-        Geometry geometry = Utils.wkbToGeometry(file);
-        List<String> list = new LinkedList<>();
-        List<String> listAdd = Arrays.asList(FeatureIDs.split(","));
-        for(String str:listAdd){
-            list.add(str.trim());
-        }
-        Geometry geometryIntersection ;
+    private String intersection(List<String> fidList){
+        Geometry geometry;
+        Geometry geometryUnion ;
         List<Geometry> gemetryList = new LinkedList<>();
-        for(int i=0;i<list.size();i++){
-            gemetryList.add(geometry.getGeometryN(Integer.valueOf(list.get(i))));
+        for(String str : fidList){
+            geometry = queryGeometryFromChain(str);
+            gemetryList.add(geometry);
         }
-        geometryIntersection = intersectionAnalysis(gemetryList);
-        String unionJSON = Utils.geometryTogeometryJSON(geometryIntersection);
-        if(unionJSON.equals( "null")){
-            unionJSON = "the selected part without intersection area";
+        geometryUnion = intersectionAnalysis(gemetryList);
+        String intersectionJSON = Utils.geometryTogeometryJSON(geometryUnion);
+        if(intersectionJSON.equals( "null")){
+            logger.info("the selected part without intersection area");
         }
-        return unionJSON;
+        return intersectionJSON;
     }
 
     private Geometry intersectionAnalysis(List<Geometry> geometryList){
@@ -153,17 +159,12 @@ public class BufferAnalysis {
         return geometryIntersection;
     }
 
-    private String union(String FeatureIDs){
+    private String union(List<String> fidList){
         Geometry geometry;
-        List<String> list = new LinkedList<>();
-        List<String> listAdd = Arrays.asList(FeatureIDs.split(","));
-        for(String str:listAdd){
-            list.add(str.trim());
-        }
         Geometry geometryUnion ;
         List<Geometry> gemetryList = new LinkedList<>();
-        for(int i=0;i<list.size();i++){
-            geometry = queryGeometryFromChain(list.get(i));
+        for(String str : fidList){
+            geometry = queryGeometryFromChain(str);
             gemetryList.add(geometry);
         }
         geometryUnion = unionAnalysis(gemetryList);

@@ -1,6 +1,7 @@
 package com.atlchain.bcgis;
 
 import com.alibaba.fastjson.JSONObject;
+import com.atlchain.bcgis.mapservice.BufferAnalysis;
 import org.apache.http.auth.AuthScope;
 import org.apache.http.auth.UsernamePasswordCredentials;
 import org.apache.http.client.CredentialsProvider;
@@ -29,11 +30,14 @@ import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.security.MessageDigest;
 import java.util.Map;
+import java.util.logging.Logger;
 
 /**
  * 工具类
  */
 public class Utils {
+
+    private static Logger logger = Logger.getLogger(Utils.class.toString());
 
     /**
      * Http 请求类型
@@ -225,6 +229,9 @@ public class Utils {
     }
 
     public static Geometry geometryjsonToGeometry(String JSONstring){
+        if(JSONstring.equals(null)){
+            logger.info("JSONstring is null ,can not convert to Geometry");
+        }
         Geometry geometry = null;
         try {
             GeometryJSON geometryJSON1 = new GeometryJSON();
