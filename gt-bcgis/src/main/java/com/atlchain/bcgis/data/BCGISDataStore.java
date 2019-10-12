@@ -78,10 +78,11 @@ public class BCGISDataStore extends ContentDataStore {
             return "Put data on chain FAILED! MESSAGE:" + result;
         }
 
-        int index = 0;
+        int index = 1;
         for (Geometry geo : geometryArrayList) {
             byte[] geoBytes = Utils.getBytesFromGeometry(geo);
-            String recordKey = key + "-" + index;
+            String strIndex = String.format("%03d", index);
+            String recordKey = key + "-" + strIndex;
             result = client.putRecord(
                     recordKey,
                     geoBytes,

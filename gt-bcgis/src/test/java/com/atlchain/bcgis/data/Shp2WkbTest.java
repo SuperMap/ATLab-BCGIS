@@ -86,7 +86,7 @@ public class Shp2WkbTest {
     @Test
     public void testQueryGeometryFromChain1() throws ParseException {
         BlockChainClient client2 = new BlockChainClient(networkFile);
-        for(int i =0 ;i <10000;i++) {
+        for(int i = 0; i < 10000; i++) {
             String key = "Line4";
             byte[][] result = client2.getRecordBytes(
                     key,

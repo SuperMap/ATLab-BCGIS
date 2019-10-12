@@ -21,7 +21,7 @@ import java.io.FileNotFoundException;
 import java.io.IOException;
 
 
-public class BufferAnalysisTest {
+public class SpacialAnalysisTest {
 
     private static final String BASE_URI = "http://localhost:8899/bcgis/";
 

@@ -1,7 +1,6 @@
 package com.atlchain.bcgis;
 
 import com.alibaba.fastjson.JSONObject;
-import com.atlchain.bcgis.mapservice.BufferAnalysis;
 import org.apache.http.auth.AuthScope;
 import org.apache.http.auth.UsernamePasswordCredentials;
 import org.apache.http.client.CredentialsProvider;

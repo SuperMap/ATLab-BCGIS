@@ -30,7 +30,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 public class BCGISDataStoreTest {
-    private String shpURL = this.getClass().getResource("/BL/BL.shp").getFile();
+    private String shpURL = this.getClass().getResource("/D/D.shp").getFile();
     private File shpFile = new File(shpURL);
 
     private String chaincodeName = "bcgiscc";
