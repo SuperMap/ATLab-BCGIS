@@ -3,6 +3,7 @@ package com.atlchain.bcgis.mapservice;
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
 import com.atlchain.bcgis.Utils;
+import com.sun.scenario.effect.impl.sw.sse.SSEBlend_SRC_OUTPeer;
 import org.apache.http.Consts;
 import org.apache.http.HttpEntity;
 import org.apache.http.HttpResponse;
@@ -19,6 +20,7 @@ import org.locationtech.jts.geom.Geometry;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.util.ArrayList;
 
 
 public class SpacialAnalysisTest {
@@ -77,20 +79,27 @@ public class SpacialAnalysisTest {
 
     // -------------------------------以上为前提，下面进行测试分析----------------------
 
+    /**
+     * 测试前需要修改源码部分为 @Consumes(MediaType.MULTIPART_FORM_DATA) 对应的值修改为 @FormDataParam("JSONObject") String params
+     */
+
     // 缓冲区分析
     @Test
     public void testBuffer() {
         File bufferfile = new File("E:\\DemoRecording\\testFileStorage\\Test_SpaceAnalysis\\bufferD2222.wkb");
         JSONObject jsonObject = new JSONObject();
         JSONArray fid = new JSONArray();
-        jsonObject.put("bufferRadius","0.001");
+        jsonObject.put("bufferRadius","0.002");
         fid.add("d7e94bf0c86c94579e8b564d2dea995ed3746108f98f003fb555bcd41831f885-0");
         fid.add("d7e94bf0c86c94579e8b564d2dea995ed3746108f98f003fb555bcd41831f885-10");
         fid.add("d7e94bf0c86c94579e8b564d2dea995ed3746108f98f003fb555bcd41831f885-20");
         fid.add("d7e94bf0c86c94579e8b564d2dea995ed3746108f98f003fb555bcd41831f885-38");
         jsonObject.put("fid",fid);
         String stringJSON = buffer("mapservice/buffer/bufferAnalysis",jsonObject);
-        Geometry bufferGeometry = Utils.geometryjsonToGeometry(stringJSON);
+        System.out.println(stringJSON);
+        JSONObject json = JSONObject.parseObject(stringJSON);
+        String string = (String) json.get("d7e94bf0c86c94579e8b564d2dea995ed3746108f98f003fb555bcd41831f885-0");
+        Geometry bufferGeometry = Utils.geometryjsonToGeometry(string);
         Utils.geometryToWkbFile(bufferGeometry, bufferfile);
     }
 

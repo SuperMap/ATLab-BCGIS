@@ -4,6 +4,8 @@ import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
 import com.atlchain.bcgis.Utils;
 import com.atlchain.bcgis.storage.BlockChain;
+import com.sun.scenario.effect.impl.sw.sse.SSEBlend_SRC_OUTPeer;
+import org.glassfish.jersey.media.multipart.FormDataParam;
 import org.locationtech.jts.geom.Geometry;
 import org.locationtech.jts.io.ParseException;
 
@@ -35,7 +37,7 @@ public class SpacialAnalysis {
     @Path("/bufferAnalysis")
     @POST
     @Produces(MediaType.APPLICATION_JSON)
-    @Consumes(MediaType.APPLICATION_JSON)
+    @Consumes(MediaType.MULTIPART_FORM_DATA)
     public String bufferAnalysis(
             String params
     ){
@@ -58,14 +60,14 @@ public class SpacialAnalysis {
                 fids.add(fid);
             }
         }
-        String bufferJSON = buffer(bufferRadius, fids);
+        String bufferJSON = doBuffer(bufferRadius, fids);
         return bufferJSON;
     }
 
     @Path("/unionAnalysis")
     @POST
     @Produces(MediaType.APPLICATION_JSON)
-    @Consumes(MediaType.APPLICATION_JSON)
+    @Consumes(MediaType.MULTIPART_FORM_DATA)
     public String unionAnalysis(
             String params
     ){
@@ -87,14 +89,14 @@ public class SpacialAnalysis {
                 fids.add(fid);
             }
         }
-        String unionJSON = union(fids);
+        String unionJSON = doUnion(fids);
         return unionJSON;
     }
 
     @Path("/intersectionAnalysis")
     @POST
     @Produces(MediaType.APPLICATION_JSON)
-    @Consumes(MediaType.APPLICATION_JSON)
+    @Consumes(MediaType.MULTIPART_FORM_DATA)
     public String intersectionAnalysis(
             String params
     ){
@@ -112,80 +114,45 @@ public class SpacialAnalysis {
                 fids.add(fid);
             }
         }
-        String intersectionJSON = intersection(fids);
+        String intersectionJSON = doIntersection(fids);
         return intersectionJSON;
     }
 
-    private String buffer(String bufferRadius, List<String> fidList){
-        Geometry geometry;
-        Geometry geometryUnion ;
-        List<Geometry> gemetryList = new LinkedList<>();
+    private String doBuffer(String bufferRadius, List<String> fidList){
+        Geometry geometryTmp;
+        JSONObject bufferJSON = new JSONObject();
         for(String str : fidList){
-            geometry = queryGeometryFromChain(str);
-            gemetryList.add(geometry);
+            geometryTmp = queryGeometryFromChain(str);
+            Geometry geometryBuffer = geometryTmp.buffer(Double.valueOf(bufferRadius));
+            String geometryJSON = Utils.geometryTogeometryJSON(geometryBuffer);
+            bufferJSON.put(str,geometryJSON);
         }
-        geometryUnion = bufferAnalysis(bufferRadius, gemetryList);
-        String bufferJSON = Utils.geometryTogeometryJSON(geometryUnion);
-        return bufferJSON;
+        return bufferJSON.toString();
     }
 
-    private Geometry bufferAnalysis(String bufferRadius, List<Geometry> geometryList){
-        Geometry geometry ;
-        Geometry geometryBuffer = geometryList.get(0).buffer(Double.valueOf(bufferRadius));
-        for (Geometry geolist : geometryList) {
-            geometry = geolist.buffer(Double.valueOf(bufferRadius));
-            geometryBuffer = geometryBuffer.union(geometry);
-        }
-        return  geometryBuffer;
-    }
-
-    private String intersection(List<String> fidList){
-        Geometry geometry;
-        Geometry geometryUnion ;
-        List<Geometry> gemetryList = new LinkedList<>();
+    private String doIntersection(List<String> fidList){
+        Geometry geometryTmp;
+        Geometry geometryIntersection = queryGeometryFromChain(fidList.get(0));
         for(String str : fidList){
-            geometry = queryGeometryFromChain(str);
-            gemetryList.add(geometry);
+            geometryTmp = queryGeometryFromChain(str);
+            geometryIntersection = geometryIntersection.intersection(geometryTmp);
         }
-        geometryUnion = intersectionAnalysis(gemetryList);
-        String intersectionJSON = Utils.geometryTogeometryJSON(geometryUnion);
+        String intersectionJSON = Utils.geometryTogeometryJSON(geometryIntersection);
         if(intersectionJSON.equals( "null")){
             logger.info("the selected part without intersection area");
         }
         return intersectionJSON;
     }
 
-    private Geometry intersectionAnalysis(List<Geometry> geometryList){
-        Geometry geometry ;
-        Geometry geometryIntersection = geometryList.get(0);
-        for (Geometry geo : geometryList) {
-            geometry = geo;
-            geometryIntersection = geometryIntersection.intersection(geometry);
-        }
-        return geometryIntersection;
-    }
-
-    private String union(List<String> fidList){
-        Geometry geometry;
-        Geometry geometryUnion ;
-        List<Geometry> gemetryList = new LinkedList<>();
+    private String doUnion(List<String> fidList){
+        Geometry geometryTmp;
+        Geometry geometryUnion = queryGeometryFromChain(fidList.get(0));
         for(String str : fidList){
-            geometry = queryGeometryFromChain(str);
-            gemetryList.add(geometry);
+            geometryTmp = queryGeometryFromChain(str);
+            geometryUnion = geometryUnion.union(geometryTmp);
         }
-        geometryUnion = unionAnalysis(gemetryList);
         String unionJSON = Utils.geometryTogeometryJSON(geometryUnion);
         return unionJSON;
-    }
-
-    private Geometry unionAnalysis(List<Geometry> geometryList){
-        Geometry geometry ;
-        Geometry geometryUnion = geometryList.get(0);
-        for (Geometry geolist : geometryList) {
-            geometry = geolist;
-            geometryUnion = geometryUnion.union(geometry);
-        }
-        return  geometryUnion;
     }
 
     /**
