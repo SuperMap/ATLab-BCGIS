@@ -81,7 +81,7 @@ public class BCGISDataStore extends ContentDataStore {
         int index = 1;
         for (Geometry geo : geometryArrayList) {
             byte[] geoBytes = Utils.getBytesFromGeometry(geo);
-            String strIndex = String.format("%03d", index);
+            String strIndex = String.format("%05d", index);
             String recordKey = key + "-" + strIndex;
             result = client.putRecord(
                     recordKey,

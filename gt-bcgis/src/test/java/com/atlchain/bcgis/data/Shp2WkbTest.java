@@ -73,7 +73,7 @@ public class Shp2WkbTest {
     // 在BCGISDataStore中定义了如下的FeatureID（hash-index）的形式，直接查询即可  这个只能查询部分的，查询整体会出错
     @Test
     public void testQueryGeometryFromChain() throws ParseException {
-        String key = "6bff876faa82c51aee79068a68d4a814af8c304a0876a08c0e8fe16e5645fde4";
+        String key = "d7e94bf0c86c94579e8b564d2dea995ed3746108f98f003fb555bcd41831f885-00001";
         byte[][] result = client.getRecordBytes(
                 key,
                 "bcgiscc",

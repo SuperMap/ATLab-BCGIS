@@ -8,6 +8,8 @@ version '1.0-SNAPSHOT'
 sourceCompatibility = 1.8
 
 repositories {
+    // IPFS 
+    maven { url 'https://jitpack.io' }
 //    mavenCentral()
     maven { url 'http://download.osgeo.org/webdav/geotools/'}
     maven { url 'https://maven.aliyun.com/repository/central' }
@@ -54,5 +56,8 @@ dependencies {
     compile files('lib/atlchain-sdk-0.0.3.jar')
     compile group: 'org.hyperledger.fabric-sdk-java', name: 'fabric-sdk-java', version: '1.4.4'
     compile group: 'io.netty', name: 'netty-all', version: '4.1.42.Final'
+
+    // IPFS
+    compile group: 'com.github.ipfs', name: 'java-ipfs-api', version: 'v1.2.2'
 
 }
