@@ -2,6 +2,7 @@ package com.atlchain.bcgis.storage;
 
 import com.alibaba.fastjson.JSONException;
 import com.alibaba.fastjson.JSONObject;
+import com.sun.scenario.effect.impl.sw.sse.SSEBlend_SRC_OUTPeer;
 import io.ipfs.api.IPFS;
 import io.ipfs.api.MerkleNode;
 import io.ipfs.api.NamedStreamable;
@@ -9,10 +10,7 @@ import io.ipfs.multihash.Multihash;
 import org.glassfish.jersey.media.multipart.FormDataContentDisposition;
 import org.glassfish.jersey.media.multipart.FormDataParam;
 
-import javax.ws.rs.Consumes;
-import javax.ws.rs.POST;
-import javax.ws.rs.Path;
-import javax.ws.rs.Produces;
+import javax.ws.rs.*;
 import javax.ws.rs.core.MediaType;
 import java.io.*;
 import java.util.logging.Logger;
@@ -22,7 +20,7 @@ import java.util.logging.Logger;
 public class Ipfs {
 
     private Logger logger = Logger.getLogger(Ipfs.class.toString());
-    private IPFS ipfs = new IPFS("/ip4/192.168.40.166/tcp/5001");
+    private IPFS ipfs = new IPFS("/ip4/192.168.40.179/tcp/5001");
 
     @Path("/uploading")
     @POST
@@ -64,6 +62,17 @@ public class Ipfs {
         return result.toString();
     }
 
+    @POST
+    @Path("/pin")
+    @Produces(MediaType.APPLICATION_JSON)
+    @Consumes(MediaType.MULTIPART_FORM_DATA)
+    public void pin(
+            @FormDataParam("hashID") String hashID
+    ){
+        ipfsAddPin(hashID);
+//        ipfsRmPin(hashID);
+    }
+
     private MerkleNode ipfsUploadFile(InputStream fileInputStream, String fileName){
         ipfsInit();
         OutputStream os;
@@ -100,6 +109,26 @@ public class Ipfs {
             e.printStackTrace();
         }
         return downloadFileContents;
+    }
+
+    private void ipfsAddPin(String hashID){
+        Multihash multihash = Multihash.fromBase58(hashID);
+        try {
+            ipfs.pin.add(multihash);
+            logger.info(hashID + "is success pin ");
+        }catch (IOException e){
+
+        }
+    }
+
+    private void ipfsRmPin(String hashID){
+        Multihash multihash = Multihash.fromBase58(hashID);
+        try {
+            ipfs.pin.rm(multihash);
+            logger.info(hashID + "is success rm pin ");
+        }catch (IOException e){
+
+        }
     }
 
     private void ipfsInit(){

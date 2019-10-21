@@ -48,12 +48,39 @@ public class IpfsTest {
     }
 
     @Test
-    public  void download() {
+    public void download() {
         String url = "http://localhost:8899/bcgis/storage/ipfs/download";
         try {
             MultipartEntityBuilder entityBuilder = MultipartEntityBuilder.create();
             entityBuilder.addTextBody("hashID", "QmYFGghdiJDGbrBRVm5m2in6sB7EBUBV75htuGuA4VeZuJ");
             entityBuilder.addTextBody("fileExtName", ".jpg");
+            CloseableHttpClient httpClient = HttpClients.createDefault();
+            HttpPost httpPost = new HttpPost(url);
+            httpPost.setEntity(entityBuilder.build());
+            HttpResponse response = httpClient.execute(httpPost);
+            String result="";
+            if (response!=null && response.getStatusLine().getStatusCode() == HttpStatus.SC_OK) {
+                HttpEntity resEntity = response.getEntity();
+                if(resEntity != null){
+                    result = EntityUtils.toString(resEntity, Consts.UTF_8);
+                }
+            }
+            System.out.println(result);
+        } catch (FileNotFoundException e) {
+            e.printStackTrace();
+        } catch (ClientProtocolException e) {
+            e.printStackTrace();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
+    @Test
+    public void pin(){
+        String url = "http://localhost:8899/bcgis/storage/ipfs/pin";
+        try {
+            MultipartEntityBuilder entityBuilder = MultipartEntityBuilder.create();
+            entityBuilder.addTextBody("hashID", "QmV8MGywMG6bkCQ7keRJ449o47zpACXzh8nbvaiUP3izEM");
             CloseableHttpClient httpClient = HttpClients.createDefault();
             HttpPost httpPost = new HttpPost(url);
             httpPost.setEntity(entityBuilder.build());
