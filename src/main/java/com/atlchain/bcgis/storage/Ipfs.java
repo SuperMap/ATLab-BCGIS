@@ -31,7 +31,7 @@ public class Ipfs {
             @FormDataParam("file") FormDataContentDisposition disposition
     )throws JSONException {
 
-        MerkleNode merkleNode = ipfsUploadFile(fileInputStream,disposition.getFileName());
+        MerkleNode merkleNode = ipfsUploadFile(fileInputStream, disposition.getFileName());
 
         JSONObject result = new JSONObject();
         JSONObject jsonObject = JSONObject.parseObject(merkleNode.toJSONString());

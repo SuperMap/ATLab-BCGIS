@@ -70,7 +70,6 @@ public class Shp2WkbTest {
         System.out.println(result);
     }
 
-    // 在BCGISDataStore中定义了如下的FeatureID（hash-index）的形式，直接查询即可  这个只能查询部分的，查询整体会出错
     @Test
     public void testQueryGeometryFromChain() throws ParseException {
         String key = "d7e94bf0c86c94579e8b564d2dea995ed3746108f98f003fb555bcd41831f885-00001";
@@ -81,6 +80,27 @@ public class Shp2WkbTest {
         );
         Geometry geometry = Utils.getGeometryFromBytes(result[0]);
         System.out.println(geometry.getNumGeometries());
+    }
+
+    // 为区块链存证系统服务
+    @Test
+    public void testSaveToChain() throws IOException {
+        String key =  "testKey";
+        String value = "testValue";
+        String result = client.putRecord(
+                key,
+                value,
+                "bcgiscc",
+                "PutRecordBytes"
+        );
+        System.out.println(result);
+    }
+
+    @Test
+    public void testQueryFromChain() throws ParseException {
+        String key = "131102taochengqu";
+        String value = client.getRecord(key, "131100",  "bcgiscc");
+        System.out.println(value);
     }
 
     @Test
