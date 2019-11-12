@@ -1,4 +1,2 @@
 rootProject.name = 'bcgis'
-include 'gt-bcgis'
-include 'chaincode'
 
