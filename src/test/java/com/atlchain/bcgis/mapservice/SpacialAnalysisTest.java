@@ -34,7 +34,6 @@ public class SpacialAnalysisTest {
             HttpPost httpPost = new HttpPost(url);
             httpPost.setEntity(entityBuilder.build());
 
-
             HttpResponse response = httpClient.execute(httpPost);
             if (response != null && response.getStatusLine().getStatusCode() == HttpStatus.SC_OK) {
                 HttpEntity resEntity = response.getEntity();
@@ -70,6 +69,14 @@ public class SpacialAnalysisTest {
 
 
     public String union(String JerseyPath, JSONObject jsonObject) {
+        MultipartEntityBuilder entityBuilder = MultipartEntityBuilder.create();
+        entityBuilder.addTextBody("JSONObject", String.valueOf(jsonObject));
+        String url = BASE_URI + JerseyPath;
+        String result = httpPost(entityBuilder, url);
+        return result;
+    }
+
+    public String queryByAttributes(String JerseyPath, JSONObject jsonObject) {
         MultipartEntityBuilder entityBuilder = MultipartEntityBuilder.create();
         entityBuilder.addTextBody("JSONObject", String.valueOf(jsonObject));
         String url = BASE_URI + JerseyPath;
@@ -135,6 +142,18 @@ public class SpacialAnalysisTest {
 //        fid.add("d7e94bf0c86c94579e8b564d2dea995ed3746108f98f003fb555bcd41831f885-7");
         jsonObject.put("fid",fid);
         String stringJSON = intersection("mapservice/buffer/intersectionAnalysis", jsonObject);
+        Geometry geometryjson = Utils.geometryjsonToGeometry(stringJSON);
+        Utils.geometryToWkbFile(geometryjson, fileJSON);
+    }
+
+    // 属性查询
+    @Test
+    public void testGetRecordByAttributes(){
+        File fileJSON = new File("E:\\DemoRecording\\testFileStorage\\Test_SpaceAnalysis\\Attributes.wkb");
+        JSONObject jsonObject = new JSONObject();
+        jsonObject.put("attributes","beijing" );
+        jsonObject.put("fid", "23c5d6fc5e2794a264c72ae9e8e3281a7072696dc5f93697b8b5ef1e803fd3d8");
+        String stringJSON = queryByAttributes("mapservice/query/attributes", jsonObject);
         Geometry geometryjson = Utils.geometryjsonToGeometry(stringJSON);
         Utils.geometryToWkbFile(geometryjson, fileJSON);
     }

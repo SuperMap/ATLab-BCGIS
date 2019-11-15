@@ -37,7 +37,7 @@ public class SpacialAnalysis {
     @Path("/bufferAnalysis")
     @POST
     @Produces(MediaType.APPLICATION_JSON)
-    @Consumes(MediaType.MULTIPART_FORM_DATA)
+    @Consumes(MediaType.APPLICATION_JSON)
     public String bufferAnalysis(
             String params
     ){
@@ -54,8 +54,9 @@ public class SpacialAnalysis {
             for (int i = 0; i < fidJsonArray.size(); i++) {
                 String fid = fidJsonArray.getString(i);
                 String index = fid.substring(fid.lastIndexOf('.') + 1);
-                String strIndex = String.format("%03d", Integer.parseInt(index) - 1);
-                fid = "6bff876faa82c51aee79068a68d4a814af8c304a0876a08c0e8fe16e5645fde4-" + strIndex;
+                String strIndex = String.format("%05d", Integer.parseInt(index) - 1);
+                String hash = fid.substring(0, fid.lastIndexOf('.'));
+                fid = hash + "-" + strIndex;
                 System.out.println("fid: " + fid);
                 fids.add(fid);
             }
@@ -66,8 +67,8 @@ public class SpacialAnalysis {
 
     @Path("/unionAnalysis")
     @POST
-    @Produces(MediaType.APPLICATION_JSON)
-    @Consumes(MediaType.MULTIPART_FORM_DATA)
+    @Produces(MediaType.APPLICATION_JSON) // MULTIPART_FORM_DATA
+    @Consumes(MediaType.APPLICATION_JSON)
     public String unionAnalysis(
             String params
     ){
@@ -83,8 +84,9 @@ public class SpacialAnalysis {
             for (int i = 0; i < fidJsonArray.size(); i++) {
                 String fid = fidJsonArray.getString(i);
                 String index = fid.substring(fid.lastIndexOf('.') + 1);
-                String strIndex = String.format("%03d", Integer.parseInt(index) - 1);
-                fid = "hashDxxx-" + strIndex;
+                String strIndex = String.format("%05d", Integer.parseInt(index) - 1);
+                String hash = fid.substring(0, fid.lastIndexOf('.'));
+                fid = hash + "-" + strIndex;
                 System.out.println("fid: " + fid);
                 fids.add(fid);
             }
@@ -96,7 +98,7 @@ public class SpacialAnalysis {
     @Path("/intersectionAnalysis")
     @POST
     @Produces(MediaType.APPLICATION_JSON)
-    @Consumes(MediaType.MULTIPART_FORM_DATA)
+    @Consumes(MediaType.APPLICATION_JSON) // MULTIPART_FORM_DATA
     public String intersectionAnalysis(
             String params
     ){
@@ -111,6 +113,11 @@ public class SpacialAnalysis {
         if (!fidJsonArray.isEmpty()) {
             for (int i = 0; i < fidJsonArray.size(); i++) {
                 String fid = fidJsonArray.getString(i);
+                String index = fid.substring(fid.lastIndexOf('.') + 1);
+                String strIndex = String.format("%05d", Integer.parseInt(index) - 1);
+                String hash = fid.substring(0, fid.lastIndexOf('.'));
+                fid = hash + "-" + strIndex;
+                System.out.println("fid: " + fid);
                 fids.add(fid);
             }
         }
@@ -120,19 +127,22 @@ public class SpacialAnalysis {
 
     private String doBuffer(String bufferRadius, List<String> fidList){
         Geometry geometryTmp;
+        String geometryJSON = null;
         JSONObject bufferJSON = new JSONObject();
         for(String str : fidList){
             geometryTmp = queryGeometryFromChain(str);
             Geometry geometryBuffer = geometryTmp.buffer(Double.valueOf(bufferRadius));
-            String geometryJSON = Utils.geometryTogeometryJSON(geometryBuffer);
+            geometryJSON = Utils.geometryTogeometryJSON(geometryBuffer);
             bufferJSON.put(str,geometryJSON);
         }
-        return bufferJSON.toString();
+//        return bufferJSON.toString();
+        return geometryJSON;
     }
 
     private String doIntersection(List<String> fidList){
-        Geometry geometryTmp;
-        Geometry geometryIntersection = queryGeometryFromChain(fidList.get(0));
+        Geometry geometryTmp = null;
+        Geometry geometryIntersection = queryGeometryFromChain(fidList.get(1));
+
         for(String str : fidList){
             geometryTmp = queryGeometryFromChain(str);
             geometryIntersection = geometryIntersection.intersection(geometryTmp);

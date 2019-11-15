@@ -3,6 +3,7 @@ package com.atlchain.bcgis.storage;
 import com.atlchain.sdk.ATLChain;
 
 import java.io.File;
+import java.util.List;
 import java.util.logging.Logger;
 
 /**
@@ -38,9 +39,9 @@ public class BlockChain {
         return result;
     }
 
-    public String getRecord(String recordKey) {
-        return getRecord(recordKey, "bcgiscc", "GetRecordByKey");
-    }
+//    public String getRecord(List<String> stringList, String bcgiscc, String recordKey) {
+//        return getRecord(recordKey, "bcgiscc", "GetRecordByKey");
+//    }
 
     public String getRecord(String recordKey, String chaincodeName) {
         return getRecord(recordKey, chaincodeName, "GetRecordByKey");
@@ -52,6 +53,16 @@ public class BlockChain {
                 chaincodeName,
                 functionName,
                 new String[]{key}
+        );
+        return result;
+    }
+
+    // TODO 后期属性的增加在这里设置 String[] 自动获取里面的全部参数
+    public String getRecord(List<String> list, String chaincodeName, String functionName) {
+        String result = atlChain.query(
+                chaincodeName,
+                functionName,
+                new String[]{list.get(0), list.get(1)}
         );
         return result;
     }
