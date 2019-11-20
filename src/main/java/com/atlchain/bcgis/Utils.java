@@ -86,7 +86,15 @@ public class Utils {
     }
 
     public static String getSHA256(String str) {
-        return getSHA256(str.getBytes());
+        if (str == null) {
+            return null;}
+        try {
+            MessageDigest messageDigest = MessageDigest.getInstance("SHA-256");
+            messageDigest.reset();
+            messageDigest.update(str.getBytes());
+            return byte2Hex(messageDigest.digest());
+        } catch (Exception e) {
+            throw new RuntimeException(e);}
     }
 
     /**
@@ -270,5 +278,20 @@ public class Utils {
     public static Geometry getGeometryFromBytes(byte[] bytes) throws ParseException {
         Geometry geometry = new WKBReader().read(bytes);
         return geometry;
+    }
+
+    public static String inputStreamToString(InputStream inputStream){
+        BufferedReader in = new BufferedReader(new InputStreamReader(inputStream));
+        StringBuffer buffer = new StringBuffer();
+        String line = "";
+        while (true){
+            try {
+                if (!((line = in.readLine()) != null)) break;
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+            buffer.append(line);
+        }
+        return buffer.toString();
     }
 }

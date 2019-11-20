@@ -1,11 +1,22 @@
 package com.atlchain.bcgis.storage;
 
 import com.atlchain.bcgis.Utils;
+import org.apache.http.Consts;
+import org.apache.http.HttpEntity;
+import org.apache.http.HttpResponse;
+import org.apache.http.HttpStatus;
+import org.apache.http.client.ClientProtocolException;
+import org.apache.http.client.methods.HttpPost;
+import org.apache.http.entity.ContentType;
+import org.apache.http.entity.mime.MultipartEntityBuilder;
+import org.apache.http.impl.client.CloseableHttpClient;
+import org.apache.http.impl.client.HttpClients;
+import org.apache.http.util.EntityUtils;
 import org.junit.Test;
 import org.locationtech.jts.geom.Geometry;
 import org.locationtech.jts.io.ParseException;
 
-import java.io.File;
+import java.io.*;
 import java.net.URISyntaxException;
 
 public class BlockChainTest {
@@ -33,4 +44,5 @@ public class BlockChainTest {
         Geometry geometry = Utils.getGeometryFromBytes(result[0]);
         System.out.println(geometry.getNumGeometries());
     }
+
 }

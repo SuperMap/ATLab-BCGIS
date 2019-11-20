@@ -4,8 +4,6 @@ import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
 import com.atlchain.bcgis.Utils;
 import com.atlchain.bcgis.storage.BlockChain;
-import com.sun.scenario.effect.impl.sw.sse.SSEBlend_SRC_OUTPeer;
-import org.glassfish.jersey.media.multipart.FormDataParam;
 import org.locationtech.jts.geom.Geometry;
 import org.locationtech.jts.io.ParseException;
 
@@ -133,7 +131,7 @@ public class SpacialAnalysis {
             geometryTmp = queryGeometryFromChain(str);
             Geometry geometryBuffer = geometryTmp.buffer(Double.valueOf(bufferRadius));
             geometryJSON = Utils.geometryTogeometryJSON(geometryBuffer);
-            bufferJSON.put(str,geometryJSON);
+            bufferJSON.put(str, geometryJSON);
         }
 //        return bufferJSON.toString();
         return geometryJSON;

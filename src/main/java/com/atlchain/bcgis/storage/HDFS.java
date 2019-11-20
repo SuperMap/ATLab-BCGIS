@@ -10,21 +10,18 @@ import org.apache.hadoop.fs.FileSystem;
 import org.glassfish.jersey.media.multipart.FormDataContentDisposition;
 import org.glassfish.jersey.media.multipart.FormDataParam;
 
-import javax.ws.rs.Consumes;
-import javax.ws.rs.POST;
-import javax.ws.rs.Path;
-import javax.ws.rs.Produces;
+import javax.ws.rs.*;
 import javax.ws.rs.core.MediaType;
 import java.io.*;
 import java.net.URI;
 import java.util.logging.Logger;
 
-// TODO HDFS存储类
 @Path("storage/hdfs")
 public class HDFS {
 
     private Logger logger = Logger.getLogger(HDFS.class.toString());
-    private final String ipAddress = "hdfs://192.168.40.147:9000";
+    private final String ipAddress = "hdfs://192.168.40.198:9000";
+    private final String hdfsStorePath = "/user/bcgis/";
     private FileSystem fs = null;
     private String userName = "java";
 
@@ -33,38 +30,38 @@ public class HDFS {
     @Produces(MediaType.APPLICATION_JSON)
     @Consumes(MediaType.MULTIPART_FORM_DATA)
     public String upload(
-            @FormDataParam("uploadpath")String uploadpath,
             @FormDataParam("file") InputStream inputStream,
-            @FormDataParam("file") FormDataContentDisposition disposition
+            @FormDataParam("file") FormDataContentDisposition disposition,
+            @FormDataParam("hash") String hash
     ) throws JSONException, IOException {
         JSONObject result = new JSONObject();
         String fileExtName = Utils.getExtName(disposition.getFileName());
-        String upload_location = hdfsUploadFile(inputStream, uploadpath, fileExtName);
-        result.put("upload_location", upload_location);
+        String hdfsStoreFileHash = hdfsUploadFile(inputStream, fileExtName, hash);
+        result.put("hdfsStoreFileHash", hdfsStoreFileHash);
         return result.toString();
     }
 
     @POST
     @Path("/download")
     public String download(
-            @FormDataParam("download_Path") String download_Path,
-            @FormDataParam("fileExtName") String fileExtName
+            @FormDataParam("downloadPath") String downloadPath
     ) throws JSONException {
         JSONObject result = new JSONObject();
-        String store_LocalPath = "E:\\DemoRecording\\File_storage\\JerseyTest\\HDFStest" + fileExtName;
-        hdfsDownloadFile(store_LocalPath, download_Path, fileExtName);
-        result.put("savefilePath_Local", store_LocalPath);
+        String fileExtName = downloadPath.substring(downloadPath.lastIndexOf('.'), downloadPath.length());
+        String storeLocalPath = "E:\\DemoRecording\\testFileStorage\\JerseyTest\\HDFS_Downloadtest" + fileExtName;
+        hdfsDownloadFile(storeLocalPath, downloadPath);
+        result.put("savefilePathLocal", storeLocalPath);
         return result.toString();
     }
 
     @POST
     @Path("/delete")
     public String delete(
-            @FormDataParam("delete_Path") String delete_Path,
+            @FormDataParam("deletePath") String deletePath,
             @FormDataParam("fileExtName") String fileExtName
     ) throws JSONException {
         JSONObject result = new JSONObject();
-        String deletepath = hdfsDeleteFile(delete_Path, fileExtName);
+        String deletepath = hdfsDeleteFile(deletePath, fileExtName);
         result.put("the delete file path is", deletepath);
         return result.toString();
     }
@@ -80,23 +77,25 @@ public class HDFS {
         return fs;
     }
 
-    private String hdfsUploadFile(InputStream fileInputStream, String upload_Path, String fileExtName) throws IOException {
-        FileSystem fs = new HDFS().getFs();
-        String upload_Location = "/user/bcgis/" + upload_Path + fileExtName;
-        org.apache.hadoop.fs.Path dst = new org.apache.hadoop.fs.Path(ipAddress + upload_Location);
+    private String hdfsUploadFile(InputStream fileInputStream, String fileExtName, String hash) throws IOException {
+       FileSystem fs = new HDFS().getFs();
+        hash = Utils.getSHA256(hash);
+        System.out.println("hash:" + hash );
+        String uploadPath = hdfsStorePath + hash + fileExtName;
+        String destpath = ipAddress + uploadPath;
+        org.apache.hadoop.fs.Path dst = new org.apache.hadoop.fs.Path(destpath);
         FSDataOutputStream os = fs.create(dst);
         IOUtils.copy(fileInputStream, os);
         fs.close();
         logger.info("sucessful upload file !");
-        return  upload_Location;
+        return  hash + fileExtName;
     }
 
-    private void hdfsDownloadFile(String store_LocalPath, String download_Path, String fileExtName){
+    private void hdfsDownloadFile(String storeLocalPath, String downloadPath){
         FileSystem fs = new HDFS().getFs();
-        download_Path = ipAddress + "/user/bcgis/" + download_Path + fileExtName;
+        downloadPath = ipAddress + hdfsStorePath + downloadPath;
         try {
-            fs.copyToLocalFile(new org.apache.hadoop.fs.Path(download_Path),
-                    new org.apache.hadoop.fs.Path(store_LocalPath));
+            fs.copyToLocalFile(new org.apache.hadoop.fs.Path(downloadPath), new org.apache.hadoop.fs.Path(storeLocalPath));
             fs.close();
         }catch(Exception e){
         }
