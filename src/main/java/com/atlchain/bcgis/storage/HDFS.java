@@ -20,7 +20,7 @@ import java.util.logging.Logger;
 public class HDFS {
 
     private Logger logger = Logger.getLogger(HDFS.class.toString());
-    private final String ipAddress = "hdfs://192.168.40.198:9000";
+    private final String ipAddress = "hdfs://172.16.15.65:9000";
     private final String hdfsStorePath = "/user/bcgis/";
     private FileSystem fs = null;
     private String userName = "java";

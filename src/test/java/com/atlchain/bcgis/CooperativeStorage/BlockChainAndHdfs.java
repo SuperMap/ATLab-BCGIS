@@ -60,7 +60,7 @@ public class BlockChainAndHdfs {
 
     public String hdfsUpload() {
         String url = "http://localhost:8899/bcgis/storage/hdfs/uploading";
-        String filePath = "E:\\DemoRecording\\testFileStorage\\JerseyTest\\dianshitai.s3m"; // test1.jpg   dianshitai.s3m
+        String filePath = "E:\\DemoRecording\\testFileStorage\\JerseyTest\\lou1.s3m"; // test1.jpg   dianshitai.s3m
         String fileNameExtream = filePath.substring(filePath.lastIndexOf('.')-1, filePath.length());
         File file = new File(filePath);
         String result="";

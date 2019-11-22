@@ -1,11 +1,13 @@
 package com.atlchain.bcgis.mapservice;
 
+import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
 import com.atlchain.bcgis.data.Shp2Wkb;
 import com.atlchain.bcgis.data.Utils;
 import com.atlchain.bcgis.data.index.RTreeIndex;
 import com.atlchain.bcgis.storage.BlockChain;
 import org.locationtech.jts.geom.Geometry;
+import org.locationtech.jts.geom.GeometryCollection;
 import org.locationtech.jts.index.strtree.STRtree;
 import org.locationtech.jts.io.ParseException;
 
@@ -82,7 +84,7 @@ public class SpacialQuery {
         Double maxY = Double.valueOf(jsonObject.getString("maxY"));
 
         String spatialJSON = queryGeometryBySpatial(minX, minY, maxX, maxY);
-        System.out.println(spatialJSON);
+        System.out.println("===" + spatialJSON);
         return spatialJSON;
     }
 
@@ -123,14 +125,16 @@ public class SpacialQuery {
 
     private String queryGeometryBySpatial(Double minX, Double minY, Double maxX, Double maxY) {
 
+        ArrayList<Geometry> geometryArrayList = new ArrayList<>();
         STRtree stRtree = rTreeIndex.loadSTRtree(indexFilePath);
         Geometry searchGeo = rTreeIndex.generateSearchGeo(minX  , minY, maxX, maxY);
         List<Geometry> list = rTreeIndex.query(stRtree, searchGeo);
-        Geometry geometryUnio = list.get(0);
         for(Geometry geo : list){
-            geometryUnio = geometryUnio.union(geo);
+            geometryArrayList.add(geo);
         }
-        String spatialJSON = com.atlchain.bcgis.Utils.geometryTogeometryJSON(geometryUnio);
+        Geometry[] geometries = geometryArrayList.toArray(new Geometry[geometryArrayList.size()]);
+        GeometryCollection geometryCollection = Utils.getGeometryCollection(geometries);
+        String spatialJSON = com.atlchain.bcgis.Utils.geometryTogeometryJSON(geometryCollection);
         return spatialJSON;
     }
 }
