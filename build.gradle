@@ -62,3 +62,8 @@ dependencies {
     compile group: 'com.github.ipfs', name: 'java-ipfs-api', version: 'v1.2.2'
 
 }
+
+
+//grails {
+//    pathingJar = true
+//}

@@ -116,4 +116,15 @@ public class BlockChainAndHdfs {
             e.printStackTrace();
         }
     }
+
+    @Test
+    public void testhexToByte() throws IOException {
+        String s = "7465737432";
+        byte[] data = Utils.hexToByteArray(s);
+        // 将数据保存到本地
+        OutputStream os = new FileOutputStream("E:\\SuperMapData\\test.bin");
+        os.write(data, 0, data.length);
+        os.flush();
+        os.close();
+    }
 }
