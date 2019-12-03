@@ -49,22 +49,22 @@ public class CooperativeStorage {
         String saveFileName = Utils.getSHA256(data);
         byte[] byteData = Utils.hexToByteArray(data);
         // 将数据保存到本地
-//        OutputStream os = new FileOutputStream("E:\\SuperMapData\\" + saveFileName  + fileNameExtream);
-//        os.write(byteData, 0, byteData.length);
-//        os.flush();
-//        os.close();
-        // 数据存入到 hdfs
-        InputStream inputStream = new ByteArrayInputStream(byteData);
-        hdfsUploadFile(inputStream, fileExtName, saveFileName);
-        // 数据存入到区块链
-        // 存入区块链
-        String key = "hdfs";
-        client.putRecord(
-                key,
-                saveFileName,
-                "bcgiscc",
-                "PutRecordBytes"
-        );
+        OutputStream os = new FileOutputStream("E:\\SuperMapData\\" + saveFileName  + fileExtName);
+        os.write(byteData, 0, byteData.length);
+        os.flush();
+        os.close();
+//        // 数据存入到 hdfs
+//        InputStream inputStream = new ByteArrayInputStream(byteData);
+//        hdfsUploadFile(inputStream, fileExtName, saveFileName);
+//        // 数据存入到区块链
+//        // 存入区块链
+//        String key = "hdfs";
+//        client.putRecord(
+//                key,
+//                saveFileName,
+//                "bcgiscc",
+//                "PutRecordBytes"
+//        );
         return "save file success";
     }
 
