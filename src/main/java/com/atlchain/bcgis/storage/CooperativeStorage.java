@@ -36,6 +36,7 @@ public class CooperativeStorage {
         client = new BlockChain(networkFile);
     }
 
+    // 带 @ 的表示注入内容
     @Path("/test")
     @POST
     @Produces(MediaType.APPLICATION_JSON)        //  返回
