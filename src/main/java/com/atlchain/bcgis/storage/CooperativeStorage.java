@@ -1,5 +1,6 @@
 package com.atlchain.bcgis.storage;
 
+import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONException;
 import com.alibaba.fastjson.JSONObject;
 import com.atlchain.bcgis.Utils;
@@ -8,8 +9,7 @@ import org.apache.commons.io.IOUtils;
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.fs.FSDataOutputStream;
 import org.apache.hadoop.fs.FileSystem;
-import org.glassfish.jersey.media.multipart.FormDataContentDisposition;
-import org.glassfish.jersey.media.multipart.FormDataParam;
+import org.glassfish.jersey.media.multipart.*;
 
 import javax.ws.rs.Consumes;
 import javax.ws.rs.POST;
@@ -19,6 +19,7 @@ import javax.ws.rs.core.MediaType;
 import java.io.*;
 import java.net.URI;
 import java.net.URISyntaxException;
+import java.util.List;
 import java.util.logging.Logger;
 
 @Path("storage/cooperativeStorage")
@@ -67,6 +68,52 @@ public class CooperativeStorage {
 //                "PutRecordBytes"
 //        );
         return "save file success";
+    }
+
+    /**
+     * 增加示例 采用 ajax 发送表单到此处
+     * @return
+     */
+    @Path("/testGetForm")
+    @POST
+    @Produces(MediaType.APPLICATION_JSON)        //  返回
+    @Consumes(MediaType.MULTIPART_FORM_DATA)       //   接收   APPLICATION_JSON  MULTIPART_FORM_DATA
+    public String getForm(
+            @FormDataParam("modelid") String modelid,
+            @FormDataParam("s3mid") String s3mid,
+            FormDataMultiPart formDataMultiPart
+    ){
+        JSONObject jsonObject = new JSONObject();
+        JSONArray jsonArray = new JSONArray();
+        List<BodyPart> bodyParts = formDataMultiPart.getBodyParts();
+        bodyParts.forEach(o -> {
+//            String name = o.getContentDisposition().getParameters().get("name");
+            String mediaType = o.getMediaType().toString();
+            System.out.println(mediaType);
+
+            if (!mediaType.equals(MediaType.TEXT_PLAIN)) {
+//                String fileName = o.getContentDisposition().getFileName();
+                BodyPartEntity bodyPartEntity = (BodyPartEntity) o.getEntity();
+                InputStream inputStream = bodyPartEntity.getInputStream();
+                String hash = null;
+                try {
+                    hash = Utils.getSHA256(Utils.inputStreamToByteArray(inputStream));
+                    jsonArray.add(hash);
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+
+                // TODO hdfs存储
+                // 保存文件
+                Utils.saveFile(inputStream, "E:\\DemoRecording\\A_SuperMap\\ATLab-examples\\server\\target\\server\\s3m\\" + hash);
+            }
+        });
+
+
+
+
+
+        return "get Form";
     }
 
     private FileSystem getFs() {

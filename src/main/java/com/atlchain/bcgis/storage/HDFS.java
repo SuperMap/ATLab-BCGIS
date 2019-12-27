@@ -68,7 +68,7 @@ public class HDFS {
 
     private FileSystem getFs() {
         Configuration conf = new Configuration();
-        conf.set("bcgis",ipAddress);
+        conf.set("bcgis", ipAddress);
         conf.set("dfs.replication", "3");
         try {
             fs = FileSystem.get(new URI(ipAddress), conf, userName);

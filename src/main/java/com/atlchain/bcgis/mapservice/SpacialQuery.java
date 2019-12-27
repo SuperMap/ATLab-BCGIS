@@ -36,7 +36,6 @@ public class SpacialQuery {
         client = new BlockChain(networkFile);
     }
     private RTreeIndex rTreeIndex = new RTreeIndex();
-    String indexFilePath = "E:\\SuperMapData\\rtree.bin";
 
     /**
      * 属性查询
@@ -64,7 +63,8 @@ public class SpacialQuery {
         return attributesJSON;
     }
 
-    // TODO 空间查询
+    // TODO 空间查询 最好的做法是将提前生成好的R树保存到其他数据库，然后调用的时候直接调用即可
+    // 现在的做法是，提前在本地生成好R树，到时直接用即可
     @Path("/spatial")
     @POST
     @Produces(MediaType.APPLICATION_JSON)
@@ -82,12 +82,18 @@ public class SpacialQuery {
         Double minY = Double.valueOf(jsonObject.getString("minY"));
         Double maxX = Double.valueOf(jsonObject.getString("maxX"));
         Double maxY = Double.valueOf(jsonObject.getString("maxY"));
-
-        String spatialJSON = queryGeometryBySpatial(minX, minY, maxX, maxY);
-        System.out.println("===" + spatialJSON);
+        String typeName = String.valueOf(jsonObject.getString("fid"));
+        // TODO 这里加了一个获取 fid 的方法，那么在发布时就需要这么做才行
+        String fid = typeName.substring(typeName.indexOf(":") + 1, typeName.length());
+        String spatialJSON = queryGeometryBySpatial(minX, minY, maxX, maxY, fid);
         return spatialJSON;
     }
 
+    /**
+     * 属性查询
+     * @param stringList
+     * @return
+     */
     private String queryGeometryByAttributes(List<String> stringList){
         String attributesHash = client.getRecord(
                 stringList,
@@ -123,11 +129,20 @@ public class SpacialQuery {
         return attributesJSON;
     }
 
-    private String queryGeometryBySpatial(Double minX, Double minY, Double maxX, Double maxY) {
-
+    /**
+     * 空间查询
+     * @param minX
+     * @param minY
+     * @param maxX
+     * @param maxY
+     * @return
+     */
+    private String queryGeometryBySpatial(Double minX, Double minY, Double maxX, Double maxY, String fid) {
+        // TODO 此处的前提是在发布的时候就建立了数据库，然后把生成的空间索引R树以hash为名存好，这里直接调用即可
+        String indexFilePath = "E:\\SuperMapData\\RtreeData";
+        STRtree stRtree = rTreeIndex.loadSTRtree(indexFilePath + File.separator + fid);
         ArrayList<Geometry> geometryArrayList = new ArrayList<>();
-        STRtree stRtree = rTreeIndex.loadSTRtree(indexFilePath);
-        Geometry searchGeo = rTreeIndex.generateSearchGeo(minX  , minY, maxX, maxY);
+        Geometry searchGeo = rTreeIndex.generateSearchGeo(minX, minY, maxX, maxY);
         List<Geometry> list = rTreeIndex.query(stRtree, searchGeo);
         for(Geometry geo : list){
             geometryArrayList.add(geo);
@@ -135,6 +150,7 @@ public class SpacialQuery {
         Geometry[] geometries = geometryArrayList.toArray(new Geometry[geometryArrayList.size()]);
         GeometryCollection geometryCollection = Utils.getGeometryCollection(geometries);
         String spatialJSON = com.atlchain.bcgis.Utils.geometryTogeometryJSON(geometryCollection);
+        logger.info("querySpatial is success");
         return spatialJSON;
     }
 }

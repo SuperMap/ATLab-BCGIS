@@ -30,6 +30,7 @@ import java.nio.file.Paths;
 import java.security.MessageDigest;
 import java.util.Base64;
 import java.util.Map;
+import java.util.Objects;
 import java.util.logging.Logger;
 
 /**
@@ -319,7 +320,39 @@ public class Utils {
     }
 
     public static byte hexToByte(String inHex){
+
         return (byte)Integer.parseInt(inHex,16);
+    }
+
+    public static void saveFile(InputStream inputStream, String path) {
+        FileOutputStream fileOutputStream = null;
+        try {
+            fileOutputStream = new FileOutputStream(path);
+            byte[] buffer = new byte[1024];
+            int temp = 0;
+            while ((temp = inputStream.read(buffer)) != -1) {
+                fileOutputStream.write(buffer, 0, temp);
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
+        } finally {
+            try {
+                inputStream.close();
+                Objects.requireNonNull(fileOutputStream).close();
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
+    }
+
+    public static byte[] inputStreamToByteArray(InputStream inputStream) throws IOException {
+        ByteArrayOutputStream output = new ByteArrayOutputStream();
+        byte[] buffer = new byte[4096];
+        int n = 0;
+        while (-1 != (n = inputStream.read(buffer))) {
+            output.write(buffer, 0, n);
+        }
+        return output.toByteArray();
     }
 
 
