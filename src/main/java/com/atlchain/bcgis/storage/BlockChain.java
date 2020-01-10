@@ -1,5 +1,6 @@
 package com.atlchain.bcgis.storage;
 
+import com.alibaba.fastjson.JSONArray;
 import com.atlchain.sdk.ATLChain;
 
 import java.io.File;
@@ -39,10 +40,6 @@ public class BlockChain {
         return result;
     }
 
-//    public String getRecord(List<String> stringList, String bcgiscc, String recordKey) {
-//        return getRecord(recordKey, "bcgiscc", "GetRecordByKey");
-//    }
-
     public String getRecord(String recordKey, String chaincodeName) {
         return getRecord(recordKey, chaincodeName, "GetRecordByKey");
     }
@@ -69,17 +66,50 @@ public class BlockChain {
     // <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
 
     // >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
-    // 根据范围读取数据，范围按字典顺序排序
-    public byte[][] getRecordByRange(String recordKey, String chaincodeName) {
-        String startKey = recordKey + "-0";
-        String endKey = recordKey + "-99999";
+//    // 根据范围读取数据，范围按字典顺序排序
+//    public byte[][] getRecordByRange(String recordKey, String chaincodeName) {
+//        String startKey = recordKey + "-0";
+//        String endKey = recordKey + "-99999";
+//
+//        byte[][] result = atlChain.queryByte(
+//                chaincodeName,
+//                "GetRecordByKeyRange",
+//                new byte[][]{startKey.getBytes(), endKey.getBytes()}
+//        );
+//        return result;
+//    }
+    // TODO 2019.12.19根据提示的范围进行范围查询（startkey包含------endkey不包含）
+    public byte[][] getRecordByRange(String recordKey, String chaincodeName, JSONArray jsonArray) {
 
-        byte[][] result = atlChain.queryByte(
-                chaincodeName,
-                "GetRecordByKeyRange",
-                new byte[][]{startKey.getBytes(), endKey.getBytes()}
-        );
-        return result;
+        int tempRang = jsonArray.get(jsonArray.size() - 1).toString().length() + 2;
+        byte[][] byteMerger = null;
+        String startKey;
+        String endKey;
+        for(int i = 0; i < jsonArray.size() -1; i ++){
+            startKey = recordKey + "-" + String.format("%0" + tempRang + "d", jsonArray.get(i));
+            endKey = recordKey + "-" + String.format("%0" + tempRang + "d", Integer.parseInt(jsonArray.getString(i + 1)));
+            byte[][] result = atlChain.queryByte(
+                    chaincodeName,
+                    "GetRecordByKeyRange",
+                    new byte[][]{startKey.getBytes(), endKey.getBytes()}
+            );
+            byteMerger = byteMerger(byteMerger, result, i);
+            result = null;
+        }
+        logger.info("读取数据成功");
+        return byteMerger;
+    }
+
+    public static byte[][] byteMerger(byte[][] bt1, byte[][] bt2, int count){
+        byte[][] byteMerger = null;
+        if(count == 0){
+            byteMerger = bt2;
+        }else{
+            byteMerger = new byte[bt1.length+bt2.length][];
+            System.arraycopy(bt1, 0, byteMerger, 0, bt1.length);
+            System.arraycopy(bt2, 0, byteMerger, bt1.length, bt2.length);
+        }
+        return byteMerger;
     }
 
     // <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
@@ -121,4 +151,13 @@ public class BlockChain {
         return result;
     }
     // <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
+
+    public String getRecordBySeletorByPage(String chaincodeName, String functionName, String selector, String page, String bookMark) {
+        String result = atlChain.query(
+                chaincodeName,
+                functionName,
+                new String[]{selector, page, bookMark}
+        );
+        return result;
+    }
 }

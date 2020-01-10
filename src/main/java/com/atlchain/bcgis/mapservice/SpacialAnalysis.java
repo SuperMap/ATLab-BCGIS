@@ -1,11 +1,14 @@
 package com.atlchain.bcgis.mapservice;
 
+import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
 import com.atlchain.bcgis.Utils;
+import com.atlchain.bcgis.data.protoBuf.protoConvert;
 import com.atlchain.bcgis.storage.BlockChain;
 import org.locationtech.jts.geom.Geometry;
 import org.locationtech.jts.io.ParseException;
+import org.locationtech.jts.io.WKBReader;
 
 import javax.ws.rs.Consumes;
 import javax.ws.rs.POST;
@@ -22,7 +25,7 @@ import java.util.logging.Logger;
 /**
  * 缓冲区分析类
  */
-@Path("mapservice/buffer")
+@Path("mapservice/Analysis")
 public class SpacialAnalysis {
 
     private Logger logger = Logger.getLogger(SpacialAnalysis.class.toString());
@@ -32,7 +35,7 @@ public class SpacialAnalysis {
         client = new BlockChain(networkFile);
     }
 
-    @Path("/bufferAnalysis")
+    @Path("/buffer")
     @POST
     @Produces(MediaType.APPLICATION_JSON)
     @Consumes(MediaType.APPLICATION_JSON)
@@ -47,23 +50,23 @@ public class SpacialAnalysis {
         JSONObject jsonObject = JSONObject.parseObject(params);
         String bufferRadius = jsonObject.getString("bufferRadius");
         JSONArray fidJsonArray = jsonObject.getJSONArray("fid");
-        ArrayList<String> fids = new ArrayList<>();
+        List<Integer> indexList = new LinkedList<>();
+        String hash = null;
         if (!fidJsonArray.isEmpty()) {
             for (int i = 0; i < fidJsonArray.size(); i++) {
                 String fid = fidJsonArray.getString(i);
-                String index = fid.substring(fid.lastIndexOf('.') + 1);
-                String strIndex = String.format("%05d", Integer.parseInt(index) - 1);
-                String hash = fid.substring(0, fid.lastIndexOf('.'));
-                fid = hash + "-" + strIndex;
-                System.out.println("fid: " + fid);
-                fids.add(fid);
+                int index = Integer.parseInt(fid.substring(fid.lastIndexOf('.') + 1)) - 1;
+                if(i == 0){
+                    hash = fid.substring(0, fid.lastIndexOf('.'));
+                }
+                indexList.add(index);
             }
         }
-        String bufferJSON = doBuffer(bufferRadius, fids);
+        String bufferJSON = doBuffer(bufferRadius, hash, indexList);
         return bufferJSON;
     }
 
-    @Path("/unionAnalysis")
+    @Path("/union")
     @POST
     @Produces(MediaType.APPLICATION_JSON) // MULTIPART_FORM_DATA
     @Consumes(MediaType.APPLICATION_JSON)
@@ -77,23 +80,24 @@ public class SpacialAnalysis {
         }
         JSONObject jsonObject = JSONObject.parseObject(params);
         JSONArray fidJsonArray = jsonObject.getJSONArray("fid");
-        ArrayList<String> fids = new ArrayList<>();
+        List<Integer> indexList = new LinkedList<>();
+        String hash = null;
         if (!fidJsonArray.isEmpty()) {
             for (int i = 0; i < fidJsonArray.size(); i++) {
                 String fid = fidJsonArray.getString(i);
-                String index = fid.substring(fid.lastIndexOf('.') + 1);
-                String strIndex = String.format("%05d", Integer.parseInt(index) - 1);
-                String hash = fid.substring(0, fid.lastIndexOf('.'));
-                fid = hash + "-" + strIndex;
-                System.out.println("fid: " + fid);
-                fids.add(fid);
+                int index = Integer.parseInt(fid.substring(fid.lastIndexOf('.') + 1)) - 1;
+                if(i == 0){
+                    hash = fid.substring(0, fid.lastIndexOf('.'));
+                }
+                indexList.add(index);
             }
         }
-        String unionJSON = doUnion(fids);
+        String unionJSON = doUnion(hash, indexList);
         return unionJSON;
     }
 
-    @Path("/intersectionAnalysis")
+
+    @Path("/intersection")
     @POST
     @Produces(MediaType.APPLICATION_JSON)
     @Consumes(MediaType.APPLICATION_JSON) // MULTIPART_FORM_DATA
@@ -107,65 +111,94 @@ public class SpacialAnalysis {
         }
         JSONObject jsonObject = JSONObject.parseObject(params);
         JSONArray fidJsonArray = jsonObject.getJSONArray("fid");
-        ArrayList<String> fids = new ArrayList<>();
+        List<Integer> indexList = new LinkedList<>();
+        String hash = null;
         if (!fidJsonArray.isEmpty()) {
             for (int i = 0; i < fidJsonArray.size(); i++) {
                 String fid = fidJsonArray.getString(i);
-                String index = fid.substring(fid.lastIndexOf('.') + 1);
-                String strIndex = String.format("%05d", Integer.parseInt(index) - 1);
-                String hash = fid.substring(0, fid.lastIndexOf('.'));
-                fid = hash + "-" + strIndex;
-                System.out.println("fid: " + fid);
-                fids.add(fid);
+                int index = Integer.parseInt(fid.substring(fid.lastIndexOf('.') + 1)) - 1;
+                if(i == 0){
+                    hash = fid.substring(0, fid.lastIndexOf('.'));
+                }
+                indexList.add(index);
             }
         }
-        String intersectionJSON = doIntersection(fids);
+        String intersectionJSON = doIntersection(hash, indexList);
         return intersectionJSON;
     }
 
-    private String doBuffer(String bufferRadius, List<String> fidList){
-        Geometry geometryTmp;
+    /**
+     * 缓冲区分析
+     * @param bufferRadius
+     * @param hash
+     * @param indexList
+     * @return
+     */
+    private String doBuffer(String bufferRadius, String hash, List<Integer> indexList){
+        Geometry geoTmp;
         String geometryJSON = null;
         JSONObject bufferJSON = new JSONObject();
-        for(String str : fidList){
-            geometryTmp = queryGeometryFromChain(str);
-            Geometry geometryBuffer = geometryTmp.buffer(Double.valueOf(bufferRadius));
+        int count = 2 + queryIndexFromChain(hash);
+        for(int index : indexList){
+            String hashID = hash + "-" + String.format("%0" + count + "d", index);
+            geoTmp = queryGeometryFromChain(hashID);
+            Geometry geometryBuffer = geoTmp.buffer(Double.valueOf(bufferRadius));
             geometryJSON = Utils.geometryTogeometryJSON(geometryBuffer);
-            bufferJSON.put(str, geometryJSON);
+            bufferJSON.put(hashID, geometryJSON);
         }
 //        return bufferJSON.toString();
+        logger.info("analysis buffer is success");
         return geometryJSON;
     }
 
-    private String doIntersection(List<String> fidList){
-        Geometry geometryTmp = null;
-        Geometry geometryIntersection = queryGeometryFromChain(fidList.get(1));
-
-        for(String str : fidList){
-            geometryTmp = queryGeometryFromChain(str);
-            geometryIntersection = geometryIntersection.intersection(geometryTmp);
+    /**
+     * 叠加分析
+     * @param hash
+     * @param indexList
+     * @return
+     */
+    private String doIntersection(String hash, List<Integer> indexList){
+        Geometry geoTmp = null;
+        int count = 2 + queryIndexFromChain(hash);
+        String tmpHash = hash + "-" + String.format("%0" + count + "d", indexList.get(0));
+        Geometry geometryIntersection = queryGeometryFromChain(tmpHash);
+        for(int index : indexList){
+            String hashID = hash + "-" + String.format("%0" + count + "d", index);
+            geoTmp = queryGeometryFromChain(hashID);
+            geometryIntersection = geometryIntersection.intersection(geoTmp);
         }
         String intersectionJSON = Utils.geometryTogeometryJSON(geometryIntersection);
         if(intersectionJSON.equals( "null")){
             logger.info("the selected part without intersection area");
+        } else {
+            logger.info("analysis intersection is success");
         }
         return intersectionJSON;
     }
 
-    private String doUnion(List<String> fidList){
-        Geometry geometryTmp;
-        Geometry geometryUnion = queryGeometryFromChain(fidList.get(0));
-        for(String str : fidList){
-            geometryTmp = queryGeometryFromChain(str);
-            geometryUnion = geometryUnion.union(geometryTmp);
+    /**
+     * 联合分析
+     * @param hash
+     * @param indexList
+     * @return
+     */
+    private String doUnion(String hash, List<Integer> indexList){
+        Geometry geoTmp;
+        int count = 2 + queryIndexFromChain(hash);
+        String tmpHash = hash + "-" + String.format("%0" + count + "d", indexList.get(0));
+        Geometry geometryUnion = queryGeometryFromChain(tmpHash);
+        for(int index : indexList){
+            String hashID = hash + "-" + String.format("%0" + count + "d", index);
+            geoTmp = queryGeometryFromChain(hashID);
+            geometryUnion = geometryUnion.union(geoTmp);
         }
         String unionJSON = Utils.geometryTogeometryJSON(geometryUnion);
+        logger.info("analysis union is success");
         return unionJSON;
     }
 
     /**
      *  根据FeatureID从区块链上查询数据
-     *  只能单独查询，整体查询需要用bcgis里面的getRecord
      * @throws ParseException
      */
     private Geometry queryGeometryFromChain(String featureID) {
@@ -175,12 +208,35 @@ public class SpacialAnalysis {
                 "bcgiscc",
                 "GetRecordByKey"
         );
+//        Geometry geometry = protoConvert.getGeometryFromProto(result[0]);
         Geometry geometry = null;
         try {
-            geometry = Utils.getGeometryFromBytes(result[0]);
+            geometry = new WKBReader().read(result[0]);
         } catch (ParseException e) {
             e.printStackTrace();
         }
         return geometry;
+    }
+
+    /**
+     * 根据hash查询整体信息返回整体个数
+     * @param hash
+     * @return
+     */
+    private int queryIndexFromChain(String hash){
+        int count = 0;
+        String result = client.getRecord(
+                hash,
+                "bcgiscc",
+                "GetRecordByKey"
+        );
+
+        if(result.length() != 0){
+            JSONObject jsonObject = (JSONObject) JSON.parse(result);
+            count = (int)jsonObject.get("count");
+        } else {
+            logger.info("Please enter the correct hash value");
+        }
+        return String.valueOf(count).length();
     }
 }
