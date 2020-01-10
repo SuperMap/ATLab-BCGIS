@@ -54,17 +54,6 @@ public class BlockChain {
         return result;
     }
 
-    // TODO 后期属性的增加在这里设置 String[] 自动获取里面的全部参数
-    public String getRecord(List<String> list, String chaincodeName, String functionName) {
-        String result = atlChain.query(
-                chaincodeName,
-                functionName,
-                new String[]{list.get(0), list.get(1)}
-        );
-        return result;
-    }
-    // <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
-
     // >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
 //    // 根据范围读取数据，范围按字典顺序排序
 //    public byte[][] getRecordByRange(String recordKey, String chaincodeName) {
@@ -78,7 +67,7 @@ public class BlockChain {
 //        );
 //        return result;
 //    }
-    // TODO 2019.12.19根据提示的范围进行范围查询（startkey包含------endkey不包含）
+    // 2019.12.19根据提示的范围进行范围查询（startkey包含------endkey不包含）
     public byte[][] getRecordByRange(String recordKey, String chaincodeName, JSONArray jsonArray) {
 
         int tempRang = jsonArray.get(jsonArray.size() - 1).toString().length() + 2;
